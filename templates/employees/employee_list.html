@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee List - HRMS Portal{% endblock %}
+
+{% block page_title %}Employee List{% endblock %}
+
+{% block content %}
+<div class="text-end mb-3">
+    <a href="{% url 'employees:employee_add' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-2"></i>Add Employee
+    </a>
+</div>
+
+<!-- Employee Table -->
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <i class="bi bi-people me-2"></i>All Employees
+            </div>
+            <div class="col-md-6">
+                <form method="get" class="d-flex justify-content-end">
+                    <input type="text" name="search" class="form-control me-2" style="max-width: 300px;" 
+                           placeholder="Search employees..." value="{{ request.GET.search }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Department</th>
+                        <th>Date of Birth</th>
+                        <th>Experience</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     style="width: 40px; height: 40px; background: #00376e; color: white; font-weight: bold;">
+                                    {{ employee.full_name|slice:":2"|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ employee.full_name }}</div>
+                                    <small class="text-muted">{{ employee.employee_code }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ employee.designation.name }}</td>
+                        <td>{{ employee.department.name }}</td>
+                        <td>{{ employee.date_of_birth|date:"d M Y" }}</td>
+                        <td>
+                            {% if employee.joining_date %}
+                                {{ employee.joining_date|timesince }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {% if employee.employment_status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ employee.get_employment_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'employees:employee_edit' employee.pk %}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3">No employees found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav class="p-3">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

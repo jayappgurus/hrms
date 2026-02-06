@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - HRMS Portal{% endblock %}
+
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-circle"></i> My Profile
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" value="{{ user.first_name }}" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" value="{{ user.last_name }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.role.label_tag }}
+                            <div class="form-control bg-light">
+                                {{ profile.get_role_display }}
+                            </div>
+                            <small class="form-text text-muted">Role assigned by administrator</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.department.label_tag }}
+                            <div class="form-control bg-light">
+                                {{ profile.department.name|default:"Not assigned" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.phone.label_tag }}
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.phone.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Member Since</label>
+                            <div class="form-control bg-light">
+                                {{ user.date_joined|date:"d M Y" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-shield-check"></i> My Permissions
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">Employee Management</h6>
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    {% if profile.can_manage_employees %}
+                                                        <i class="bi bi-check-circle text-success"></i>
+                                                        <span>Can manage employees</span>
+                                                    {% else %}
+                                                        <i class="bi bi-x-circle text-danger"></i>
+                                                        <span>Cannot manage employees</span>
+                                                    {% endif %}
+                                                </li>
+                                                <li class="mb-2">
+                                                    {% if profile.can_view_all_employees %}
+                                                        <i class="bi bi-check-circle text-success"></i>
+                                                        <span>Can view all employees</span>
+                                                    {% else %}
+                                                        <i class="bi bi-x-circle text-danger"></i>
+                                                        <span>Limited employee access</span>
+                                                    {% endif %}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">System Access</h6>
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    {% if profile.can_manage_system %}
+                                                        <i class="bi bi-check-circle text-success"></i>
+                                                        <span>Can manage system</span>
+                                                    {% else %}
+                                                        <i class="bi bi-x-circle text-danger"></i>
+                                                        <span>Limited system access</span>
+                                                    {% endif %}
+                                                </li>
+                                                <li class="mb-2">
+                                                    {% if user.is_staff %}
+                                                        <i class="bi bi-check-circle text-success"></i>
+                                                        <span>Admin access</span>
+                                                    {% else %}
+                                                        <i class="bi bi-x-circle text-danger"></i>
+                                                        <span>No admin access</span>
+                                                    {% endif %}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Update Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+PassengerAppRoot /home/yourusername/public_html/hrms-portal
+PassengerAppType python
+PassengerStartupFile passenger_wsgi.py
+PassengerPython /home/yourusername/virtualenv/your-env/bin/python3
+
+# Set up static files serving
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^static/(.*)$ /static/$1 [L]
+
+# Serve media files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^media/(.*)$ /media/$1 [L]
