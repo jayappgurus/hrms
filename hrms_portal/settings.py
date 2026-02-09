@@ -100,17 +100,17 @@ WSGI_APPLICATION = 'hrms_portal.wsgi.application'
 #     }
 
 # For production MySQL
-if not DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ.get('DB_NAME', 'hrmsportalappdev_portal_hrms_db'),
-            'USER': os.environ.get('DB_USER', 'hrmsportalappdev_root'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', '.hY{4u~q9Hl#}]Q,'),
-            'HOST': os.environ.get('DB_HOST', 'localhost'),
-            'PORT': os.environ.get('DB_PORT', '3306'),
-        }
+# if not DEBUG:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DB_NAME', 'hrmsportalappdev_portal_hrms_db'),
+        'USER': os.environ.get('DB_USER', 'hrmsportalappdev_root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '.hY{4u~q9Hl#}]Q,'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
     }
+}
 
 
 # Password validation
