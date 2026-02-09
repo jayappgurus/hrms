@@ -2,15 +2,23 @@ from django.urls import path
 from . import views
 from . import views_user_management
 from . import views_job
+from . import views_department
 
 app_name = 'employees'
 
 urlpatterns = [
     path('', views.DashboardView.as_view(), name='dashboard'),
+    
+    # Department Management URLs (put first to avoid conflicts)
+    path('departments/', views_department.department_management, name='department_management'),
+    path('departments/add/', views_department.add_department, name='add_department'),
+    path('designations/add/', views_department.add_designation, name='add_designation'),
+    
+    # Employee Management URLs
     path('employees/', views.EmployeeListView.as_view(), name='employee_list'),
+    path('employees/add/', views.EmployeeCreateView.as_view(), name='employee_add'),
     path('employees/grid/', views.EmployeeGridView.as_view(), name='employee_grid'),
     path('employee/<int:pk>/', views.EmployeeDetailView.as_view(), name='employee_detail'),
-    path('employee/add/', views.EmployeeCreateView.as_view(), name='employee_add'),
     path('employee/<int:pk>/edit/', views.EmployeeUpdateView.as_view(), name='employee_edit'),
     path('employee/<int:pk>/toggle-status/', views.toggle_employee_status, name='toggle_employee_status'),
     path('employee/<int:employee_pk>/document/<str:document_type>/update/', 
@@ -44,6 +52,11 @@ urlpatterns = [
     path('users/<int:user_id>/create-profile/', views_user_management.create_user_profile, name='create_user_profile'),
     path('users/<int:user_id>/assign-role/', views_user_management.assign_role, name='assign_role'),
     path('my-profile/', views_user_management.my_profile, name='my_profile'),
+
+    # Department Management URLs
+    path('departments/', views_department.department_management, name='department_management'),
+    path('departments/add/', views_department.add_department, name='add_department'),
+    path('designations/add/', views_department.add_designation, name='add_designation'),
 
     # Job Management URLs
     path('jobs/', views_job.JobDescriptionListView.as_view(), name='job_list'),

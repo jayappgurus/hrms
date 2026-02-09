@@ -40,12 +40,43 @@ def patched_request_context_copy(self):
         super(RequestContext, duplicate).__setattr__('template', self.template)
     if hasattr(self, 'render_context'):
         super(RequestContext, duplicate).__setattr__('render_context', self.render_context)
+    if hasattr(self, 'autoescape'):
+        super(RequestContext, duplicate).__setattr__('autoescape', self.autoescape)
+    else:
+        # Add autoescape attribute if missing (default to True)
+        super(RequestContext, duplicate).__setattr__('autoescape', True)
+    if hasattr(self, 'use_tz'):
+        super(RequestContext, duplicate).__setattr__('use_tz', self.use_tz)
+    else:
+        super(RequestContext, duplicate).__setattr__('use_tz', True)
+    if hasattr(self, 'use_l10n'):
+        super(RequestContext, duplicate).__setattr__('use_l10n', self.use_l10n)
+    else:
+        super(RequestContext, duplicate).__setattr__('use_l10n', True)
     return duplicate
+
+
+def patch_request_context_autoescape():
+    """Add missing attributes to RequestContext instances"""
+    original_init = RequestContext.__init__
+    
+    def patched_init(self, request, dict_=None, processors=None, use_l10n=None, use_tz=None, autoescape=True):
+        original_init(self, request, dict_, processors, use_l10n, use_tz)
+        # Ensure essential attributes exist
+        if not hasattr(self, 'autoescape'):
+            super(RequestContext, self).__setattr__('autoescape', autoescape)
+        if not hasattr(self, 'use_tz'):
+            super(RequestContext, self).__setattr__('use_tz', use_tz if use_tz is not None else True)
+        if not hasattr(self, 'use_l10n'):
+            super(RequestContext, self).__setattr__('use_l10n', use_l10n if use_l10n is not None else True)
+    
+    RequestContext.__init__ = patched_init
 
 
 # Apply the patches
 BaseContext.__copy__ = patched_base_context_copy
 Context.__copy__ = patched_context_copy
 RequestContext.__copy__ = patched_request_context_copy
+patch_request_context_autoescape()
 
 print("Applied Python 3.14 compatibility patch for Django template context")

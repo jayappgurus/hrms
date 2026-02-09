@@ -9,7 +9,7 @@
     {% block object-tools %}{% endblock %}
     {% block object-tools-items %}{% endblock %}
     
-    <form {% if has_add_permission or has_change_permission or has_delete_permission %}action="" method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}
+    <form {% if has_add_permission or has_change_permission or has_delete_permission %}action="" method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% else %}action="" method="get" id="{{ opts.model_name }}_form" novalidate>{% endif %}{% block form_top %}{% endblock %}
         <div>
             {% if is_popup %}<input type="hidden" name="{{ is_popup_var_name }}" value="1">{% endif %}
             {% if to_field %}<input type="hidden" name="{{ to_field_var_name }}" value="{{ to_field }}">{% endif %}

@@ -75,19 +75,19 @@
                             {% endif %}
                         </div>
                         
-                        <div class="col-12">
-                            <label for="warranty_details" class="form-label">Warranty Details</label>
-                            <textarea class="form-control" id="warranty_details" name="warranty_details" rows="4" 
-                                      placeholder="Enter warranty period, service details, or any warranty information...">{{ form.warranty_details.value|default:'' }}</textarea>
-                            {% if form.warranty_details.errors %}
-                            <div class="text-danger">
-                                {% for error in form.warranty_details.errors %}
-                                <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                            <small class="form-text text-muted">Enter warranty period, service details, or any warranty information.</small>
-                        </div>
+                        <!--<div class="col-12">-->
+                        <!--    <label for="warranty_details" class="form-label">Warranty Details</label>-->
+                        <!--    <textarea class="form-control" id="warranty_details" name="warranty_details" rows="4" -->
+                        <!--              placeholder="Enter warranty period, service details, or any warranty information...">{{ form.warranty_details.value|default:'' }}</textarea>-->
+                        <!--    {% if form.warranty_details.errors %}-->
+                        <!--    <div class="text-danger">-->
+                        <!--        {% for error in form.warranty_details.errors %}-->
+                        <!--        <small>{{ error }}</small>-->
+                        <!--        {% endfor %}-->
+                        <!--    </div>-->
+                        <!--    {% endif %}-->
+                        <!--    <small class="form-text text-muted">Enter warranty period, service details, or any warranty information.</small>-->
+                        <!--</div>-->
                         
                         {% if form.status %}
                         <div class="col-md-6">

@@ -105,19 +105,57 @@ document.addEventListener('DOMContentLoaded', function() {
     const endDate = document.getElementById('end_date');
     const totalDays = document.getElementById('total_days');
     
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    startDate.min = today;
+    endDate.min = today;
+    
     function calculateDays() {
         if (startDate.value && endDate.value) {
             const start = new Date(startDate.value);
             const end = new Date(endDate.value);
+            
+            // Validate that end date is after start date
+            if (end < start) {
+                alert('End date must be after start date');
+                totalDays.value = '';
+                return;
+            }
+            
             const diffTime = Math.abs(end - start);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
             totalDays.value = diffDays + 1; // Include both start and end dates
+            
+            // Show date preview
+            console.log(`From ${start.toLocaleDateString()} to ${end.toLocaleDateString()} = ${diffDays + 1} days`);
         }
     }
     
-    startDate.addEventListener('change', calculateDays);
+    // Auto-set end date when total days is entered
+    function autoSetEndDate() {
+        if (startDate.value && totalDays.value && totalDays.value > 0) {
+            const start = new Date(startDate.value);
+            const days = parseInt(totalDays.value) - 1; // Subtract 1 since we include start date
+            const end = new Date(start);
+            end.setDate(start.getDate() + days);
+            
+            // Format date for input field
+            const endDateString = end.toISOString().split('T')[0];
+            endDate.value = endDateString;
+        }
+    }
+    
+    startDate.addEventListener('change', function() {
+        calculateDays();
+        autoSetEndDate();
+    });
+    
     endDate.addEventListener('change', calculateDays);
+    totalDays.addEventListener('input', autoSetEndDate);
+    
+    // Initial calculation if dates are pre-filled
+    calculateDays();
 });
 </script>
 {% endblock %}
