@@ -1,0 +1,302 @@
+/* ========================================
+   HRMS Portal - Simple & Attractive Design
+   Primary Color: #00376e
+   ======================================== */
+
+:root {
+    --primary: #00376e;
+    --primary-light: #0056b3;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+}
+
+/* Sidebar */
+.sidebar {
+    background: white;
+    min-height: 100vh;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.portal-header {
+    background: linear-gradient(135deg, #00376e, #0056b3);
+    color: white !important;
+    padding: 1.5rem 1rem;
+    margin: 0 10px 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.portal-header i {
+    font-size: 1.8rem;
+}
+
+.sidebar .nav-link {
+    color: #333;
+    padding: 12px 20px;
+    margin: 5px 10px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: #00376e;
+    color: white;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+/* Top Navbar */
+.top-navbar {
+    background: white;
+    padding: 1.25rem 2rem;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.top-navbar h2 {
+    color: #00376e;
+    font-weight: 600;
+}
+
+.top-navbar .btn-outline-primary {
+    border: 2px solid #00376e;
+    color: #00376e;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+}
+
+.top-navbar .btn-outline-primary:hover {
+    background: #00376e;
+    color: white;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 55, 110, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #00376e, #0056b3);
+    color: white;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+}
+
+/* Stats Cards */
+.stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 55, 110, 0.15);
+}
+
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    padding: 0.625rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00376e, #0056b3);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 55, 110, 0.3);
+}
+
+.btn-outline-primary {
+    border: 2px solid #00376e;
+    color: #00376e;
+}
+
+.btn-outline-primary:hover {
+    background: #00376e;
+    color: white;
+}
+
+.btn-outline-success {
+    border: 2px solid #28a745;
+    color: #28a745;
+}
+
+.btn-outline-success:hover {
+    background: #28a745;
+    color: white;
+}
+
+.btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+}
+
+/* Tables */
+.table thead th {
+    background: #00376e;
+    color: white;
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.table tbody tr {
+    transition: all 0.2s;
+}
+
+.table tbody tr:hover {
+    background: rgba(0, 55, 110, 0.05);
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* Badges */
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.badge.bg-success {
+    background: #28a745 !important;
+}
+
+.badge.bg-danger {
+    background: #dc3545 !important;
+}
+
+/* Forms */
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #00376e;
+    box-shadow: 0 0 0 3px rgba(0, 55, 110, 0.1);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Pagination */
+.pagination .page-link {
+    border-radius: 6px;
+    margin: 0 3px;
+    border: 1px solid #dee2e6;
+    color: #00376e;
+}
+
+.pagination .page-link:hover {
+    background: #00376e;
+    color: white;
+    border-color: #00376e;
+}
+
+.pagination .page-item.active .page-link {
+    background: #00376e;
+    border-color: #00376e;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .top-navbar {
+        padding: 1rem;
+    }
+    
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Profile Dropdown */
+.dropdown-menu {
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    border: none;
+    padding: 0.5rem 0;
+    min-width: 200px;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s;
+}
+
+.dropdown-item:hover {
+    background: rgba(0, 55, 110, 0.1);
+    color: #00376e;
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.dropdown-divider {
+    margin: 0.5rem 0;
+}
