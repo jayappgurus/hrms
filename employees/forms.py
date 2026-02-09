@@ -1,6 +1,6 @@
 from django import forms
 from django.core.validators import RegexValidator, EmailValidator
-from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument
+from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication
 
 
 class EmergencyContactForm(forms.ModelForm):
@@ -226,3 +226,90 @@ class UserProfileForm(forms.ModelForm):
                 'placeholder': 'Enter email address'
             }),
         }
+
+
+class LeaveTypeForm(forms.ModelForm):
+    class Meta:
+        model = LeaveType
+        fields = ['name', 'leave_type', 'max_days_per_year', 'is_paid', 'requires_document', 'description', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter leave type name'
+            }),
+            'leave_type': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+            'max_days_per_year': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'max': '365',
+                'placeholder': 'Maximum days per year'
+            }),
+            'is_paid': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'requires_document': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Optional description'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].label = 'Leave Type Name'
+        self.fields['leave_type'].label = 'Leave Type Category'
+        self.fields['max_days_per_year'].label = 'Maximum Days Per Year'
+        self.fields['is_paid'].label = 'Paid Leave'
+        self.fields['requires_document'].label = 'Document Required'
+        self.fields['description'].label = 'Description'
+        self.fields['is_active'].label = 'Active Status'
+        
+        # Add Bootstrap classes to checkboxes
+        self.fields['is_paid'].widget.attrs['class'] = 'form-check-input'
+        self.fields['requires_document'].widget.attrs['class'] = 'form-check-input'
+        self.fields['is_active'].widget.attrs['class'] = 'form-check-input'
+
+
+class LeaveApplicationForm(forms.ModelForm):
+    class Meta:
+        model = LeaveApplication
+        fields = ['leave_type', 'start_date', 'end_date', 'total_days', 'reason']
+        widgets = {
+            'leave_type': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+            'start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'total_days': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'readonly': True
+            }),
+            'reason': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Enter reason for leave application'
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['leave_type'].label = 'Leave Type'
+        self.fields['start_date'].label = 'Start Date'
+        self.fields['end_date'].label = 'End Date'
+        self.fields['total_days'].label = 'Total Days'
+        self.fields['reason'].label = 'Reason'

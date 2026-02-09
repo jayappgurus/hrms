@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load job_filters %}
+
+{% block title %}Candidate Tracker - HRMS Portal{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/job-management.css' %}">
+{% endblock %}
+
+{% block page_title %}Candidate Tracker{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Jobs</li>
+<li class="breadcrumb-item active">Candidate Tracker</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="page-actions">
+    <a href="{% url 'employees:current_openings' %}" class="btn btn-primary">
+        <i class="bi bi-list-check me-2"></i>Current Openings
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Statistics Section -->
+<div class="stats-section">
+    <div class="stats-grid">
+        <div class="stats-card">
+            <div class="stats-icon primary">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stats-content">
+                <div class="stats-value">{{ total_applications }}</div>
+                <div class="stats-label">Total Applications</div>
+            </div>
+        </div>
+        
+        <div class="stats-card">
+            <div class="stats-icon success">
+                <i class="bi bi-person-check"></i>
+            </div>
+            <div class="stats-content">
+                <div class="stats-value">{{ active_applications }}</div>
+                <div class="stats-label">Active Candidates</div>
+            </div>
+        </div>
+        
+        <div class="stats-card">
+            <div class="stats-icon info">
+                <i class="bi bi-briefcase"></i>
+            </div>
+            <div class="stats-content">
+                <div class="stats-value">{{ designations|length }}</div>
+                <div class="stats-label">Designations</div>
+            </div>
+        </div>
+        
+        <div class="stats-card">
+            <div class="stats-icon warning">
+                <i class="bi bi-file-text"></i>
+            </div>
+            <div class="stats-content">
+                <div class="stats-value">{{ is_paginated|yesno:"Paginated,Single Page" }}</div>
+                <div class="stats-label">View Mode</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="search-filter-section">
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="search-form">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="search-input-wrapper">
+                            <i class="bi bi-search"></i>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search by name, email, or skills..." 
+                                   value="{{ search_form.search.value|default:'' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <select name="designation" class="form-control">
+                            <option value="">All Designations</option>
+                            {% for designation in designations %}
+                            <option value="{{ designation.id }}" 
+                                    {% if request.GET.designation == designation.id|stringformat:"s" %}selected{% endif %}>
+                                {{ designation.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <select name="status" class="form-control">
+                            <option value="">All Status</option>
+                            {% for value, label in application_form.STATUS_CHOICES %}
+                            <option value="{{ value }}" 
+                                    {% if request.GET.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-2"></i>Search
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <a href="{% url 'employees:candidate_tracker' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Reset Filters
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Designation Grid -->
+<div class="candidates-section">
+    {% if applications %}
+    <div class="designation-grid">
+        {% for designation in designations %}
+        <div class="designation-card {% if request.GET.designation == designation.id|stringformat:"s" %}active{% endif %}">
+            <div class="designation-header">
+                <h4 class="designation-title">{{ designation.name }}</h4>
+                <div class="candidate-count">{{ designation.applications|length }} candidates</div>
+            </div>
+            
+            <div class="candidate-list">
+                {% for application in designation.applications %}
+                <div class="candidate-item">
+                    <div class="candidate-header">
+                        <div class="candidate-info">
+                            <div class="candidate-name">{{ application.candidate_name }}</div>
+                            <div class="candidate-contact">
+                                <div class="contact-item">
+                                    <i class="bi bi-envelope contact-icon"></i>
+                                    {{ application.email }}
+                                </div>
+                                <div class="contact-item">
+                                    <i class="bi bi-telephone contact-icon"></i>
+                                    {{ application.phone_number|default:"Not provided" }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="candidate-actions">
+                            <a href="{% url 'employees:application_detail' application.pk %}" class="action-btn primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="{% url 'employees:interview_schedule' %}?application_id={{ application.pk }}" class="action-btn secondary">
+                                <i class="bi bi-calendar-check"></i> Schedule
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="candidate-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Applied:</span>
+                            <span class="detail-value">{{ application.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="status-badge {% if application.status == 'received' %}status-info{% elif application.status == 'under_review' %}status-warning{% elif application.status == 'shortlisted' %}status-success{% elif application.status == 'interview_scheduled' %}status-primary{% else %}status-secondary{% endif %}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </div>
+                        {% if application.current_organization %}
+                        <div class="detail-row">
+                            <span class="detail-label">Current:</span>
+                            <span class="detail-value">{{ application.current_organization }}</span>
+                        </div>
+                        {% endif %}
+                        {% if application.total_experience %}
+                        <div class="detail-row">
+                            <span class="detail-label">Experience:</span>
+                            <span class="detail-value">{{ application.total_experience }} years</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination-wrapper">
+        <nav aria-label="Candidate pagination">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.designation %}&designation={{ request.GET.designation }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.designation %}&designation={{ request.GET.designation }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.designation %}&designation={{ request.GET.designation }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.designation %}&designation={{ request.GET.designation }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.designation %}&designation={{ request.GET.designation }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <h3 class="empty-state-title">No Candidates Found</h3>
+        <p class="empty-state-text">
+            {% if request.GET.search or request.GET.designation or request.GET.status %}
+            Try adjusting your search criteria or filters.
+            {% else %}
+            No candidates have applied yet. Check back later for new applications.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

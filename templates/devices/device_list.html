@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Device Management{% endblock %}
+
+{% block page_title %}Device Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Device Inventory</h4>
+    <a href="{% url 'employees:device_add' %}" class="btn" style="background: #00376e; color: white; border-radius: 20px;">
+        <i class="bi bi-plus-circle me-2"></i>Add Device
+    </a>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4 card-rounded">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="search" class="form-label">Search</label>
+                <input type="text" class="form-control" id="search" name="search" 
+                       value="{{ search }}" placeholder="Search by name or serial number">
+            </div>
+            <div class="col-md-3">
+                <label for="device_type" class="form-label">Device Type</label>
+                <select class="form-select" id="device_type" name="device_type">
+                    <option value="">All Types</option>
+                    {% for type, label in device_types %}
+                    <option value="{{ type }}" {% if selected_device_type == type %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">All Status</option>
+                    {% for status, label in status_choices %}
+                    <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-1"></i>Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Devices Table -->
+<div class="card card-rounded">
+    <div class="card-body p-0">
+        {% if devices %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr class="table-header-primary">
+                        <th>Device Name</th>
+                        <th>Type</th>
+                        <th>Serial Number</th>
+                        <th>Purchase Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for device in devices %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-{% if device.device_type == 'laptop' %}laptop{% elif device.device_type == 'mobile' %}phone{% elif device.device_type == 'tablet' %}tablet{% else %}gear{% endif %} me-2 icon-primary"></i>
+                                <div>
+                                    <div class="fw-semibold">{{ device.device_name }}</div>
+                                    {% if device.warranty_details %}
+                                    <small class="text-muted">Warranty: {{ device.warranty_details|truncatechars:30 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-primary">
+                                {{ device.get_device_type_display }}
+                            </span>
+                        </td>
+                        <td><code>{{ device.serial_number }}</code></td>
+                        <td>{{ device.purchase_date|date:"d M Y" }}</td>
+                        <td>
+                            {% if device.status == 'available' %}
+                                <span class="badge bg-success">Available</span>
+                            {% elif device.status == 'in_use' %}
+                                <span class="badge bg-warning">In Use</span>
+                            {% elif device.status == 'maintenance' %}
+                                <span class="badge bg-info">Maintenance</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Retired</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'employees:device_edit' device.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'employees:device_delete' device.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Device pagination" class="p-3">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">&laquo; First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">Last &raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox icon-large icon-primary text-opacity-3"></i>
+            <h5 class="mt-3">No devices found</h5>
+            <p class="text-muted">Start by adding new devices to your inventory.</p>
+            <a href="{% url 'employees:device_add' %}" class="btn btn-primary-custom">
+                <i class="bi bi-plus-circle me-2"></i>Add First Device
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

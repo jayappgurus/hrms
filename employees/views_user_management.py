@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import UserProfile, Department
 from .forms import UserProfileForm
 from .decorators import admin_required, hr_required
+from django.contrib.auth.forms import UserCreationForm
 
 
 class UserListView(LoginRequiredMixin, ListView):
@@ -44,6 +45,38 @@ class UserListView(LoginRequiredMixin, ListView):
         context['search_form'] = self.request.GET.get('search', '')
         context['role_filter'] = self.request.GET.get('role', '')
         return context
+
+
+class UserCreateView(LoginRequiredMixin, CreateView):
+    model = User
+    form_class = UserCreationForm
+    template_name = 'employees/user_create.html'
+    success_url = reverse_lazy('employees:user_list')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create New User'
+        context['departments'] = Department.objects.all()
+        context['role_choices'] = UserProfile.ROLE_CHOICES
+        return context
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # Create user profile with role and department
+        role = self.request.POST.get('role', 'employee')
+        department_id = self.request.POST.get('department')
+        phone = self.request.POST.get('phone', '')
+        
+        UserProfile.objects.create(
+            user=self.object,
+            role=role,
+            department_id=department_id if department_id else None,
+            phone=phone
+        )
+        
+        messages.success(self.request, f'User {self.object.username} created successfully!')
+        return response
 
 
 class UserProfileUpdateView(LoginRequiredMixin, UpdateView):

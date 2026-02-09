@@ -188,7 +188,6 @@ media/
 
 # Static files
 staticfiles/
-static/
 
 # Django specific
 *.log
@@ -219,3 +218,4 @@ Thumbs.db
 
 # Deployment scripts
 deploy.sh
+.htaccess

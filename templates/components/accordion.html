@@ -1,0 +1,241 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/accordion.css' %}">
+
+<!-- Basic Accordion Example -->
+<div class="custom-accordion" id="basicAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                <i class="bi bi-person-circle accordion-icon"></i>
+                Employee Information
+            </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#basicAccordion">
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Full Name</div>
+                        <div class="accordion-content-value">John Doe</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Employee Code</div>
+                        <div class="accordion-content-value">EMP001</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Department</div>
+                        <div class="accordion-content-value">IT Department</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Designation</div>
+                        <div class="accordion-content-value">Software Developer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                <i class="bi bi-telephone accordion-icon"></i>
+                Contact Information
+            </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#basicAccordion">
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Official Email</div>
+                        <div class="accordion-content-value">john.doe@company.com</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Personal Email</div>
+                        <div class="accordion-content-value">john.personal@gmail.com</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Mobile Number</div>
+                        <div class="accordion-content-value">+91 98765 43210</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Address</div>
+                        <div class="accordion-content-value">123 Main St, City, State</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                <i class="bi bi-briefcase accordion-icon"></i>
+                Professional Details
+            </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#basicAccordion">
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Joining Date</div>
+                        <div class="accordion-content-value">Jan 15, 2023</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Experience</div>
+                        <div class="accordion-content-value">2 years 3 months</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Qualification</div>
+                        <div class="accordion-content-value">B.E. Computer Science</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Status</div>
+                        <div class="accordion-content-value">
+                            <span class="status-badge active">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card Style Accordion -->
+<div class="custom-accordion accordion-card mt-4" id="cardAccordion">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#cardCollapseOne">
+                <i class="bi bi-file-text accordion-icon"></i>
+                Documents & Certifications
+                <span class="accordion-status status-active">Complete</span>
+            </button>
+        </h2>
+        <div id="cardCollapseOne" class="accordion-collapse collapse show" data-bs-parent="#cardAccordion">
+            <div class="accordion-body">
+                <ul class="accordion-list">
+                    <li>Aadhar Card - Submitted</li>
+                    <li>PAN Card - Submitted</li>
+                    <li>Graduation Certificate - Submitted</li>
+                    <li>Experience Certificate - Pending</li>
+                    <li>Passport Size Photo - Submitted</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cardCollapseTwo">
+                <i class="bi bi-calendar-check accordion-icon"></i>
+                Leave History
+                <span class="accordion-status status-pending">Pending</span>
+            </button>
+        </h2>
+        <div id="cardCollapseTwo" class="accordion-collapse collapse" data-bs-parent="#cardAccordion">
+            <div class="accordion-body">
+                <table class="accordion-table">
+                    <thead>
+                        <tr>
+                            <th>Leave Type</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Casual Leave</td>
+                            <td>Dec 25, 2023</td>
+                            <td>Dec 26, 2023</td>
+                            <td><span class="status-badge active">Approved</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sick Leave</td>
+                            <td>Jan 10, 2024</td>
+                            <td>Jan 11, 2024</td>
+                            <td><span class="status-badge active">Approved</span></td>
+                        </tr>
+                        <tr>
+                            <td>Casual Leave</td>
+                            <td>Feb 15, 2024</td>
+                            <td>Feb 16, 2024</td>
+                            <td><span class="status-badge pending">Pending</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cardCollapseThree">
+                <i class="bi bi-laptop accordion-icon"></i>
+                Device Allocation
+                <span class="accordion-status status-active">Allocated</span>
+            </button>
+        </h2>
+        <div id="cardCollapseThree" class="accordion-collapse collapse" data-bs-parent="#cardAccordion">
+            <div class="accordion-body">
+                <div class="accordion-content">
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Laptop</div>
+                        <div class="accordion-content-value">Dell Latitude 5420</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Serial Number</div>
+                        <div class="accordion-content-value">DL542020231234</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Allocation Date</div>
+                        <div class="accordion-content-value">Jan 20, 2023</div>
+                    </div>
+                    <div class="accordion-content-item">
+                        <div class="accordion-content-label">Status</div>
+                        <div class="accordion-content-value">
+                            <span class="status-badge active">In Use</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Color Variants -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="custom-accordion accordion-primary" id="primaryAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#primaryCollapseOne">
+                        <i class="bi bi-info-circle accordion-icon"></i>
+                        Primary Style Accordion
+                    </button>
+                </h2>
+                <div id="primaryCollapseOne" class="accordion-collapse collapse show" data-bs-parent="#primaryAccordion">
+                    <div class="accordion-body">
+                        This accordion uses the primary color scheme when expanded. It matches your main brand color.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="custom-accordion accordion-success" id="successAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#successCollapseOne">
+                        <i class="bi bi-check-circle accordion-icon"></i>
+                        Success Style Accordion
+                    </button>
+                </h2>
+                <div id="successCollapseOne" class="accordion-collapse collapse show" data-bs-parent="#successAccordion">
+                    <div class="accordion-body">
+                        This accordion uses the success color scheme when expanded. Great for positive information.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -15,6 +15,13 @@ pymysql.install_as_MySQLdb()
 
 from pathlib import Path
 import os
+from decouple import config
+
+# Apply Python 3.14 compatibility fix for Django template context
+try:
+    import django_template_fix
+except ImportError:
+    pass
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,7 +35,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 

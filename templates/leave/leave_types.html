@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Leave Types{% endblock %}
+
+{% block page_title %}Leave Types{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Leave Types Management</h4>
+    <a href="{% url 'employees:leave_type_add' %}" class="btn" style="background: #00376e; color: white; border-radius: 20px;">
+        <i class="bi bi-plus-circle me-2"></i>Add Leave Type
+    </a>
+</div>
+
+<div class="card card-rounded">
+    <div class="card-header card-header-primary">
+        <h5 class="mb-0">
+            <i class="bi bi-list-ul me-2"></i>
+            Leave Types
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if leave_types %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr class="table-header-primary">
+                        <th>Leave Type</th>
+                        <th>Max Days/Year</th>
+                        <th>Paid</th>
+                        <th>Document Required</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave_type in leave_types %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-{% if leave_type.leave_type == 'casual' %}cup{% elif leave_type.leave_type == 'sick' %}heart{% elif leave_type.leave_type == 'earned' %}star{% elif leave_type.leave_type == 'maternity' %}person{% elif leave_type.leave_type == 'paternity' %}person-heart{% else %}calendar{% endif %} me-2 icon-primary"></i>
+                                <div>
+                                    <div class="fw-semibold">{{ leave_type.name }}</div>
+                                    {% if leave_type.description %}
+                                    <small class="text-muted">{{ leave_type.description|truncatechars:50 }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ leave_type.max_days_per_year }}</td>
+                        <td>
+                            {% if leave_type.is_paid %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <span class="badge bg-danger">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if leave_type.requires_document %}
+                                <span class="badge bg-warning">Yes</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if leave_type.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'employees:leave_type_edit' leave_type.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'employees:leave_type_delete' leave_type.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav class="p-3">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox icon-large icon-primary text-opacity-3"></i>
+            <h5 class="mt-3">No leave types found</h5>
+            <p class="text-muted">No leave types have been configured yet.</p>
+            <a href="{% url 'employees:leave_type_add' %}" class="btn btn-primary-custom">
+                <i class="bi bi-plus-circle me-2"></i>Add Leave Type
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

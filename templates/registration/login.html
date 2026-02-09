@@ -14,71 +14,185 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* Creative and Attractive Login Design */
+        :root {
+            --primary: #00376e;
+            --primary-light: #004d8a;
+            --primary-dark: #002855;
+            --secondary: #06b6d4;
+            --accent: #00a8ff;
+            --success: #00c896;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #00376e 0%, #004d8a 50%, #00a8ff 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animated background shapes */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 167, 255, 0.1) 0%, transparent 70%);
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            right: -50%;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(0, 200, 255, 0.05) 0%, transparent 70%);
+            animation: float 15s infinite ease-in-out reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            50% {
+                transform: translate(-30px, -30px) rotate(180deg);
+            }
         }
         
         .login-container {
             width: 100%;
-            max-width: 420px;
-            padding: 20px;
+            max-width: 600px;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
         }
         
         .login-card {
-            background: white;
-            border-radius: 16px;
-            padding: 40px 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 55, 110, 0.3), 
+                        0 10px 30px rgba(0, 167, 255, 0.2);
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 167, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            50% {
+                left: 100%;
+            }
+            100% {
+                left: -100%;
+            }
         }
         
         .lock-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 5rem;
+            height: 5rem;
+            background: #00376e;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 24px;
+            margin: 0 auto 2rem;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 55, 110, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 10px 25px rgba(0, 55, 110, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 35px rgba(0, 55, 110, 0.6);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 10px 25px rgba(0, 55, 110, 0.4);
+            }
         }
         
         .lock-icon i {
-            font-size: 28px;
-            color: white;
+            font-size: 2rem;
+            color: var(--white);
         }
         
         .welcome-title {
-            font-size: 24px;
+            font-size: 2rem;
             font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 8px;
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+            background:#00376e;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 55, 110, 0.3);
         }
         
         .welcome-subtitle {
-            font-size: 14px;
-            color: #718096;
-            margin-bottom: 32px;
-            line-height: 1.5;
+            font-size: 1rem;
+            color: var(--gray-500);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            font-weight: 500;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
             text-align: left;
         }
         
         .form-label {
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 500;
-            color: #4a5568;
-            margin-bottom: 8px;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+            display: block;
         }
         
         .input-group {
@@ -87,62 +201,65 @@
         
         .input-group i {
             position: absolute;
-            left: 16px;
+            left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #a0aec0;
+            color: var(--gray-400);
             z-index: 2;
+            font-size: 1rem;
         }
         
         .form-control {
-            padding-left: 44px;
-            height: 48px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
+            padding-left: 2.75rem;
+            height: 3rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            width: 100%;
         }
         
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 55, 110, 0.1);
             outline: none;
         }
         
         .password-toggle {
             position: absolute;
-            right: 16px;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #a0aec0;
+            color: var(--gray-400);
             cursor: pointer;
             z-index: 2;
-            padding: 4px;
+            padding: 0.25rem;
+            transition: color 0.3s ease;
         }
         
         .password-toggle:hover {
-            color: #4a5568;
+            color: var(--primary);
         }
         
         .login-btn {
             width: 100%;
-            height: 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 3rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             border: none;
-            border-radius: 8px;
-            color: white;
+            border-radius: 0.5rem;
+            color: var(--white);
             font-weight: 600;
-            font-size: 16px;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 8px;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
         }
         
         .login-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 55, 110, 0.3);
         }
         
         .login-btn:active {
@@ -150,35 +267,50 @@
         }
         
         .contact-hr {
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid #e2e8f0;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray-200);
         }
         
         .contact-hr a {
-            color: #667eea;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
         }
         
         .contact-hr a:hover {
+            color: var(--primary-dark);
             text-decoration: underline;
         }
         
         .alert {
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-size: 14px;
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            padding: 1rem;
+        }
+        
+        .text-danger {
+            color: var(--danger);
+        }
+        
+        .small {
+            font-size: 0.75rem;
+        }
+        
+        .mt-1 {
+            margin-top: 0.25rem;
         }
         
         @media (max-width: 480px) {
             .login-container {
-                padding: 16px;
+                padding: 1rem;
             }
             
             .login-card {
-                padding: 30px 20px;
+                padding: 2rem 1.5rem;
             }
         }
     </style>
@@ -193,7 +325,7 @@
             
             <!-- Welcome Text -->
             <h1 class="welcome-title">Welcome Back</h1>
-            <p class="welcome-subtitle">Enter your credentials to access the HRMS Portal</p>
+            <p class="welcome-subtitle">Enter your credentials to access HRMS Portal</p>
             
             <!-- Login Form -->
             <form method="post">
@@ -209,7 +341,7 @@
                 
                 <!-- Username Field -->
                 <div class="form-group">
-                    <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                    <label for="id_username" class="form-label">Username</label>
                     <div class="input-group">
                         <i class="bi bi-person"></i>
                         {{ form.username }}
@@ -225,7 +357,7 @@
                 
                 <!-- Password Field -->
                 <div class="form-group">
-                    <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                    <label for="id_password" class="form-label">Password</label>
                     <div class="input-group">
                         <i class="bi bi-lock"></i>
                         {{ form.password }}
@@ -254,15 +386,15 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
         // Add form-control class to Django form fields
         document.addEventListener('DOMContentLoaded', function() {
-            const usernameField = document.getElementById('{{ form.username.id_for_label }}');
-            const passwordField = document.getElementById('{{ form.password.id_for_label }}');
+            const usernameField = document.getElementById('id_username');
+            const passwordField = document.getElementById('id_password');
             
             if (usernameField) {
                 usernameField.classList.add('form-control');
@@ -272,28 +404,29 @@
             if (passwordField) {
                 passwordField.classList.add('form-control');
                 passwordField.placeholder = 'Enter your password';
+                passwordField.type = 'password';
             }
         });
-        
-        // Toggle password visibility
+    
         function togglePassword() {
-            const passwordField = document.getElementById('{{ form.password.id_for_label }}');
+            const passwordField = document.getElementById('id_password');
             const toggleIcon = document.getElementById('toggleIcon');
             
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                toggleIcon.classList.remove('bi-eye');
-                toggleIcon.classList.add('bi-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                toggleIcon.classList.remove('bi-eye-slash');
-                toggleIcon.classList.add('bi-eye');
+            if (passwordField && toggleIcon) {
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleIcon.classList.remove('bi-eye');
+                    toggleIcon.classList.add('bi-eye-slash');
+                } else {
+                    passwordField.type = 'password';
+                    toggleIcon.classList.remove('bi-eye-slash');
+                    toggleIcon.classList.add('bi-eye');
+                }
             }
         }
-        
-        // Show contact information
+    
         function showContactInfo() {
-            alert('For HR support, please contact:\n\nEmail: hr@company.com\nPhone: +1-XXX-XXX-XXXX\n\nOffice Hours: 9:00 AM - 6:00 PM');
+            alert('For HR support, please contact:\n\nEmail: hr@company.com\nPhone: +1-234-567-8900\n\nOffice Hours: Mon-Fri, 9:00 AM - 6:00 PM');
         }
     </script>
 </body>

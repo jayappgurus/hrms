@@ -12,9 +12,11 @@ admin.site.site_title = "HRMS Portal Administration"
 admin.site.index_title = "Welcome to HRMS Portal Administration"
 
 
+# Temporarily use default UserAdmin to avoid Python 3.14 compatibility issues
+# Custom User Admin code commented out for now
+"""
 # Unregister the default UserAdmin and register our custom one
 admin.site.unregister(User)
-
 
 # Custom User Admin to avoid template context issues
 @admin.register(User)
@@ -24,6 +26,7 @@ class CustomUserAdmin(DefaultUserAdmin):
     search_fields = ['username', 'first_name', 'last_name', 'email']
     ordering = ['-date_joined']
     
+    # Define fieldsets directly to avoid super() calls
     fieldsets = (
         (None, {
             'fields': ('username', 'password')
@@ -31,11 +34,18 @@ class CustomUserAdmin(DefaultUserAdmin):
         ('Personal info', {
             'fields': ('first_name', 'last_name', 'email')
         }),
-        ('Role & Permissions', {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
         ('Important dates', {
-            'fields': ('last_login', 'date_joined')
+            'fields': ('last_login', 'date_joined'),
+        }),
+    )
+    
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'password1', 'password2'),
         }),
     )
     
@@ -60,21 +70,7 @@ class CustomUserAdmin(DefaultUserAdmin):
             )
     user_role.short_description = 'Role'
     user_role.admin_order_field = 'profile__role'
-    
-    def get_fieldsets(self, request, obj=None):
-        if not obj:  # Add form
-            return (
-                (None, {
-                    'fields': ('username', 'password1', 'password2')
-                }),
-                ('Personal info', {
-                    'fields': ('first_name', 'last_name', 'email')
-                }),
-                ('Role & Permissions', {
-                    'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
-                }),
-            )
-        return super().get_fieldsets(request, obj)
+"""
 
 
 @admin.register(UserProfile)
