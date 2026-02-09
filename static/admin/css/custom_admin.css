@@ -1,0 +1,267 @@
+/* HRMS Portal Custom Admin Styling */
+
+/* Header and Branding */
+#header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#header h1, #header .branding h1 {
+    color: white;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+#header .branding a {
+    color: white;
+    text-decoration: none;
+}
+
+/* Navigation */
+#nav-sidebar {
+    background: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+
+#nav-sidebar .current-model,
+#nav-sidebar .current-app {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+#nav-sidebar a:hover {
+    background: #e9ecef;
+}
+
+/* Buttons */
+.button, input[type=submit], input[type=button], .submit-row input, .button.default {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover, 
+.submit-row input:hover, .button.default:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Tables */
+#result_list {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#result_list thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-weight: 500;
+}
+
+#result_list tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+#result_list tbody tr:hover {
+    background: #e3f2fd;
+}
+
+/* Forms */
+.form-row {
+    margin-bottom: 1.5rem;
+}
+
+.form-row label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-row input, .form-row select, .form-row textarea {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 8px 12px;
+    transition: border-color 0.2s ease;
+}
+
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* Fieldsets */
+fieldset.collapse {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+fieldset.collapse h2 {
+    color: #495057;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Status Badges */
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.badge-success {
+    background: #28a745;
+    color: white;
+}
+
+.badge-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.badge-warning {
+    background: #ffc107;
+    color: #212529;
+}
+
+.badge-info {
+    background: #17a2b8;
+    color: white;
+}
+
+.badge-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+/* Dashboard */
+.dashboard .module {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.dashboard .module h2 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0;
+    margin: 0;
+    padding: 1rem;
+}
+
+.dashboard .module ul {
+    padding: 1rem;
+}
+
+.dashboard .module ul li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.dashboard .module ul li:last-child {
+    border-bottom: none;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.breadcrumbs a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+/* Messages */
+.messagelist {
+    margin-bottom: 1rem;
+}
+
+.messagelist li {
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.messagelist li.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.messagelist li.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.messagelist li.warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+/* Footer */
+#footer {
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    color: #6c757d;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #header {
+        padding: 1rem;
+    }
+    
+    #header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .dashboard .module {
+        margin-bottom: 1rem;
+    }
+    
+    #result_list {
+        font-size: 0.9rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    #nav-sidebar {
+        background: #2d3748;
+        border-right: 1px solid #4a5568;
+    }
+    
+    .dashboard .module {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .form-row label {
+        color: #e2e8f0;
+    }
+}

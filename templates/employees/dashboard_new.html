@@ -4,18 +4,200 @@
 
 {% block page_title %}Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+:root {
+    --primary-color: #00376e;
+    --primary-light: #1a4d8a;
+    --primary-dark: #00285a;
+    --card-shadow: 0 10px 30px rgba(0, 55, 110, 0.1);
+    --hover-shadow: 0 15px 40px rgba(0, 55, 110, 0.15);
+}
+
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+    border: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #00376e;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hover-shadow);
+}
+
+.stats-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #00376e;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 55, 110, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover .stats-icon {
+    transform: scale(1.1);
+}
+
+.quick-action-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: var(--card-shadow);
+    border: none;
+}
+
+.action-btn {
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid #00376e;
+    background: #00376e;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 55, 110, 0.4);
+    color: white;
+    background: var(--primary-light);
+}
+
+.action-btn i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.recent-employees-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    border: none;
+}
+
+.table {
+    border-radius: 0px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background: #00376e;
+    color: white;
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9ff;
+    transform: scale(1.01);
+}
+
+.employee-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #00376e;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    box-shadow: 0 3px 10px rgba(0, 55, 110, 0.1);
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.card-header {
+    background: white;
+    border-bottom: 2px solid #f0f0f0;
+    border-radius: 20px 20px 0 0 !important;
+    padding: 20px 30px;
+}
+
+.card-header h5 {
+    color: #333;
+    font-weight: 700;
+    margin: 0;
+}
+
+.text-muted {
+    color: #8b92a9 !important;
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00376e;
+}
+
+.border-top {
+    border-color: #f0f0f0 !important;
+}
+
+@media (max-width: 768px) {
+    .stats-card {
+        margin-bottom: 20px;
+    }
+    
+    .action-btn {
+        margin-bottom: 15px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Statistics Cards -->
 <div class="row mb-4">
     <div class="col-lg-3 col-md-6 mb-4">
         <div class="stats-card">
             <div class="d-flex align-items-center">
-                <div class="stats-icon" style="background: linear-gradient(135deg, #00376e, #0056b3);">
+                <div class="stats-icon">
                     <i class="bi bi-people-fill"></i>
                 </div>
                 <div class="ms-3 flex-grow-1">
-                    <h6 class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; font-weight: 600;">Total Employees</h6>
-                    <h2 class="mb-0 fw-bold" style="color: #00376e;">{{ total_employees }}</h2>
+                    <h6 class="text-muted mb-1">Total Employees</h6>
+                    <h2 class="mb-0">{{ total_employees }}</h2>
                 </div>
             </div>
             <div class="mt-3 pt-3 border-top">
@@ -29,12 +211,12 @@
     <div class="col-lg-3 col-md-6 mb-4">
         <div class="stats-card">
             <div class="d-flex align-items-center">
-                <div class="stats-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                <div class="stats-icon">
                     <i class="bi bi-person-check-fill"></i>
                 </div>
                 <div class="ms-3 flex-grow-1">
-                    <h6 class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; font-weight: 600;">Active Employees</h6>
-                    <h2 class="mb-0 fw-bold" style="color: #28a745;">{{ active_employees }}</h2>
+                    <h6 class="text-muted mb-1">Active Employees</h6>
+                    <h2 class="mb-0">{{ active_employees }}</h2>
                 </div>
             </div>
             <div class="mt-3 pt-3 border-top">
@@ -48,17 +230,17 @@
     <div class="col-lg-3 col-md-6 mb-4">
         <div class="stats-card">
             <div class="d-flex align-items-center">
-                <div class="stats-icon" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+                <div class="stats-icon">
                     <i class="bi bi-person-x-fill"></i>
                 </div>
                 <div class="ms-3 flex-grow-1">
-                    <h6 class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; font-weight: 600;">Inactive Employees</h6>
-                    <h2 class="mb-0 fw-bold" style="color: #dc3545;">{{ inactive_count }}</h2>
+                    <h6 class="text-muted mb-1">Inactive Employees</h6>
+                    <h2 class="mb-0">{{ inactive_count }}</h2>
                 </div>
             </div>
             <div class="mt-3 pt-3 border-top">
                 <small class="text-muted">
-                    <i class="bi bi-x-circle text-danger me-1"></i>
+                    <i class="bi bi-x-circle text-warning me-1"></i>
                     Not currently active
                 </small>
             </div>
@@ -67,17 +249,17 @@
     <div class="col-lg-3 col-md-6 mb-4">
         <div class="stats-card">
             <div class="d-flex align-items-center">
-                <div class="stats-icon" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+                <div class="stats-icon">
                     <i class="bi bi-building"></i>
                 </div>
                 <div class="ms-3 flex-grow-1">
-                    <h6 class="text-muted mb-1 text-uppercase" style="font-size: 0.75rem; font-weight: 600;">Departments</h6>
-                    <h2 class="mb-0 fw-bold" style="color: #ffc107;">{{ total_departments }}</h2>
+                    <h6 class="text-muted mb-1">Departments</h6>
+                    <h2 class="mb-0">{{ total_departments }}</h2>
                 </div>
             </div>
             <div class="mt-3 pt-3 border-top">
                 <small class="text-muted">
-                    <i class="bi bi-diagram-3 text-warning me-1"></i>
+                    <i class="bi bi-diagram-3 text-info me-1"></i>
                     Total departments
                 </small>
             </div>
@@ -88,9 +270,9 @@
 <!-- Quick Actions -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card">
+        <div class="quick-action-card card">
             <div class="card-header">
-                <h5 class="mb-0">
+                <h5>
                     <i class="bi bi-lightning-charge me-2"></i>
                     Quick Actions
                 </h5>
@@ -98,27 +280,15 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-lg-3 col-md-6">
-                        <a href="{% url 'employees:employee_add' %}" class="btn btn-primary w-100 py-3">
-                            <i class="bi bi-person-plus fs-4 d-block mb-2"></i>
-                            <span class="fw-semibold">Add Employee</span>
+                        <a href="{% url 'employees:employee_add' %}" class="action-btn btn w-100">
+                            <i class="bi bi-person-plus d-block"></i>
+                            Add Employee
                         </a>
                     </div>
                     <div class="col-lg-3 col-md-6">
-                        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-primary w-100 py-3">
-                            <i class="bi bi-people fs-4 d-block mb-2"></i>
-                            <span class="fw-semibold">View Employees</span>
-                        </a>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-success w-100 py-3">
-                            <i class="bi bi-file-earmark-arrow-down fs-4 d-block mb-2"></i>
-                            <span class="fw-semibold">Export Data</span>
-                        </a>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary w-100 py-3">
-                            <i class="bi bi-gear fs-4 d-block mb-2"></i>
-                            <span class="fw-semibold">Settings</span>
+                        <a href="{% url 'employees:employee_list' %}" class="action-btn btn w-100">
+                            <i class="bi bi-people d-block"></i>
+                            View Employees
                         </a>
                     </div>
                 </div>
@@ -130,14 +300,14 @@
 <!-- Recent Employees -->
 <div class="row">
     <div class="col-12">
-        <div class="card">
+        <div class="recent-employees-card card">
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
+                    <h5>
                         <i class="bi bi-clock-history me-2"></i>
                         Recent Employees
                     </h5>
-                    <a href="{% url 'employees:employee_list' %}" class="btn btn-sm btn-outline-light">
+                    <a href="{% url 'employees:employee_list' %}" class="btn btn-sm" style="background: #00376e; color: white; border-radius: 20px;">
                         View All <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -147,11 +317,11 @@
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
-                                <th><i class="bi bi-person-badge me-2"></i>Employee</th>
-                                <th><i class="bi bi-building me-2"></i>Department</th>
-                                <th><i class="bi bi-briefcase me-2"></i>Designation</th>
-                                <th><i class="bi bi-calendar-event me-2"></i>Joining Date</th>
-                                <th><i class="bi bi-toggle-on me-2"></i>Status</th>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Joining Date</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -159,8 +329,7 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                             style="width: 40px; height: 40px; background: linear-gradient(135deg, #00376e, #0056b3); color: white; font-weight: bold;">
+                                        <div class="employee-avatar me-3">
                                             {{ employee.full_name|slice:":2"|upper }}
                                         </div>
                                         <div>
