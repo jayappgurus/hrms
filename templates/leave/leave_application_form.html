@@ -1,161 +1,359 @@
 {% extends 'base.html' %}
 
-{% block title %}Apply for Leave{% endblock %}
+{% block extra_css %}
+<!-- Flatpickr CSS for modern date picker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<style>
+    /* Custom calendar styling */
+    .flatpickr-calendar {
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .flatpickr-day {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .flatpickr-day:hover {
+        background: #f8fafc;
+        transform: scale(1.05);
+    }
+    
+    .flatpickr-day.selected {
+        background: linear-gradient(135deg, #00376e 0%, #002855 100%);
+        border-color: #00376e;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .flatpickr-day.today {
+        border-color: #00376e;
+        background: #f0f7ff;
+        color: #00376e;
+        font-weight: 600;
+    }
+    
+    .flatpickr-months {
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 10px;
+    }
+    
+    .flatpickr-current-month {
+        font-weight: 600;
+        color: #00376e;
+    }
+    
+    .flatpickr-weekday {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+    
+    /* Input field styling */
+    input[type="date"].flatpickr-input {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    input[type="date"].flatpickr-input:focus {
+        border-color: #00376e;
+        box-shadow: 0 0 0 3px rgba(0, 55, 110, 0.1);
+        outline: none;
+    }
+    
+    input[type="date"].flatpickr-input:hover {
+        border-color: #cbd5e1;
+    }
+    
+    /* Calendar icon */
+    .date-input-wrapper {
+        position: relative;
+    }
+    
+    .date-input-wrapper::after {
+        content: '\f1d5';
+        font-family: 'bootstrap-icons';
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        pointer-events: none;
+        font-size: 18px;
+    }
+</style>
+{% endblock %}
 
-{% block page_title %}Apply for Leave{% endblock %}
+{% block title %}{% if form.instance.pk %}Edit Leave Application{% else %}Apply for Leave{% endif %} - HRMS Portal{% endblock %}
+
+{% block page_title %}{% if form.instance.pk %}Edit Leave Application{% else %}Apply for Leave{% endif %}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card card-rounded">
-            <div class="card-header card-header-primary">
-                <h5 class="mb-0">
-                    <i class="bi bi-calendar-plus me-2"></i>
-                    Apply for Leave
-                </h5>
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-calendar-plus text-primary"></i>
+            {% if form.instance.pk %}Edit Leave Application{% else %}Apply for Leave{% endif %}
+        </h1>
+        <p class="page-subtitle">Submit your leave request for approval</p>
+    </div>
+    <a href="{% url 'employees:leave_application_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Applications
+    </a>
+</div>
+
+<!-- Leave Balance Info -->
+{% if leave_balance %}
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="stats-card">
+            <div class="stats-icon text-success" style="background: rgba(16, 185, 129, 0.1);">
+                <i class="bi bi-cup"></i>
             </div>
-            <div class="card-body p-4">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="leave_type" class="form-label">Leave Type *</label>
-                            <select class="form-select" id="leave_type" name="leave_type" required>
-                                <option value="">Select Leave Type...</option>
-                                {% for type in leave_types %}
-                                <option value="{{ type.pk }}">{{ type.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="total_days" class="form-label">Total Days *</label>
-                            <input type="number" class="form-control" id="total_days" name="total_days" 
-                                   min="1" max="365" required>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="start_date" class="form-label">Start Date *</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" required>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="end_date" class="form-label">End Date *</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" required>
-                        </div>
-                        
-                        <div class="col-12">
-                            <label for="reason" class="form-label">Reason *</label>
-                            <textarea class="form-control" id="reason" name="reason" rows="4" 
-                                      placeholder="Enter reason for leave application..." required></textarea>
-                        </div>
-                        
-                        {% if form.document %}
-                        <div class="col-12">
-                            <label for="document" class="form-label">Supporting Document</label>
-                            <input type="file" class="form-control" id="document" name="document" 
-                                   accept=".pdf,.doc,.doc,.jpg,.png">
-                            <small class="form-text text-muted">Upload supporting document if required (PDF, DOC, JPG, PNG)</small>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{% url 'employees:leave_application_list' %}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-2"></i>Cancel
-                        </a>
-                        <button type="submit" class="btn btn-primary-custom">
-                            <i class="bi bi-check-circle me-2"></i>Submit Application
-                        </button>
-                    </div>
-                </form>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ leave_balance.casual_leave|default:"0" }}</h3>
+                <p class="text-muted text-sm mb-0">Casual Leave Balance</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card">
+            <div class="stats-icon text-info" style="background: rgba(6, 182, 212, 0.1);">
+                <i class="bi bi-heart-pulse"></i>
+            </div>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ leave_balance.sick_leave|default:"0" }}</h3>
+                <p class="text-muted text-sm mb-0">Sick Leave Balance</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="stats-card">
+            <div class="stats-icon text-warning" style="background: rgba(245, 158, 11, 0.1);">
+                <i class="bi bi-star"></i>
+            </div>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ leave_balance.earned_leave|default:"0" }}</h3>
+                <p class="text-muted text-sm mb-0">Earned Leave Balance</p>
             </div>
         </div>
     </div>
 </div>
+{% endif %}
 
-<style>
-.form-control, .form-select {
-    border-radius: 10px;
-    border: 1px solid #dee2e6;
-    padding: 10px 15px;
-}
+<!-- Leave Application Form -->
+<div class="modern-card">
+    <div class="modern-card-body">
+        <form method="post" id="leaveForm">
+            {% csrf_token %}
 
-.form-control:focus, .form-select:focus {
-    border-color: #00376e;
-    box-shadow: 0 0 0 0.2rem rgba(0, 55, 110, 0.25);
-}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.leave_type.label }}</label>
+                        {{ form.leave_type }}
+                        {% if form.leave_type.errors %}
+                        <div class="text-danger small mt-1">{{ form.leave_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
 
-.form-label {
-    font-weight: 600;
-    color: #00376e;
-    margin-bottom: 8px;
-}
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.start_date.label }}</label>
+                        <div class="date-input-wrapper">
+                            {{ form.start_date }}
+                        </div>
+                        {% if form.start_date.errors %}
+                        <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
 
-.form-text {
-    font-size: 0.875rem;
-}
-</style>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.end_date.label }}</label>
+                        <div class="date-input-wrapper">
+                            {{ form.end_date }}
+                        </div>
+                        {% if form.end_date.errors %}
+                        <div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
 
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">Total Days</label>
+                        <input type="text" id="totalDays" class="modern-form-control" readonly value="0">
+                        <small class="form-help-text">Calculated automatically</small>
+                    </div>
+                </div>
+
+                <!-- Hidden field for form submission -->
+                <input type="hidden" name="total_days" id="totalDaysHidden" value="0">
+
+                <div class="col-12">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.reason.label }}</label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}
+                        <div class="text-danger small mt-1">{{ form.reason.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Provide a detailed reason for your leave request</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{% url 'employees:leave_application_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-2"></i>
+                    {% if form.instance.pk %}Update Application{% else %}Submit Application{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Flatpickr JS for modern date picker -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Auto-calculate total days when dates are selected
-    const startDate = document.getElementById('start_date');
-    const endDate = document.getElementById('end_date');
-    const totalDays = document.getElementById('total_days');
-    
-    // Set minimum date to today
-    const today = new Date().toISOString().split('T')[0];
-    startDate.min = today;
-    endDate.min = today;
-    
-    function calculateDays() {
-        if (startDate.value && endDate.value) {
-            const start = new Date(startDate.value);
-            const end = new Date(endDate.value);
+    document.addEventListener('DOMContentLoaded', function () {
+        const formInputs = document.querySelectorAll('#leaveForm input, #leaveForm select, #leaveForm textarea');
+        formInputs.forEach(input => {
+            input.classList.add('modern-form-control');
+            if (input.tagName === 'SELECT') {
+                input.classList.add('modern-form-select');
+            }
+            if (input.tagName === 'TEXTAREA') {
+                input.classList.add('modern-form-textarea');
+            }
+        });
+
+        // Initialize Flatpickr for all date inputs
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        dateInputs.forEach(input => {
+            flatpickr(input, {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                maxDate: new Date().fp_incr(365), // 1 year from today
+                disable: [
+                    function(date) {
+                        // Disable weekends (Saturday = 6, Sunday = 0)
+                        return date.getDay() === 0 || date.getDay() === 6;
+                    }
+                ],
+                locale: {
+                    firstDayOfWeek: 1, // Monday
+                    weekdays: {
+                        shorthand: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                        longhand: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                    },
+                    months: {
+                        shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        longhand: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    },
+                },
+                animate: true,
+                position: 'auto center',
+                showMonths: 1,
+                static: true,
+                monthSelectorType: 'static',
+                yearRange: "2020:2030",
+                defaultDate: new Date(),
+                onReady: function(selectedDates, dateStr, instance) {
+                    // Add custom styling to the input
+                    instance.input.classList.add('flatpickr-input');
+                }
+            });
+        });
+
+        // Calculate total days
+        const startDate = document.querySelector('[name="start_date"]');
+        const endDate = document.querySelector('[name="end_date"]');
+        const totalDays = document.getElementById('totalDays');
+        const totalDaysHidden = document.getElementById('totalDaysHidden');
+
+        function calculateDays() {
+            if (startDate.value && endDate.value) {
+                const start = new Date(startDate.value);
+                const end = new Date(endDate.value);
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                const days = diffDays > 0 ? diffDays : 0;
+                totalDays.value = days;
+                totalDaysHidden.value = days;
+            } else {
+                totalDays.value = 0;
+                totalDaysHidden.value = 0;
+            }
+        }
+
+        startDate.addEventListener('change', calculateDays);
+        endDate.addEventListener('change', calculateDays);
+        calculateDays();
+
+        // Form validation and submission
+        const form = document.getElementById('leaveForm');
+        
+        form.addEventListener('submit', function(e) {
+            // Ensure total_days is updated before submission
+            calculateDays();
             
-            // Validate that end date is after start date
-            if (end < start) {
-                alert('End date must be after start date');
-                totalDays.value = '';
-                return;
+            // Basic validation
+            const leaveType = document.querySelector('[name="leave_type"]');
+            const reason = document.querySelector('[name="reason"]');
+            
+            if (!leaveType.value) {
+                alert('Please select a leave type');
+                e.preventDefault();
+                return false;
             }
             
-            const diffTime = Math.abs(end - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (!startDate.value) {
+                alert('Please select a start date');
+                e.preventDefault();
+                return false;
+            }
             
-            totalDays.value = diffDays + 1; // Include both start and end dates
+            if (!endDate.value) {
+                alert('Please select an end date');
+                e.preventDefault();
+                return false;
+            }
             
-            // Show date preview
-            console.log(`From ${start.toLocaleDateString()} to ${end.toLocaleDateString()} = ${diffDays + 1} days`);
-        }
-    }
-    
-    // Auto-set end date when total days is entered
-    function autoSetEndDate() {
-        if (startDate.value && totalDays.value && totalDays.value > 0) {
-            const start = new Date(startDate.value);
-            const days = parseInt(totalDays.value) - 1; // Subtract 1 since we include start date
-            const end = new Date(start);
-            end.setDate(start.getDate() + days);
+            if (!reason.value || reason.value.trim().length < 5) {
+                alert('Please provide a detailed reason for your leave request');
+                e.preventDefault();
+                return false;
+            }
             
-            // Format date for input field
-            const endDateString = end.toISOString().split('T')[0];
-            endDate.value = endDateString;
-        }
-    }
-    
-    startDate.addEventListener('change', function() {
-        calculateDays();
-        autoSetEndDate();
+            if (totalDaysHidden.value === '0' || totalDaysHidden.value < 1) {
+                alert('Invalid date range. Please check your dates.');
+                e.preventDefault();
+                return false;
+            }
+            
+            // Form is valid, allow submission
+            console.log('Form submitting with total days:', totalDaysHidden.value);
+        });
     });
-    
-    endDate.addEventListener('change', calculateDays);
-    totalDays.addEventListener('input', autoSetEndDate);
-    
-    // Initial calculation if dates are pre-filled
-    calculateDays();
-});
 </script>
 {% endblock %}

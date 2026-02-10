@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from django.views.generic import ListView, UpdateView, CreateView
+from django.views.generic import ListView, UpdateView, CreateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import UserProfile, Department
 from .forms import UserProfileForm
@@ -165,3 +165,38 @@ def my_profile(request):
         'profile': profile,
         'title': 'My Profile'
     })
+
+
+class UserDeleteView(LoginRequiredMixin, DeleteView):
+    model = User
+    success_url = reverse_lazy('employees:user_list')
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and admin role users to delete users
+        if not request.user.is_superuser:
+            try:
+                user_profile = request.user.profile
+                if user_profile.role not in ['admin', 'hr']:
+                    messages.error(request, 'You do not have permission to delete users.')
+                    return redirect('employees:user_list')
+            except UserProfile.DoesNotExist:
+                messages.error(request, 'You do not have permission to delete users.')
+                return redirect('employees:user_list')
+        
+        # Prevent users from deleting themselves
+        if request.user.pk == int(kwargs['pk']):
+            messages.error(request, 'You cannot delete your own account.')
+            return redirect('employees:user_list')
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        username = user.username
+        success_message = f'User "{username}" has been deleted successfully!'
+        
+        # Delete the user
+        user.delete()
+        
+        messages.success(request, success_message)
+        return redirect(self.success_url)

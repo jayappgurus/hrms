@@ -41,6 +41,12 @@ class JobDescription(models.Model):
         ('on_hold', 'On Hold'),
     ]
     
+    WORK_MODE_CHOICES = [
+        ('remote', 'Remote'),
+        ('hybrid', 'Hybrid'),
+        ('office', 'Office'),
+    ]
+    
     # Basic Job Information
     title = models.CharField(max_length=200, help_text="Job title")
     designation = models.ForeignKey('Designation', on_delete=models.CASCADE, related_name='job_descriptions')

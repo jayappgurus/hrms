@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }} - Job Details - HRMS Portal{% endblock %}
+
+{% block page_title %}{{ job.title }}{% endblock %}
+
+{% block content %}
+<!-- Hidden CSRF token for JavaScript -->
+{% csrf_token %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-briefcase text-primary"></i>
+            {{ job.title }}
+        </h1>
+        <p class="page-subtitle">Job description and application details</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'employees:job_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Jobs
+        </a>
+        {% if user.is_superuser or user.profile.role == 'admin' or user.profile.role == 'hr' %}
+        <a href="{% url 'employees:job_edit' job.pk %}" class="btn btn-primary">
+            <i class="bi bi-pencil me-2"></i>Edit Job
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Job Details -->
+<div class="modern-card">
+    <div class="modern-card-body">
+        <div class="row g-4">
+            <!-- Job Information -->
+            <div class="col-md-8">
+                <div class="job-details">
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">Job Information</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="detail-label">Department</label>
+                                    <div class="detail-value">{{ job.department.name|default:"Not Specified" }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="detail-label">Location</label>
+                                    <div class="detail-value">{{ job.location|default:"Not Specified" }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="detail-label">Employment Type</label>
+                                    <div class="detail-value">
+                                        {% if job.employment_type == 'full_time' %}Full Time{% endif %}
+                                        {% if job.employment_type == 'part_time' %}Part Time{% endif %}
+                                        {% if job.employment_type == 'contract' %}Contract{% endif %}
+                                        {% if job.employment_type == 'internship' %}Internship{% endif %}
+                                        {% if job.employment_type == 'temporary' %}Temporary{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="detail-label">Experience Level</label>
+                                    <div class="detail-value">
+                                        {% if job.experience_level == 'entry' %}Entry Level{% endif %}
+                                        {% if job.experience_level == 'mid' %}Mid Level{% endif %}
+                                        {% if job.experience_level == 'senior' %}Senior Level{% endif %}
+                                        {% if job.experience_level == 'lead' %}Lead{% endif %}
+                                        {% if job.experience_level == 'manager' %}Manager{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="detail-label">Salary Range</label>
+                                    <div class="detail-value">{{ job.salary_range|default:"Not Disclosed" }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <label class="detail-label">Posted Date</label>
+                                    <div class="detail-value">{{ job.created_at|date:"M d, Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">Job Description</h6>
+                        <div class="description-content">
+                            {{ job.description|safe }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">Requirements</h6>
+                        <div class="requirements-content">
+                            {{ job.requirements|safe }}
+                        </div>
+                    </div>
+
+                    {% if job.benefits %}
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">Benefits</h6>
+                        <div class="benefits-content">
+                            {{ job.benefits|safe }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <div class="job-sidebar">
+                    <!-- Status Card -->
+                    <div class="modern-card mb-3">
+                        <div class="modern-card-body">
+                            <h6 class="text-primary mb-3">Job Status</h6>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span>Status:</span>
+                                {% if job.is_active %}
+                                <span class="status-badge success">
+                                    <i class="bi bi-check-circle"></i> Active
+                                </span>
+                                {% else %}
+                                <span class="status-badge danger">
+                                    <i class="bi bi-x-circle"></i> Inactive
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span>Applications:</span>
+                                <span class="fw-bold">{{ job.application_count|default:"0" }}</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span>Deadline:</span>
+                                <span class="fw-medium">{{ job.application_deadline|date:"M d"|default:"No Deadline" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    {% if user.is_superuser or user.profile.role == 'admin' or user.profile.role == 'hr' %}
+                    <div class="modern-card mb-3">
+                        <div class="modern-card-body">
+                            <h6 class="text-primary mb-3">Quick Actions</h6>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'employees:job_edit' job.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil me-2"></i>Edit Job
+                                </a>
+                                <a href="#" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-eye me-2"></i>View Applications
+                                </a>
+                                <a href="#" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-share me-2"></i>Share Job
+                                </a>
+                                {% if user.is_superuser or user.is_staff %}
+                                <a href="#" class="btn btn-outline-danger btn-sm" 
+                                   onclick="confirmDelete({{ job.pk }}); return false;" 
+                                   title="Delete Job">
+                                    <i class="bi bi-trash me-2"></i>Delete Job
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Application Stats -->
+                    {% if job.application_count > 0 %}
+                    <div class="modern-card">
+                        <div class="modern-card-body">
+                            <h6 class="text-primary mb-3">Application Statistics</h6>
+                            <div class="stats-list">
+                                <div class="stats-item">
+                                    <span>Total Applications:</span>
+                                    <span class="fw-bold">{{ job.application_count }}</span>
+                                </div>
+                                <div class="stats-item">
+                                    <span>This Week:</span>
+                                    <span class="fw-bold">{{ job.weekly_applications|default:"0" }}</span>
+                                </div>
+                                <div class="stats-item">
+                                    <span>Pending Review:</span>
+                                    <span class="fw-bold text-warning">{{ job.pending_applications|default:"0" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.detail-item {
+    margin-bottom: 1rem;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.detail-value {
+    font-weight: 500;
+    color: #1e293b;
+    margin-top: 0.25rem;
+}
+
+.description-content,
+.requirements-content,
+.benefits-content {
+    line-height: 1.6;
+    color: #475569;
+}
+
+.description-content ul,
+.requirements-content ul,
+.benefits-content ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.description-content li,
+.requirements-content li,
+.benefits-content li {
+    margin-bottom: 0.5rem;
+}
+
+.stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stats-item {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.stats-item:last-child {
+    border-bottom: none;
+}
+
+.job-sidebar .modern-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+}
+
+.job-sidebar .modern-card-body {
+    padding: 1.25rem;
+}
+</style>
+
+<script>
+// Delete confirmation function
+function confirmDelete(jobId) {
+    if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/jobs/${jobId}/delete/`;
+        
+        // Add CSRF token - try multiple methods
+        let csrfToken = null;
+        
+        // Method 1: Look for hidden input with CSRF token
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfInput) {
+            csrfToken = csrfInput.value;
+        }
+        
+        // Method 2: Get from cookie (Django standard method)
+        if (!csrfToken) {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    csrfToken = decodeURIComponent(value);
+                    break;
+                }
+            }
+        }
+        
+        // Add CSRF token to form if found
+        if (csrfToken) {
+            const csrfField = document.createElement('input');
+            csrfField.type = 'hidden';
+            csrfField.name = 'csrfmiddlewaretoken';
+            csrfField.value = csrfToken;
+            form.appendChild(csrfField);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

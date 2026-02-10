@@ -1,6 +1,6 @@
 from django import forms
 from django.core.validators import RegexValidator, EmailValidator
-from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication
+from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday
 
 
 class EmergencyContactForm(forms.ModelForm):
@@ -36,17 +36,13 @@ class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
         fields = [
-            'employee_code', 'full_name', 'department', 'designation', 'joining_date', 'relieving_date',
+            'full_name', 'department', 'designation', 'joining_date', 'relieving_date',
             'employment_status', 'mobile_number', 'official_email', 'personal_email', 'local_address',
-            'permanent_address', 'date_of_birth', 'marital_status', 'anniversary_date',
-            'highest_qualification', 'total_experience_years', 'total_experience_months',
+            'permanent_address', 'date_of_birth', 'gender', 'blood_group', 'marital_status', 'anniversary_date',
+            'nationality', 'highest_qualification', 'total_experience_years', 'total_experience_months',
             'aadhar_card_number', 'pan_card_number'
         ]
         widgets = {
-            'employee_code': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter unique employee code'
-            }),
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter full name'
@@ -88,6 +84,8 @@ class EmployeeForm(forms.ModelForm):
                 'class': 'form-control',
                 'type': 'date'
             }),
+            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'blood_group': forms.Select(attrs={'class': 'form-select'}),
             'marital_status': forms.Select(attrs={'class': 'form-select'}),
             'anniversary_date': forms.DateInput(attrs={
                 'class': 'form-control',
@@ -96,6 +94,10 @@ class EmployeeForm(forms.ModelForm):
             'highest_qualification': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'e.g., B.Tech, MBA, etc.'
+            }),
+            'nationality': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter nationality'
             }),
             'total_experience_years': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -123,9 +125,11 @@ class EmployeeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['department'].queryset = Department.objects.all()
+        
+        # Always show all designations for now
         self.fields['designation'].queryset = Designation.objects.all()
         
-        # Add dynamic designation filtering based on department
+        # Add dynamic designation filtering based on department (for future use)
         if 'department' in self.data:
             try:
                 department_id = int(self.data.get('department'))
@@ -134,12 +138,6 @@ class EmployeeForm(forms.ModelForm):
                 pass
         elif self.instance.pk and self.instance.department:
             self.fields['designation'].queryset = Designation.objects.filter(department=self.instance.department)
-
-    def clean_employee_code(self):
-        employee_code = self.cleaned_data.get('employee_code')
-        if not employee_code:
-            raise forms.ValidationError("Employee code is required.")
-        return employee_code.upper()
 
     def clean_aadhar_card_number(self):
         aadhar = self.cleaned_data.get('aadhar_card_number')
@@ -313,3 +311,64 @@ class LeaveApplicationForm(forms.ModelForm):
         self.fields['end_date'].label = 'End Date'
         self.fields['total_days'].label = 'Total Days'
         self.fields['reason'].label = 'Reason'
+
+
+class PublicHolidayForm(forms.ModelForm):
+    class Meta:
+        model = PublicHoliday
+        fields = ['name', 'date', 'year', 'is_active']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'modern-form-control',
+                'placeholder': 'Enter holiday name'
+            }),
+            'date': forms.DateInput(attrs={
+                'class': 'modern-form-control',
+                'type': 'date'
+            }),
+            'year': forms.NumberInput(attrs={
+                'class': 'modern-form-control',
+                'min': 2020,
+                'max': 2030
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].label = 'Holiday Name'
+        self.fields['date'].label = 'Date'
+        self.fields['year'].label = 'Year'
+        self.fields['is_active'].label = 'Active'
+        
+        # Auto-populate day field based on date
+        if self.instance and self.instance.pk:
+            self.fields['day'] = forms.CharField(
+                initial=self.instance.date.strftime('%A'),
+                disabled=True,
+                widget=forms.TextInput(attrs={
+                    'class': 'modern-form-control',
+                    'readonly': True
+                })
+            )
+        else:
+            self.fields['day'] = forms.CharField(
+                required=False,
+                disabled=True,
+                widget=forms.TextInput(attrs={
+                    'class': 'modern-form-control',
+                    'readonly': True,
+                    'placeholder': 'Will be auto-calculated'
+                })
+            )
+    
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        # Auto-calculate day from date
+        if instance.date:
+            instance.day = instance.date.strftime('%A')
+        if commit:
+            instance.save()
+        return instance

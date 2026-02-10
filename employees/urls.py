@@ -20,6 +20,7 @@ urlpatterns = [
     path('employees/grid/', views.EmployeeGridView.as_view(), name='employee_grid'),
     path('employee/<int:pk>/', views.EmployeeDetailView.as_view(), name='employee_detail'),
     path('employee/<int:pk>/edit/', views.EmployeeUpdateView.as_view(), name='employee_edit'),
+    path('api/designations/', views.DesignationAPIView.as_view(), name='designations_api'),
     path('employee/<int:pk>/toggle-status/', views.toggle_employee_status, name='toggle_employee_status'),
     path('employee/<int:employee_pk>/document/<str:document_type>/update/', 
          views.update_document_status, name='update_document_status'),
@@ -36,6 +37,9 @@ urlpatterns = [
     
     # Leave Management URLs
     path('holidays/', views.PublicHolidayListView.as_view(), name='public_holidays'),
+    path('holidays/add/', views.PublicHolidayCreateView.as_view(), name='public_holiday_add'),
+    path('holidays/<int:pk>/edit/', views.PublicHolidayUpdateView.as_view(), name='public_holiday_edit'),
+    path('holidays/<int:pk>/delete/', views.PublicHolidayDeleteView.as_view(), name='public_holiday_delete'),
     path('leave-types/', views.LeaveTypeListView.as_view(), name='leave_types'),
     path('leave-types/add/', views.LeaveTypeCreateView.as_view(), name='leave_type_add'),
     path('leave-types/<int:pk>/edit/', views.LeaveTypeUpdateView.as_view(), name='leave_type_edit'),
@@ -49,6 +53,7 @@ urlpatterns = [
     path('users/', views_user_management.UserListView.as_view(), name='user_list'),
     path('users/add/', views_user_management.UserCreateView.as_view(), name='create_user'),
     path('users/<int:pk>/profile/', views_user_management.UserProfileUpdateView.as_view(), name='edit_user_profile'),
+    path('users/<int:pk>/delete/', views_user_management.UserDeleteView.as_view(), name='delete_user'),
     path('users/<int:user_id>/create-profile/', views_user_management.create_user_profile, name='create_user_profile'),
     path('users/<int:user_id>/assign-role/', views_user_management.assign_role, name='assign_role'),
     path('my-profile/', views_user_management.my_profile, name='my_profile'),

@@ -2,301 +2,361 @@
 
 {% block title %}{{ employee.full_name }} - Employee Details{% endblock %}
 
-{% block page_title %}Employee Profile - {{ employee.full_name }}{% endblock %}
+{% block page_title %}Employee Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header-card {
+        background: linear-gradient(135deg, #00376e 0%, #002855 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
+    .profile-avatar-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%);
+        color: #002855;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: 800;
+        margin: 0 auto 24px;
+        box-shadow: 0 12px 32px rgba(0, 201, 255, 0.4);
+        border: 6px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-name {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .profile-designation {
+        font-size: 16px;
+        opacity: 0.9;
+        margin-bottom: 20px;
+    }
+
+    .profile-badges {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .profile-badge {
+        padding: 8px 16px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .profile-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-{% csrf_token %}
-<div class="row">
-    <!-- Employee Profile Card -->
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body text-center">
-                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" 
-                     style="width: 120px; height: 120px; font-size: 3rem;">
-                    {{ employee.full_name|slice:":2"|upper }}
-                </div>
-                <h4 class="card-title">{{ employee.full_name }}</h4>
-                <p class="text-muted">{{ employee.designation.name }}</p>
-                <div class="d-flex justify-content-center gap-2 mb-3">
-                    <span class="badge {% if employee.employment_status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
-                        {{ employee.get_employment_status_display }}
-                    </span>
-                    <span class="badge bg-info">{{ employee.probation_status }}</span>
-                </div>
-                <div class="text-start">
-                    <p class="mb-2"><strong>Employee Code:</strong> {{ employee.employee_code }}</p>
-                    <p class="mb-2"><strong>Department:</strong> {{ employee.department.name }}</p>
-                    <p class="mb-2"><strong>Joining Date:</strong> {{ employee.joining_date|date:"d M Y" }}</p>
-                    {% if employee.relieving_date %}
-                    <p class="mb-2"><strong>Relieving Date:</strong> {{ employee.relieving_date|date:"d M Y" }}</p>
-                    {% endif %}
-                    <p class="mb-2"><strong>Experience:</strong> {{ employee.total_experience_display }}</p>
-                    <p class="mb-2"><strong>Age:</strong> {{ employee.age }} years</p>
-                </div>
-                <div class="d-flex justify-content-center gap-2 mt-3">
-                    <a href="{% url 'employees:employee_edit' employee.pk %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-pencil"></i> Edit
-                    </a>
-                    <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary btn-sm">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
-                </div>
-            </div>
-        </div>
+<!-- Profile Header -->
+<div class="profile-header-card">
+    <div class="profile-avatar-large">
+        {{ employee.full_name|slice:":2"|upper }}
+    </div>
+    <h1 class="profile-name">{{ employee.full_name }}</h1>
+    <p class="profile-designation">{{ employee.designation.name }}</p>
+
+    <div class="profile-badges">
+        <span class="profile-badge">
+            <i class="bi bi-hash"></i> {{ employee.employee_code }}
+        </span>
+        <span class="profile-badge">
+            <i class="bi bi-building"></i> {{ employee.department.name }}
+        </span>
+        <span
+            class="profile-badge {% if employee.employment_status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+            <i
+                class="bi bi-{% if employee.employment_status == 'active' %}check-circle{% else %}x-circle{% endif %}"></i>
+            {{ employee.get_employment_status_display }}
+        </span>
     </div>
 
-    <!-- Employee Details -->
-    <div class="col-md-8">
+    <div class="profile-actions">
+        <a href="{% url 'employees:employee_edit' employee.pk %}" class="btn btn-light">
+            <i class="bi bi-pencil me-2"></i>Edit Profile
+        </a>
+        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column -->
+    <div class="col-lg-6">
         <!-- Contact Information -->
-        <div class="card mb-4">
-            <div class="card-header bg-white">
-                <h6 class="mb-0"><i class="bi bi-telephone"></i> Contact Information</h6>
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-telephone text-primary"></i>
+                Contact Information
+            </h5>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Mobile Number</div>
+                    <div class="detail-value">{{ employee.mobile_number }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Official Email</div>
+                    <div class="detail-value">{{ employee.official_email }}</div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p class="mb-2"><strong>Mobile:</strong> {{ employee.mobile_number }}</p>
-                        <p class="mb-2"><strong>Official Email:</strong> {{ employee.official_email }}</p>
-                        {% if employee.personal_email %}
-                        <p class="mb-2"><strong>Personal Email:</strong> {{ employee.personal_email }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6">
-                        <p class="mb-2"><strong>Local Address:</strong><br>{{ employee.local_address|linebreaks }}</p>
-                        <p class="mb-2"><strong>Permanent Address:</strong><br>{{ employee.permanent_address|linebreaks }}</p>
-                    </div>
+            {% if employee.personal_email %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Personal Email</div>
+                    <div class="detail-value">{{ employee.personal_email }}</div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Local Address</div>
+                    <div class="detail-value">{{ employee.local_address|linebreaksbr }}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Permanent Address</div>
+                    <div class="detail-value">{{ employee.permanent_address|linebreaksbr }}</div>
                 </div>
             </div>
         </div>
 
         <!-- Emergency Contact -->
-        <div class="card mb-4">
-            <div class="card-header bg-white">
-                <h6 class="mb-0"><i class="bi bi-telephone-fill"></i> Emergency Contact</h6>
-            </div>
-            <div class="card-body">
-                {% if employee.emergency_contact %}
-                <div class="row">
-                    <div class="col-md-6">
-                        <p class="mb-2"><strong>Name:</strong> {{ employee.emergency_contact.name }}</p>
-                        <p class="mb-2"><strong>Relationship:</strong> {{ employee.emergency_contact.relationship }}</p>
-                        <p class="mb-2"><strong>Mobile:</strong> {{ employee.emergency_contact.mobile_number }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="mb-2"><strong>Email:</strong> {{ employee.emergency_contact.email }}</p>
-                        <p class="mb-2"><strong>Address:</strong><br>{{ employee.emergency_contact.address|linebreaks }}</p>
-                    </div>
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-exclamation-triangle text-danger"></i>
+                Emergency Contact
+            </h5>
+            {% if employee.emergency_contact %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Name</div>
+                    <div class="detail-value">{{ employee.emergency_contact.name }}</div>
                 </div>
-                {% else %}
-                <p class="text-muted">No emergency contact information available.</p>
-                {% endif %}
+                <div class="detail-item">
+                    <div class="detail-label">Relationship</div>
+                    <div class="detail-value">{{ employee.emergency_contact.relationship }}</div>
+                </div>
             </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Mobile</div>
+                    <div class="detail-value">{{ employee.emergency_contact.mobile_number }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">{{ employee.emergency_contact.email }}</div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">No emergency contact information available.</p>
+            {% endif %}
         </div>
 
         <!-- Personal Information -->
-        <div class="card mb-4">
-            <div class="card-header bg-white">
-                <h6 class="mb-0"><i class="bi bi-person"></i> Personal Information</h6>
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-person text-info"></i>
+                Personal Information
+            </h5>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Date of Birth</div>
+                    <div class="detail-value">{{ employee.date_of_birth|date:"M d, Y" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Age</div>
+                    <div class="detail-value">{{ employee.age }} years</div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p class="mb-2"><strong>Date of Birth:</strong> {{ employee.date_of_birth|date:"d M Y" }}</p>
-                        <p class="mb-2"><strong>Marital Status:</strong> {{ employee.get_marital_status_display }}</p>
-                        {% if employee.anniversary_date %}
-                        <p class="mb-2"><strong>Anniversary Date:</strong> {{ employee.anniversary_date|date:"d M Y" }}</p>
-                        {% endif %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Gender</div>
+                    <div class="detail-value">{{ employee.get_gender_display }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Blood Group</div>
+                    <div class="detail-value">{{ employee.blood_group|default:"—" }}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Marital Status</div>
+                    <div class="detail-value">{{ employee.get_marital_status_display }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Nationality</div>
+                    <div class="detail-value">{{ employee.nationality|default:"—" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-6">
+        <!-- Employment Details -->
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-briefcase text-success"></i>
+                Employment Details
+            </h5>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Joining Date</div>
+                    <div class="detail-value">{{ employee.joining_date|date:"M d, Y" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Total Experience</div>
+                    <div class="detail-value">{{ employee.total_experience_display }}</div>
+                </div>
+            </div>
+            {% if employee.relieving_date %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Relieving Date</div>
+                    <div class="detail-value">{{ employee.relieving_date|date:"M d, Y" }}</div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Probation Status</div>
+                    <div class="detail-value">
+                        <span
+                            class="status-badge {% if employee.probation_status == 'completed' %}success{% else %}warning{% endif %}">
+                            {{ employee.probation_status|title }}
+                        </span>
                     </div>
-                    <div class="col-md-6">
-                        <p class="mb-2"><strong>Highest Qualification:</strong> {{ employee.highest_qualification }}</p>
-                        <p class="mb-2"><strong>Total Experience:</strong> {{ employee.total_experience_display }}</p>
-                        <p class="mb-2"><strong>Probation Status:</strong> {{ employee.probation_status }}</p>
-                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Employment Type</div>
+                    <div class="detail-value">{{ employee.get_employment_type_display }}</div>
                 </div>
             </div>
         </div>
 
-        <!-- Identity & Compliance -->
-        <div class="card mb-4">
-            <div class="card-header bg-white">
-                <h6 class="mb-0"><i class="bi bi-shield-check"></i> Identity & Compliance</h6>
+        <!-- Bank Details -->
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-bank text-warning"></i>
+                Bank Details
+            </h5>
+            {% if employee.bank_details %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Bank Name</div>
+                    <div class="detail-value">{{ employee.bank_details.bank_name }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Account Number</div>
+                    <div class="detail-value">{{ employee.bank_details.account_number }}</div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p class="mb-2"><strong>Aadhar Card:</strong> {{ employee.aadhar_card_number }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="mb-2"><strong>PAN Card:</strong> {{ employee.pan_card_number }}</p>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">IFSC Code</div>
+                    <div class="detail-value">{{ employee.bank_details.ifsc_code }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Branch</div>
+                    <div class="detail-value">{{ employee.bank_details.branch_name }}</div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">No bank details available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Documents -->
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-file-earmark-text text-primary"></i>
+                Documents
+            </h5>
+            {% if employee.documents %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">PAN Number</div>
+                    <div class="detail-value">{{ employee.documents.pan_number|default:"—" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Aadhar Number</div>
+                    <div class="detail-value">{{ employee.documents.aadhar_number|default:"—" }}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Passport Number</div>
+                    <div class="detail-value">{{ employee.documents.passport_number|default:"—" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">UAN Number</div>
+                    <div class="detail-value">{{ employee.documents.uan_number|default:"—" }}</div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">No documents available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Login Credentials -->
+        {% if request.user.is_superuser or request.user.is_staff %}
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-key text-danger"></i>
+                Login Credentials
+            </h5>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Username</div>
+                    <div class="detail-value">{{ employee.user.username }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Password</div>
+                    <div class="detail-value">
+                        <span id="password-display">******{{ employee.plain_password|slice:"-3:" }}</span>
+                        <button class="btn btn-sm btn-outline-primary ms-2"
+                            onclick="copyPassword('{{ employee.plain_password }}')">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Document Submission Tracker -->
-        <div class="card">
-            <div class="card-header bg-white">
-                <h6 class="mb-0"><i class="bi bi-file-earmark-text"></i> Document Submission Tracker</h6>
-            </div>
-            <div class="card-body">
-                <!-- Photographs -->
-                <div class="mb-4">
-                    <h6 class="text-primary mb-3">📸 Photographs</h6>
-                    <div class="row">
-                        {% for doc in document_categories.photographs %}
-                        <div class="col-md-12 mb-2">
-                            <div class="d-flex justify-content-between align-items-center p-3 border rounded">
-                                <div>
-                                    <strong>{{ doc.display }}</strong>
-                                    {% if doc.submitted_date %}
-                                    <br><small class="text-muted">Submitted: {{ doc.submitted_date|date:"d M Y" }}</small>
-                                    {% endif %}
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" 
-                                           class="form-check-input document-checkbox" 
-                                           {% if doc.is_submitted %}checked{% endif %}
-                                           data-employee="{{ employee.pk }}" 
-                                           data-document-type="{{ doc.type }}"
-                                           onchange="updateDocumentStatus(this)">
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Identity Proofs -->
-                <div class="mb-4">
-                    <h6 class="text-primary mb-3">🆔 Identity Proofs (Any 2)</h6>
-                    <div class="row">
-                        {% for doc in document_categories.identity_proofs %}
-                        <div class="col-md-6 mb-2">
-                            <div class="d-flex justify-content-between align-items-center p-3 border rounded">
-                                <div>
-                                    <strong>{{ doc.display }}</strong>
-                                    {% if doc.submitted_date %}
-                                    <br><small class="text-muted">Submitted: {{ doc.submitted_date|date:"d M Y" }}</small>
-                                    {% endif %}
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" 
-                                           class="form-check-input document-checkbox" 
-                                           {% if doc.is_submitted %}checked{% endif %}
-                                           data-employee="{{ employee.pk }}" 
-                                           data-document-type="{{ doc.type }}"
-                                           onchange="updateDocumentStatus(this)">
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Address Proofs -->
-                <div class="mb-4">
-                    <h6 class="text-primary mb-3">🏠 Address Proofs (Any 2)</h6>
-                    <div class="row">
-                        {% for doc in document_categories.address_proofs %}
-                        <div class="col-md-4 mb-2">
-                            <div class="d-flex justify-content-between align-items-center p-3 border rounded">
-                                <div>
-                                    <strong>{{ doc.display }}</strong>
-                                    {% if doc.submitted_date %}
-                                    <br><small class="text-muted">Submitted: {{ doc.submitted_date|date:"d M Y" }}</small>
-                                    {% endif %}
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" 
-                                           class="form-check-input document-checkbox" 
-                                           {% if doc.is_submitted %}checked{% endif %}
-                                           data-employee="{{ employee.pk }}" 
-                                           data-document-type="{{ doc.type }}"
-                                           onchange="updateDocumentStatus(this)">
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Education Proofs -->
-                <div class="mb-4">
-                    <h6 class="text-primary mb-3">🎓 Education Proofs</h6>
-                    <div class="row">
-                        {% for doc in document_categories.education_proofs %}
-                        <div class="col-md-6 mb-2">
-                            <div class="d-flex justify-content-between align-items-center p-3 border rounded">
-                                <div>
-                                    <strong>{{ doc.display }}</strong>
-                                    {% if doc.submitted_date %}
-                                    <br><small class="text-muted">Submitted: {{ doc.submitted_date|date:"d M Y" }}</small>
-                                    {% endif %}
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" 
-                                           class="form-check-input document-checkbox" 
-                                           {% if doc.is_submitted %}checked{% endif %}
-                                           data-employee="{{ employee.pk }}" 
-                                           data-document-type="{{ doc.type }}"
-                                           onchange="updateDocumentStatus(this)">
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function updateDocumentStatus(checkbox) {
-    var employeePk = checkbox.dataset.employee;
-    var documentType = checkbox.dataset.documentType;
-    var isSubmitted = checkbox.checked;
-    
-    var url = '{% url "employees:update_document_status" employee_pk=0 document_type="placeholder" %}'.replace('0', employeePk).replace('placeholder', documentType);
-    
-    $.ajax({
-        url: url,
-        method: 'POST',
-        data: {
-            'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val(),
-            'is_submitted': isSubmitted ? 'on' : ''
-        },
-        success: function(response) {
-            // Show success message
-            var message = isSubmitted ? 'Document marked as submitted' : 'Document marked as not submitted';
-            showNotification(message, 'success');
-            // Reload the page to show updated dates
-            setTimeout(function() {
-                location.reload();
-            }, 1000);
-        },
-        error: function() {
-            // Revert checkbox state on error
-            checkbox.checked = !checkbox.checked;
-            showNotification('Error updating document status', 'danger');
-        }
-    });
-}
-
-function showNotification(message, type) {
-    var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert">' +
-                   message +
-                   '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                   '</div>';
-    
-    $('.main-content').prepend(alertHtml);
-    
-    // Auto-dismiss after 3 seconds
-    setTimeout(function() {
-        $('.alert').fadeOut();
-    }, 3000);
-}
+    function copyPassword(password) {
+        navigator.clipboard.writeText(password).then(function () {
+            alert('Password copied to clipboard!');
+        }, function (err) {
+            console.error('Could not copy password: ', err);
+        });
+    }
 </script>
 {% endblock %}

@@ -3,9 +3,139 @@
 {% load job_filters %}
 
 {% block title %}Current Openings - HRMS Portal{% endblock %}
-
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/job-management.css' %}">
+<style>
+    .job-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .job-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .job-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-premium);
+        border-color: var(--primary);
+    }
+
+    .job-card-header {
+        padding: 24px;
+        background: linear-gradient(135deg, #00376e 0%, #002855 100%);
+        color: white;
+    }
+
+    .job-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: white;
+    }
+
+    .job-meta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .job-meta-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        gap: 6px;
+    }
+
+    .job-card-body {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .job-description {
+        color: var(--text-main);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .job-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .job-detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .job-detail-item i {
+        color: var(--primary);
+        font-size: 16px;
+    }
+
+    .job-card-footer {
+        padding: 16px 24px;
+        background: #f8faff;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .job-salary {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .job-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    @media (max-width: 767px) {
+        .job-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .job-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .job-card-footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .job-actions {
+            width: 100%;
+        }
+
+        .job-actions .btn {
+            flex: 1;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block page_title %}Current Openings{% endblock %}
@@ -26,333 +156,339 @@
 {% block content %}
 <!-- Statistics Section -->
 <div class="stats-section">
-    <div class="stats-grid">
-        <div class="stats-card">
-            <div class="stats-icon primary">
-                <i class="bi bi-briefcase"></i>
-            </div>
-            <div class="stats-content">
-                <div class="stats-value">{{ total_openings }}</div>
-                <div class="stats-label">Total Openings</div>
-            </div>
-        </div>
-        
-        <div class="stats-card">
-            <div class="stats-icon success">
-                <i class="bi bi-star"></i>
-            </div>
-            <div class="stats-content">
-                <div class="stats-value">{{ urgent_openings }}</div>
-                <div class="stats-label">Urgent Openings</div>
+    <div class="row mb-4">
+        <div class="col-lg-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-icon primary">
+                    <i class="bi bi-briefcase"></i>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-value">{{ total_openings }}</div>
+                    <div class="stats-label">Total Openings</div>
+                </div>
             </div>
         </div>
-        
-        <div class="stats-card">
-            <div class="stats-icon info">
-                <i class="bi bi-award"></i>
-            </div>
-            <div class="stats-content">
-                <div class="stats-value">{{ featured_openings }}</div>
-                <div class="stats-label">Featured Openings</div>
+        <div class="col-lg-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-icon success">
+                    <i class="bi bi-star"></i>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-value">{{ urgent_openings }}</div>
+                    <div class="stats-label">Urgent Openings</div>
+                </div>
             </div>
         </div>
-        
-        <div class="stats-card">
-            <div class="stats-icon warning">
-                <i class="bi bi-building"></i>
+        <div class="col-lg-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-icon info">
+                    <i class="bi bi-award"></i>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-value">{{ featured_openings }}</div>
+                    <div class="stats-label">Featured Openings</div>
+                </div>
             </div>
-            <div class="stats-content">
-                <div class="stats-value">{{ departments|length }}</div>
-                <div class="stats-label">Departments</div>
+        </div>
+        <div class="col-lg-3 col-sm-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-icon warning">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-value">{{ departments|length }}</div>
+                    <div class="stats-label">Departments</div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Search and Filter Section -->
-<div class="search-filter-section">
-    <div class="card">
-        <div class="card-body">
-            <form method="get" class="search-form">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="search-input-wrapper">
-                            <i class="bi bi-search"></i>
-                            <input type="text" name="search" class="form-control" 
-                                   placeholder="Search openings by title, department, or skills..." 
-                                   value="{{ search_form.search.value|default:'' }}">
+    <!-- Search and Filter Section -->
+    <div class="search-filter-section">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="search-form">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="search-bar-wrapper">
+                                <i class="bi bi-search search-bar-icon"></i>
+                                <input type="text" name="search" class="search-bar-input"
+                                    placeholder="Search openings by title, department, or skills..."
+                                    value="{{ search_form.search.value|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <select name="department" class="form-control">
+                                <option value>All Departments</option>
+                                {% for department in departments %}
+                                <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ department.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <select name="employment_type" class="form-control">
+                                <option value>All Types</option>
+                                {% for value, label in job_form.fields.employment_type.choices %}
+                                <option value="{{ value }}" {% if request.GET.employment_type == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <select name="experience_level" class="form-control">
+                                <option value>All Levels</option>
+                                {% for value, label in job_form.fields.experience_level.choices %}
+                                <option value="{{ value }}" {% if request.GET.experience_level == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search me-2"></i>Search
+                            </button>
                         </div>
                     </div>
-                    
-                    <div class="col-md-2">
-                        <select name="department" class="form-control">
-                            <option value="">All Departments</option>
-                            {% for department in departments %}
-                            <option value="{{ department.id }}" 
-                                    {% if request.GET.department == department.id|stringformat:"s" %}selected{% endif %}>
-                                {{ department.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <a href="{% url 'employees:current_openings' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                                Filters
+                            </a>
+                        </div>
                     </div>
-                    
-                    <div class="col-md-2">
-                        <select name="employment_type" class="form-control">
-                            <option value="">All Types</option>
-                            {% for value, label in job_form.fields.employment_type.choices %}
-                            <option value="{{ value }}" 
-                                    {% if request.GET.employment_type == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <select name="experience_level" class="form-control">
-                            <option value="">All Levels</option>
-                            {% for value, label in job_form.fields.experience_level.choices %}
-                            <option value="{{ value }}" 
-                                    {% if request.GET.experience_level == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-search me-2"></i>Search
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <a href="{% url 'employees:current_openings' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-clockwise me-2"></i>Reset Filters
-                        </a>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Current Openings Grid -->
-<div class="openings-section">
-    {% if jobs %}
-    <div class="job-grid">
-        {% for job in jobs %}
-        <div class="job-card {% if job.is_urgent %}urgent{% endif %} {% if job.is_featured %}featured{% endif %}">
-            <div class="job-header">
-                <div class="job-title-section">
-                    <h3 class="job-title">
-                        {{ job.title }}
-                        {% if job.is_urgent %}
-                        <span class="urgent-badge">Urgent</span>
+    <!-- Current Openings Grid -->
+    <div class="openings-section mt-4">
+        {% if jobs %}
+        <div class="job-grid">
+            {% for job in jobs %}
+            <div class="job-card {% if job.is_urgent %}urgent{% endif %} {% if job.is_featured %}featured{% endif %}">
+                <div class="job-card-header">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h3 class="job-title mb-0">
+                            {{ job.title }}
+                            {% if job.is_urgent %}
+                            <span class="urgent-badge">Urgent</span>
+                            {% endif %}
+                            {% if job.is_featured %}
+                            <span class="featured-badge">Featured</span>
+                            {% endif %}
+                        </h3>
+                        {% if job.status == 'active' %}
+                        <span class="status-badge success">
+                            <i class="bi bi-check-circle"></i> Active
+                        </span>
+                        {% elif job.status == 'closed' %}
+                        <span class="status-badge danger">
+                            <i class="bi bi-x-circle"></i> Closed
+                        </span>
+                        {% else %}
+                        <span class="status-badge warning">
+                            <i class="bi bi-clock"></i> Draft
+                        </span>
                         {% endif %}
-                        {% if job.is_featured %}
-                        <span class="featured-badge">Featured</span>
-                        {% endif %}
-                    </h3>
+                    </div>
                     <div class="job-meta">
-                        <span class="job-department">{{ job.department.name }}</span>
-                        <span class="job-type">{{ job.get_employment_type_display }}</span>
+                        <span class="job-meta-badge">
+                            <i class="bi bi-building"></i>
+                            {{ job.department.name }}
+                        </span>
+                        <span class="job-meta-badge">
+                            <i class="bi bi-briefcase"></i>
+                            {{ job.get_employment_type_display }}
+                        </span>
                     </div>
                 </div>
-                <div class="job-status">
-                    <span class="status-badge status-success">Active</span>
-                </div>
-            </div>
-            
-            <div class="job-body">
-                <div class="job-description">
-                    <p>{{ job.job_description|truncatewords:25 }}</p>
-                </div>
-                
-                <div class="job-highlights">
-                    <div class="highlight-row">
-                        <div class="highlight-item">
+
+                <div class="job-card-body">
+                    <div class="job-description">
+                        {{ job.job_description|truncatewords:25 }}
+                    </div>
+
+                    <div class="job-details-grid">
+                        <div class="job-detail-item">
                             <i class="bi bi-geo-alt"></i>
                             <span>{{ job.location }}</span>
                         </div>
-                        <div class="highlight-item">
-                            <i class="bi bi-briefcase"></i>
+                        <div class="job-detail-item">
+                            <i class="bi bi-bar-chart"></i>
                             <span>{{ job.get_experience_level_display }}</span>
                         </div>
-                    </div>
-                    <div class="highlight-row">
-                        <div class="highlight-item">
+                        <div class="job-detail-item">
                             <i class="bi bi-people"></i>
-                            <span>{{ job.number_of_vacancies }} vacancies</span>
+                            <span>{{ job.number_of_vacancies }} opening{{ job.number_of_vacancies|pluralize }}</span>
                         </div>
-                        <div class="highlight-item">
+                        {% if job.application_deadline %}
+                        <div class="job-detail-item">
                             <i class="bi bi-calendar-event"></i>
-                            <span>Posted: {{ job.created_at|date:"M d, Y" }}</span>
+                            <span>{{ job.application_deadline|date:"M d, Y" }}</span>
                         </div>
+                        {% endif %}
                     </div>
-                    {% if job.application_deadline %}
-                    <div class="highlight-row">
-                        <div class="highlight-item deadline">
-                            <i class="bi bi-clock"></i>
-                            <span>Deadline: {{ job.application_deadline }}</span>
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
-                
-                <div class="job-requirements">
-                    <h6>Key Requirements</h6>
-                    <ul class="requirements-list">
-                        {% for requirement in job.requirements|splitlines %}
-                        <li>{{ requirement|strip }}</li>
+
+                <div class="job-card-footer">
+                    <div class="job-salary">
+                        {% if job.min_salary and job.max_salary %}
+                        {{ job.currency }} {{ job.min_salary|floatformat:0 }} - {{ job.max_salary|floatformat:0 }}
+                        {% else %}
+                        Competitive
+                        {% endif %}
+                    </div>
+
+                    <div class="job-actions">
+                        <a href="{% url 'employees:job_detail' job.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'employees:job_edit' job.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination-wrapper">
+            <nav aria-label="Openings pagination">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">{{
+                            num }}</a>
+                        </li>
+                        {% endif %}
                         {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="job-footer">
-                <div class="job-salary">
-                    {% if job.min_salary and job.max_salary %}
-                    <span class="salary-amount">{{ job.currency }} {{ job.min_salary }} - {{ job.max_salary }}</span>
-                    {% else %}
-                    <span class="salary-amount">Competitive</span>
-                    {% endif %}
-                </div>
-                
-                <div class="job-actions">
-                    <a href="{% url 'employees:job_detail' job.pk %}" class="btn btn-primary">
-                        <i class="bi bi-eye me-1"></i>View Details
-                    </a>
-                    <button class="btn btn-outline-primary" onclick="shareJob({{ job.pk }})">
-                        <i class="bi bi-share me-1"></i>Share
-                    </button>
-                </div>
-            </div>
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                </ul>
+            </nav>
         </div>
-        {% endfor %}
-    </div>
-    
-    <!-- Pagination -->
-    {% if is_paginated %}
-    <div class="pagination-wrapper">
-        <nav aria-label="Openings pagination">
-            <ul class="pagination">
-                {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
-                        <i class="bi bi-chevron-double-left"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
-                        <i class="bi bi-chevron-left"></i>
-                    </a>
-                </li>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-briefcase"></i>
+            </div>
+            <h3 class="empty-state-title">No Current Openings</h3>
+            <p class="empty-state-text">
+                {% if request.GET.search or request.GET.department or request.GET.employment_type or request.GET.experience_level %}
+                Try adjusting your search criteria or filters.
+                {% else %}
+                There are currently no active job openings. Check back later for
+                new opportunities.
                 {% endif %}
-                
-                {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                <li class="page-item active">
-                    <span class="page-link">{{ num }}</span>
-                </li>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">{{ num }}</a>
-                </li>
-                {% endif %}
-                {% endfor %}
-                
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
-                        <i class="bi bi-chevron-double-right"></i>
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-    </div>
-    {% endif %}
-    
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-state-icon">
-            <i class="bi bi-briefcase"></i>
-        </div>
-        <h3 class="empty-state-title">No Current Openings</h3>
-        <p class="empty-state-text">
-            {% if request.GET.search or request.GET.department or request.GET.employment_type or request.GET.experience_level %}
-            Try adjusting your search criteria or filters.
-            {% else %}
-            There are currently no active job openings. Check back later for new opportunities.
+            </p>
+            {% if not request.GET.search and not request.GET.department and not request.GET.employment_type and not request.GET.experience_level %}
+            <a href="{% url 'employees:job_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Create New Opening
+            </a>
             {% endif %}
-        </p>
-        {% if not request.GET.search and not request.GET.department and not request.GET.employment_type and not request.GET.experience_level %}
-        <a href="{% url 'employees:job_create' %}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-2"></i>Create New Opening
-        </a>
+        </div>
         {% endif %}
     </div>
-    {% endif %}
-</div>
 
-<!-- Share Modal -->
-<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="shareModalLabel">Share Job Opening</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="share-options">
-                    <button class="share-btn" onclick="shareViaEmail()">
-                        <i class="bi bi-envelope"></i>
-                        <span>Email</span>
-                    </button>
-                    <button class="share-btn" onclick="shareViaLinkedIn()">
-                        <i class="bi bi-linkedin"></i>
-                        <span>LinkedIn</span>
-                    </button>
-                    <button class="share-btn" onclick="copyLink()">
-                        <i class="bi bi-link"></i>
-                        <span>Copy Link</span>
-                    </button>
+    <!-- Share Modal -->
+    <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shareModalLabel">Share Job
+                        Opening</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="share-options">
+                        <button class="share-btn" onclick="shareViaEmail()">
+                            <i class="bi bi-envelope"></i>
+                            <span>Email</span>
+                        </button>
+                        <button class="share-btn" onclick="shareViaLinkedIn()">
+                            <i class="bi bi-linkedin"></i>
+                            <span>LinkedIn</span>
+                        </button>
+                        <button class="share-btn" onclick="copyLink()">
+                            <i class="bi bi-link"></i>
+                            <span>Copy Link</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-function shareJob(jobId) {
-    window.currentJobId = jobId;
-    const modal = new bootstrap.Modal(document.getElementById('shareModal'));
-    modal.show();
-}
+    <script>
+        function shareJob(jobId) {
+            window.currentJobId = jobId;
+            const modal = new bootstrap.Modal(document.getElementById('shareModal'));
+            modal.show();
+        }
 
-function shareViaEmail() {
-    const subject = 'Check out this job opening';
-    const body = 'I thought you might be interested in this job opening: ' + window.location.href;
-    window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-}
+        function shareViaEmail() {
+            const subject = 'Check out this job opening';
+            const body = 'I thought you might be interested in this job opening: ' + window.location.href;
+            window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+        }
 
-function shareViaLinkedIn() {
-    const url = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href);
-    window.open(url, '_blank');
-}
+        function shareViaLinkedIn() {
+            const url = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href);
+            window.open(url, '_blank');
+        }
 
-function copyLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        alert('Link copied to clipboard!');
-    });
-}
-</script>
-{% endblock %}
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied to clipboard!');
+            });
+        }
+    </script>
+    {% endblock %}

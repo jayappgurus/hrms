@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 from django.utils.html import format_html
-from .models import Department, Designation, EmergencyContact, Employee, EmployeeDocument, UserProfile
+from .models import Department, Designation, EmergencyContact, Employee, EmployeeDocument, UserProfile, PublicHoliday
 from .decorators import role_required
 
 
@@ -241,3 +241,22 @@ try:
     admin.site.unregister(Group)
 except admin.sites.NotRegistered:
     pass
+
+
+# Public Holiday Admin
+@admin.register(PublicHoliday)
+class PublicHolidayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'date', 'day', 'year', 'is_active')
+    list_filter = ('year', 'is_active', 'day')
+    search_fields = ('name', 'date')
+    list_editable = ('is_active',)
+    ordering = ('date',)
+    
+    fieldsets = (
+        ('Holiday Information', {
+            'fields': ('name', 'date', 'day', 'year')
+        }),
+        ('Status', {
+            'fields': ('is_active',)
+        }),
+    )

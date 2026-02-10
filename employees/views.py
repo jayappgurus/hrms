@@ -6,10 +6,13 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import json
 from django.utils import timezone
 from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, Device, DeviceAllocation, PublicHoliday, LeaveType, LeaveApplication
-from .forms import EmployeeForm, EmergencyContactForm, EmployeeSearchForm, EmployeeDocumentForm, LeaveTypeForm, LeaveApplicationForm
+from .forms import EmployeeForm, EmergencyContactForm, EmployeeSearchForm, EmployeeDocumentForm, LeaveTypeForm, LeaveApplicationForm, PublicHolidayForm
 
 
 class DashboardView(LoginRequiredMixin, ListView):
@@ -167,11 +170,13 @@ class EmployeeCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Add Employee'
         context['emergency_contact_form'] = EmergencyContactForm()
+        context['all_designations'] = list(Designation.objects.values('id', 'name', 'department_id'))
         return context
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, 'Employee added successfully!')
+        employee_code = form.instance.employee_code
+        messages.success(self.request, f'Employee added successfully! Employee ID: {employee_code}')
         return response
 
 
@@ -185,6 +190,7 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Edit Employee'
         context['emergency_contact_form'] = EmergencyContactForm()
+        context['all_designations'] = list(Designation.objects.values('id', 'name', 'department_id'))
         return context
 
     def form_valid(self, form):
@@ -425,6 +431,58 @@ class PublicHolidayListView(LoginRequiredMixin, ListView):
         return context
 
 
+class PublicHolidayCreateView(LoginRequiredMixin, CreateView):
+    model = PublicHoliday
+    form_class = PublicHolidayForm
+    template_name = 'leave/public_holiday_form.html'
+    success_url = reverse_lazy('employees:public_holidays')
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to create holidays
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to add holidays.')
+            return redirect('employees:public_holidays')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Holiday added successfully!')
+        return super().form_valid(form)
+
+
+class PublicHolidayUpdateView(LoginRequiredMixin, UpdateView):
+    model = PublicHoliday
+    form_class = PublicHolidayForm
+    template_name = 'leave/public_holiday_form.html'
+    success_url = reverse_lazy('employees:public_holidays')
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to edit holidays
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to edit holidays.')
+            return redirect('employees:public_holidays')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Holiday updated successfully!')
+        return super().form_valid(form)
+
+
+class PublicHolidayDeleteView(LoginRequiredMixin, DeleteView):
+    model = PublicHoliday
+    success_url = reverse_lazy('employees:public_holidays')
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to delete holidays
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to delete holidays.')
+            return redirect('employees:public_holidays')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, 'Holiday deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+
+
 class LeaveTypeListView(LoginRequiredMixin, ListView):
     model = LeaveType
     template_name = 'leave/leave_types.html'
@@ -447,7 +505,20 @@ class LeaveApplicationListView(LoginRequiredMixin, ListView):
         else:
             # Check if user has an employee profile
             try:
-                return LeaveApplication.objects.filter(employee=self.request.user.employee)
+                user_profile = self.request.user.profile
+                if user_profile.employee:
+                    return LeaveApplication.objects.filter(employee=user_profile.employee)
+                else:
+                    # Try to find employee by matching email
+                    from employees.models import Employee
+                    employee = Employee.objects.filter(official_email=self.request.user.email).first()
+                    if employee:
+                        # Link the employee to the user profile
+                        user_profile.employee = employee
+                        user_profile.save()
+                        return LeaveApplication.objects.filter(employee=employee)
+                    else:
+                        return LeaveApplication.objects.none()
             except AttributeError:
                 # User doesn't have employee profile, return empty queryset
                 return LeaveApplication.objects.none()
@@ -460,11 +531,23 @@ class LeaveApplicationCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('employees:leave_application_list')
 
     def form_valid(self, form):
-        # Check if user has an employee profile
+        # Check if user has an employee profile and employee record
         try:
-            form.instance.employee = self.request.user.employee
+            user_profile = self.request.user.profile
+            if not user_profile.employee:
+                # Try to find employee by matching email
+                from employees.models import Employee
+                employee = Employee.objects.filter(official_email=self.request.user.email).first()
+                if employee:
+                    user_profile.employee = employee
+                    user_profile.save()
+                    form.instance.employee = employee
+                else:
+                    raise AttributeError("No employee found for this user")
+            else:
+                form.instance.employee = user_profile.employee
         except AttributeError:
-            # User doesn't have employee profile, show error message
+            # User doesn't have employee profile or employee record, show error message
             messages.error(self.request, 'You need to have an employee profile to apply for leave.')
             return self.form_invalid(form)
         else:
@@ -538,3 +621,29 @@ class LeaveTypeDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Leave type deleted successfully!')
         return super().delete(request, *args, **kwargs)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DesignationAPIView(LoginRequiredMixin, View):
+    def get(self, request):
+        department_id = request.GET.get('department_id')
+        
+        try:
+            if department_id:
+                # Filter by department
+                designations = Designation.objects.filter(department_id=department_id)
+            else:
+                # Return all designations
+                designations = Designation.objects.all()
+            
+            data = [
+                {
+                    'id': desig.id,
+                    'name': desig.name,
+                    'description': desig.description
+                }
+                for desig in designations
+            ]
+            return JsonResponse(data, safe=False)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)

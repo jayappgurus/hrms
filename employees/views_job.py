@@ -60,6 +60,7 @@ class JobDescriptionListView(LoginRequiredMixin, ListView):
         context['departments'] = Department.objects.all()
         context['total_jobs'] = self.get_queryset().count()
         context['active_jobs'] = self.get_queryset().filter(status='active').count()
+        context['job_form'] = JobDescriptionForm()
         return context
 
 
@@ -105,6 +106,13 @@ class JobDescriptionDeleteView(LoginRequiredMixin, DeleteView):
     model = JobDescription
     template_name = 'jobs/job_confirm_delete.html'
     success_url = reverse_lazy('employees:job_list')
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to delete jobs
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to delete jobs.')
+            return redirect('employees:job_list')
+        return super().dispatch(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Job description deleted successfully!')

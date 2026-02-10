@@ -5,9 +5,8 @@
 {% block page_title %}Employee List{% endblock %}
 
 {% block content %}
-<div class="text-end mb-3">
-    <a href="{% url 'employees:device_visibility' %}" class="btn me-2" 
-       style="background: #00376e; color: white; border: 1px solid #00376e; padding: 8px 16px; text-decoration: none; display: inline-block; border-radius: 4px;">
+<div class="text-end mb-4">
+    <a href="{% url 'employees:device_visibility' %}" class="btn btn-outline-primary me-2">
         <i class="bi bi-laptop me-2"></i>Device Management
     </a>
     <a href="{% url 'employees:employee_add' %}" class="btn btn-primary">
@@ -16,18 +15,24 @@
 </div>
 
 <!-- Employee Table -->
-<div class="card">
-    <div class="card-header">
-        <div class="row align-items-center">
+<div class="card overflow-hidden">
+    <div class="card-header border-0 pt-4 px-4 bg-transparent">
+        <div class="row align-items-center w-100">
             <div class="col-md-6">
-                <i class="bi bi-people me-2"></i>All Employees
+                <h5 class="mb-0 fw-bold text-main"><i class="bi bi-people me-2 text-primary"></i>All Employees</h5>
+                <p class="text-muted small mb-0 mt-1">Manage your team members and their details</p>
             </div>
-            <div class="col-md-6">
-                <form method="get" class="d-flex justify-content-end">
-                    <input type="text" name="search" class="form-control me-2" style="max-width: 300px;" 
-                           placeholder="Search employees..." value="{{ request.GET.search }}">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search"></i>
+            <div class="col-md-6 mt-3 mt-md-0">
+                <form method="get" class="d-flex justify-content-md-end gap-2">
+                    <div class="input-group" style="max-width: 300px;">
+                        <span class="input-group-text bg-white border-end-0 ps-3">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" name="search" class="form-control border-start-0 ps-0"
+                            placeholder="Search by name, ID..." value="{{ request.GET.search }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary px-4">
+                        Search
                     </button>
                 </form>
             </div>
@@ -38,52 +43,56 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th>Name</th>
+                        <th class="ps-4">Name</th>
                         <th>Designation</th>
                         <th>Department</th>
                         <th>Date of Birth</th>
                         <th>Experience</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th class="text-end pe-4">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for employee in employees %}
                     <tr>
-                        <td>
+                        <td class="ps-4" data-label="Name">
                             <div class="d-flex align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-                                     style="width: 40px; height: 40px; background: #00376e; color: white; font-weight: bold;">
+                                <div class="employee-avatar me-3">
                                     {{ employee.full_name|slice:":2"|upper }}
                                 </div>
                                 <div>
-                                    <div class="fw-semibold">{{ employee.full_name }}</div>
+                                    <div class="fw-bold">{{ employee.full_name }}</div>
                                     <small class="text-muted">{{ employee.employee_code }}</small>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ employee.designation.name }}</td>
-                        <td>{{ employee.department.name }}</td>
-                        <td>{{ employee.date_of_birth|date:"d M Y" }}</td>
-                        <td>
+                        <td data-label="Designation">{{ employee.designation.name }}</td>
+                        <td data-label="Department">{{ employee.department.name }}</td>
+                        <td data-label="Date of Birth">{{ employee.date_of_birth|date:"d M Y" }}</td>
+                        <td data-label="Experience">
                             {% if employee.joining_date %}
-                                {{ employee.joining_date|timesince }}
+                            {{ employee.joining_date|timesince }}
                             {% else %}
-                                -
+                            -
                             {% endif %}
                         </td>
-                        <td>
-                            <span class="badge {% if employee.employment_status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                        <td data-label="Status">
+                            <span
+                                class="badge {% if employee.employment_status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
                                 {{ employee.get_employment_status_display }}
                             </span>
                         </td>
-                        <td>
-                            <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <a href="{% url 'employees:employee_edit' employee.pk %}" class="btn btn-sm btn-outline-secondary">
-                                <i class="bi bi-pencil"></i>
-                            </a>
+                        <td class="text-end pe-4" data-label="Actions">
+                            <div class="d-flex justify-content-end gap-1">
+                                <a href="{% url 'employees:employee_detail' employee.pk %}"
+                                    class="btn btn-sm btn-outline-primary px-2">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'employees:employee_edit' employee.pk %}"
+                                    class="btn btn-sm btn-outline-secondary px-2">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
@@ -97,38 +106,41 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Pagination -->
         {% if is_paginated %}
         <nav class="p-3">
             <ul class="pagination justify-content-center mb-0">
                 {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
                 {% endif %}
-                
+
                 {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ num }}</span>
-                        </li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
-                        </li>
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{
+                        num }}</a>
+                    </li>
                     {% endif %}
-                {% endfor %}
-                
-                {% if page_obj.has_next %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <a class="page-link"
+                            href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
                             <i class="bi bi-chevron-right"></i>
                         </a>
                     </li>
-                {% endif %}
+                    {% endif %}
             </ul>
         </nav>
         {% endif %}

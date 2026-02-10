@@ -1,453 +1,388 @@
-{% extends 'base.html' %}
+    {% extends 'base.html' %}
 
-{% block title %}{% if form.instance.pk %}Edit Employee{% else %}Add Employee{% endif %} - HRMS Portal{% endblock %}
+    {% block title %}{% if form.instance.pk %}Edit Employee{% else %}Add Employee{% endif %} - HRMS Portal{% endblock %}
 
-{% block page_title %}{% if form.instance.pk %}Edit Employee{% else %}Add New Employee{% endif %}{% endblock %}
+    {% block page_title %}{% if form.instance.pk %}Edit Employee{% else %}Add New Employee{% endif %}{% endblock %}
 
-{% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-white py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        {% if form.instance.pk %}
-                            <i class="bi bi-pencil-square"></i> Edit Employee
-                        {% else %}
-                            <i class="bi bi-person-plus"></i> Add New Employee
+    {% block extra_css %}
+    <style>
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .form-section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #00376e 0%, #002855 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .form-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .form-actions-sticky {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 20px;
+            border-top: 2px solid var(--border-color);
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            margin: 0 -32px -32px;
+            border-radius: 0 0 16px 16px;
+        }
+    </style>
+    {% endblock %}
+
+    {% block content %}
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="bi bi-{% if form.instance.pk %}pencil-square{% else %}person-plus{% endif %} text-primary"></i>
+                {% if form.instance.pk %}Edit Employee{% else %}Add New Employee{% endif %}
+            </h1>
+            <p class="page-subtitle">
+                {% if form.instance.pk %}
+                Update employee information and details
+                {% else %}
+                Fill in the details to add a new employee to the system
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <form method="post" id="employeeForm" novalidate>
+        {% csrf_token %}
+
+        <!-- Core Employee Details -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <div class="form-section-icon">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <h5 class="form-section-title">Core Employee Details</h5>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.full_name.label }}</label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.full_name.errors.0 }}</div>
                         {% endif %}
-                    </h5>
-                    <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Back to List
-                    </a>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.department.label }}</label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                        <div class="text-danger small mt-1">{{ form.department.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.designation.label }}</label>
+                        {{ form.designation }}
+                        {% if form.designation.errors %}
+                        <div class="text-danger small mt-1">{{ form.designation.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Select a department first to load designations</small>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.joining_date.label }}</label>
+                        {{ form.joining_date }}
+                        {% if form.joining_date.errors %}
+                        <div class="text-danger small mt-1">{{ form.joining_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.employment_status.label }}</label>
+                        {{ form.employment_status }}
+                        {% if form.employment_status.errors %}
+                        <div class="text-danger small mt-1">{{ form.employment_status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.date_of_birth.label }}</label>
+                        {{ form.date_of_birth }}
+                        {% if form.date_of_birth.errors %}
+                        <div class="text-danger small mt-1">{{ form.date_of_birth.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            <div class="card-body">
-                <form method="post" id="employeeForm" novalidate>
-                    {% csrf_token %}
-                    
-                    <!-- Core Employee Details -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-person-badge"></i> Core Employee Details
-                            </h6>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.employee_code.label_tag }}
-                            {{ form.employee_code }}
-                            {% if form.employee_code.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.employee_code.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.full_name.label_tag }}
-                            {{ form.full_name }}
-                            {% if form.full_name.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.full_name.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.department.label_tag }}
-                            {{ form.department }}
-                            {% if form.department.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.department.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.designation.label_tag }}
-                            {{ form.designation }}
-                            {% if form.designation.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.designation.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.joining_date.label_tag }}
-                            {{ form.joining_date }}
-                            {% if form.joining_date.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.joining_date.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.relieving_date.label_tag }}(<small class="text-muted">Optional</small>)
-                            {{ form.relieving_date }}
-                            {% if form.relieving_date.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.relieving_date.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.employment_status.label_tag }}
-                            {{ form.employment_status }}
-                            {% if form.employment_status.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.employment_status.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
+        </div>
 
-                    <!-- Contact Information -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-telephone"></i> Contact Information
-                            </h6>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.mobile_number.label_tag }}
-                            {{ form.mobile_number }}
-                            {% if form.mobile_number.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.mobile_number.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.official_email.label_tag }}
-                            {{ form.official_email }}
-                            {% if form.official_email.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.official_email.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.personal_email.label_tag }}(<small class="text-muted">Optional</small>)
-                            {{ form.personal_email }}
-                            {% if form.personal_email.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.personal_email.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-12 mb-3">
-                            {{ form.local_address.label_tag }}
-                            {{ form.local_address }}
-                            {% if form.local_address.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.local_address.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-12 mb-3">
-                            {{ form.permanent_address.label_tag }}
-                            {{ form.permanent_address }}
-                            {% if form.permanent_address.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.permanent_address.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
+        <!-- Contact Information -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <div class="form-section-icon">
+                    <i class="bi bi-telephone"></i>
+                </div>
+                <h5 class="form-section-title">Contact Information</h5>
+            </div>
 
-                    <!-- Emergency Contact -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-telephone-fill"></i> Emergency Contact
-                            </h6>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ emergency_contact_form.name.label_tag }}
-                            {{ emergency_contact_form.name }}
-                            {% if emergency_contact_form.name.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ emergency_contact_form.name.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ emergency_contact_form.relationship.label_tag }}
-                            {{ emergency_contact_form.relationship }}
-                            {% if emergency_contact_form.relationship.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ emergency_contact_form.relationship.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ emergency_contact_form.mobile_number.label_tag }}
-                            {{ emergency_contact_form.mobile_number }}
-                            {% if emergency_contact_form.mobile_number.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ emergency_contact_form.mobile_number.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ emergency_contact_form.email.label_tag }}
-                            {{ emergency_contact_form.email }}
-                            {% if emergency_contact_form.email.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ emergency_contact_form.email.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-12 mb-3">
-                            {{ emergency_contact_form.address.label_tag }}
-                            {{ emergency_contact_form.address }}
-                            {% if emergency_contact_form.address.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ emergency_contact_form.address.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.mobile_number.label }}</label>
+                        {{ form.mobile_number }}
+                        {% if form.mobile_number.errors %}
+                        <div class="text-danger small mt-1">{{ form.mobile_number.errors.0 }}</div>
+                        {% endif %}
                     </div>
+                </div>
 
-                    <!-- Personal Information -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-person"></i> Personal Information
-                            </h6>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.date_of_birth.label_tag }}
-                            {{ form.date_of_birth }}
-                            {% if form.date_of_birth.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.date_of_birth.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            {{ form.marital_status.label_tag }}
-                            {{ form.marital_status }}
-                            {% if form.marital_status.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.marital_status.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3" id="anniversary_field">
-                            {{ form.anniversary_date.label_tag }}
-                            {{ form.anniversary_date }}
-                            {% if form.anniversary_date.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.anniversary_date.errors.0 }}
-                                </div>
-                            {% endif %}
-                            <small class="text-muted">Required if married</small>
-                        </div>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.official_email.label }}</label>
+                        {{ form.official_email }}
+                        {% if form.official_email.errors %}
+                        <div class="text-danger small mt-1">{{ form.official_email.errors.0 }}</div>
+                        {% endif %}
                     </div>
+                </div>
 
-                    <!-- Professional Information -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-briefcase"></i> Professional Information
-                            </h6>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.highest_qualification.label_tag }}
-                            {{ form.highest_qualification }}
-                            {% if form.highest_qualification.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.highest_qualification.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            {{ form.total_experience_years.label_tag }}
-                            {{ form.total_experience_years }}
-                            {% if form.total_experience_years.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.total_experience_years.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            {{ form.total_experience_months.label_tag }}
-                            {{ form.total_experience_months }}
-                            {% if form.total_experience_months.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.total_experience_months.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.probation_status.label_tag }}
-                            <div class="mt-2">
-                                {% for choice in form.probation_status %}
-                                    <div class="form-check form-check-inline">
-                                        {{ choice.tag }}
-                                        {{ choice.choice_label }}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            {% if form.probation_status.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.probation_status.errors.0 }}
-                                </div>
-                            {% endif %}
-                            <small class="text-muted">Auto-calculated based on 3 months from Joining Date</small>
-                        </div>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.personal_email.label }}</label>
+                        {{ form.personal_email }}
+                        {% if form.personal_email.errors %}
+                        <div class="text-danger small mt-1">{{ form.personal_email.errors.0 }}</div>
+                        {% endif %}
                     </div>
+                </div>
 
-                    <!-- Identity & Compliance -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-shield-check"></i> Identity & Compliance
-                            </h6>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.aadhar_card_number.label_tag }}
-                            {{ form.aadhar_card_number }}
-                            {% if form.aadhar_card_number.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.aadhar_card_number.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.pan_card_number.label_tag }}
-                            {{ form.pan_card_number }}
-                            {% if form.pan_card_number.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.pan_card_number.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.local_address.label }}</label>
+                        {{ form.local_address }}
+                        {% if form.local_address.errors %}
+                        <div class="text-danger small mt-1">{{ form.local_address.errors.0 }}</div>
+                        {% endif %}
                     </div>
+                </div>
 
-                    <!-- Form Actions -->
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle"></i> Cancel
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-check-circle"></i> 
-                                    {% if form.instance.pk %}Update Employee{% else %}Create Employee{% endif %}
-                                </button>
-                            </div>
-                        </div>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.permanent_address.label }}</label>
+                        {{ form.permanent_address }}
+                        {% if form.permanent_address.errors %}
+                        <div class="text-danger small mt-1">{{ form.permanent_address.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-$(document).ready(function() {
-    // Handle department change to filter designations
-    $('#id_department').change(function() {
-        var departmentId = $(this).val();
-        var designationSelect = $('#id_designation');
-        
-        if (departmentId) {
-            $.ajax({
-                url: '{% url "employees:get_designations_by_department" %}',
-                data: {'department_id': departmentId},
-                success: function(data) {
-                    designationSelect.empty();
-                    designationSelect.append('<option value="">Select Designation</option>');
-                    
-                    $.each(data.designations, function(index, designation) {
-                        designationSelect.append('<option value="' + designation.id + '">' + designation.name + '</option>');
-                    });
-                },
-                error: function() {
-                    designationSelect.empty();
-                    designationSelect.append('<option value="">Select Designation</option>');
+        <!-- Personal Information -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <div class="form-section-icon">
+                    <i class="bi bi-person"></i>
+                </div>
+                <h5 class="form-section-title">Personal Information</h5>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.gender.label }}</label>
+                        {{ form.gender }}
+                        {% if form.gender.errors %}
+                        <div class="text-danger small mt-1">{{ form.gender.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.blood_group.label }}</label>
+                        {{ form.blood_group }}
+                        {% if form.blood_group.errors %}
+                        <div class="text-danger small mt-1">{{ form.blood_group.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.marital_status.label }}</label>
+                        {{ form.marital_status }}
+                        {% if form.marital_status.errors %}
+                        <div class="text-danger small mt-1">{{ form.marital_status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.nationality.label }}</label>
+                        {{ form.nationality }}
+                        {% if form.nationality.errors %}
+                        <div class="text-danger small mt-1">{{ form.nationality.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.highest_qualification.label }}</label>
+                        {{ form.highest_qualification }}
+                        {% if form.highest_qualification.errors %}
+                        <div class="text-danger small mt-1">{{ form.highest_qualification.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="modern-form-group">
+                            <label class="modern-form-label required">{{ form.aadhar_card_number.label }}</label>
+                            {{ form.aadhar_card_number }}
+                            {% if form.aadhar_card_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.aadhar_card_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="modern-form-group">
+                            <label class="modern-form-label required">{{ form.pan_card_number.label }}</label>
+                            {{ form.pan_card_number }}
+                            {% if form.pan_card_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.pan_card_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions-sticky">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-2"></i>Cancel
+                </a>
+                <div class="d-flex gap-2">
+                    <button type="reset" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>
+                        {% if form.instance.pk %}Update Employee{% else %}Add Employee{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endblock %}
+
+    {% block extra_js %}
+    <script>
+        // Add modern-form-control class to all form inputs
+        document.addEventListener('DOMContentLoaded', function () {
+            const formInputs = document.querySelectorAll('#employeeForm input, #employeeForm select, #employeeForm textarea');
+            formInputs.forEach(input => {
+                input.classList.add('modern-form-control');
+                if (input.tagName === 'SELECT') {
+                    input.classList.add('modern-form-select');
+                }
+                if (input.tagName === 'TEXTAREA') {
+                    input.classList.add('modern-form-textarea');
                 }
             });
-        } else {
-            designationSelect.empty();
-            designationSelect.append('<option value="">Select Designation</option>');
-        }
-    });
 
-    // Handle marital status change
-    $('#id_marital_status').change(function() {
-        var maritalStatus = $(this).val();
-        var anniversaryField = $('#anniversary_field');
-        
-        if (maritalStatus === 'married') {
-            anniversaryField.find('input').prop('required', true);
-            anniversaryField.show();
-        } else {
-            anniversaryField.find('input').prop('required', false);
-            anniversaryField.hide();
-        }
-    });
+            // Form validation feedback
+            const form = document.getElementById('employeeForm');
+            form.addEventListener('submit', function (e) {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
 
-    // Initial setup
-    $('#id_marital_status').trigger('change');
+            // Department-Designation dependency
+            const departmentField = document.getElementById('id_department');
+            const designationField = document.getElementById('id_designation');
 
-    // Auto-calculate probation status based on joining date
-    function calculateProbationStatus() {
-        var joiningDate = $('#id_joining_date').val();
-        var probationStatusRadios = $('input[name="probation_status"]');
-        
-        if (joiningDate) {
-            var joiningDateObj = new Date(joiningDate);
-            var currentDate = new Date();
-            var probationEndDate = new Date(joiningDateObj);
-            probationEndDate.setMonth(probationEndDate.getMonth() + 3);
+            // Store all designations data from Django template
+            const allDesignations = {{ all_designations|safe }};
             
-            if (currentDate <= probationEndDate) {
-                probationStatusRadios.filter('[value="True"]').prop('checked', true);
-            } else {
-                probationStatusRadios.filter('[value="False"]').prop('checked', true);
+            function loadDesignations(departmentId) {
+                console.log('Loading designations for department:', departmentId);
+                
+                // Clear current designation options
+                designationField.innerHTML = '<option value="">Select a designation</option>';
+                
+                // Filter designations by department if selected, otherwise show all
+                const filteredDesignations = departmentId ? 
+                    allDesignations.filter(d => d.department_id == departmentId) : 
+                    allDesignations;
+                
+                console.log('Filtered designations:', filteredDesignations);
+                
+                if (filteredDesignations.length === 0) {
+                    designationField.innerHTML = '<option value="">No designations available</option>';
+                } else {
+                    filteredDesignations.forEach(designation => {
+                        const option = document.createElement('option');
+                        option.value = designation.id;
+                        option.textContent = designation.name;
+                        designationField.appendChild(option);
+                    });
+                }
             }
-        }
-    }
 
-    // Calculate probation status when joining date changes
-    $('#id_joining_date').change(function() {
-        calculateProbationStatus();
-    });
+            departmentField.addEventListener('change', function() {
+                loadDesignations(this.value);
+            });
 
-    // Initial calculation on page load
-    calculateProbationStatus();
-
-    // Form validation
-    $('#employeeForm').on('submit', function(e) {
-        var isValid = true;
-        
-        // Check required fields
-        $(this).find('input[required], select[required], textarea[required]').each(function() {
-            if (!$(this).val()) {
-                isValid = false;
-                $(this).addClass('is-invalid');
-            } else {
-                $(this).removeClass('is-invalid');
-            }
+            // Load designations on page load
+            loadDesignations(departmentField.value);
         });
-
-        if (!isValid) {
-            e.preventDefault();
-            alert('Please fill in all required fields.');
-        }
-    });
-
-    // Format PAN card number to uppercase
-    $('#id_pan_card_number').on('input', function() {
-        $(this).val($(this).val().toUpperCase());
-    });
-
-    // Validate Aadhar card number (digits only)
-    $('#id_aadhar_card_number').on('input', function() {
-        $(this).val($(this).val().replace(/[^0-9]/g, ''));
-    });
-});
-</script>
-{% endblock %}
+    </script>
+    {% endblock %}

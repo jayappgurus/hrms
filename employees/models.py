@@ -21,6 +21,7 @@ class UserProfile(models.Model):
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    employee = models.OneToOneField('Employee', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_profile')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='employee')
     department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
@@ -126,6 +127,23 @@ class Employee(models.Model):
         ('single', 'Single'),
         ('married', 'Married'),
     ]
+    
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ]
+    
+    BLOOD_GROUP_CHOICES = [
+        ('a+', 'A+'),
+        ('a-', 'A-'),
+        ('b+', 'B+'),
+        ('b-', 'B-'),
+        ('ab+', 'AB+'),
+        ('ab-', 'AB-'),
+        ('o+', 'O+'),
+        ('o-', 'O-'),
+    ]
 
     # Core Employee Details
     employee_code = models.CharField(max_length=20, unique=True, help_text="Unique employee code")
@@ -151,8 +169,11 @@ class Employee(models.Model):
 
     # Personal Information
     date_of_birth = models.DateField()
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES, blank=True, null=True)
     marital_status = models.CharField(max_length=10, choices=MARITAL_STATUS_CHOICES)
     anniversary_date = models.DateField(null=True, blank=True)
+    nationality = models.CharField(max_length=50, default='Indian')
 
     # Professional Information
     highest_qualification = models.CharField(max_length=100)
@@ -185,8 +206,30 @@ class Employee(models.Model):
         return f"{self.full_name} ({self.employee_code})"
 
     def save(self, *args, **kwargs):
+        # Auto-generate employee code if not provided
+        if not self.employee_code:
+            # Get the latest employee code
+            latest_employee = Employee.objects.order_by('-id').first()
+            if latest_employee and latest_employee.employee_code and latest_employee.employee_code.startswith('EM'):
+                # Extract numeric part and increment
+                try:
+                    latest_num = int(latest_employee.employee_code[2:])
+                    new_num = latest_num + 1
+                except ValueError:
+                    new_num = 1
+            else:
+                new_num = 1
+            
+            # Format as EM0001, EM0002, etc.
+            self.employee_code = f'EM{new_num:04d}'
+        
         # Auto-calculate probation status
         if self.joining_date:
+            # Convert string to date object if needed
+            if isinstance(self.joining_date, str):
+                from datetime import datetime
+                self.joining_date = datetime.strptime(self.joining_date, '%Y-%m-%d').date()
+            
             # Calculate probation end date (3 months from joining date)
             probation_months = 3
             year = self.joining_date.year

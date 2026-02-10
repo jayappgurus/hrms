@@ -1,292 +1,184 @@
 {% extends 'base.html' %}
 
-{% block title %}Device Visibility Dashboard{% endblock %}
+{% block title %}Device Management - HRMS Portal{% endblock %}
 
-{% block page_title %}Device Visibility Dashboard{% endblock %}
-
-{% block extra_css %}
-<style>
-.stats-card {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 10px 30px rgba(0, 55, 110, 0.1);
-    border: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.stats-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: #00376e;
-}
-
-.stats-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 55, 110, 0.15);
-}
-
-.stats-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #00376e;
-    color: white;
-    font-size: 1.5rem;
-    box-shadow: 0 5px 15px rgba(0, 55, 110, 0.2);
-    transition: transform 0.3s ease;
-}
-
-.stats-card:hover .stats-icon {
-    transform: scale(1.1);
-}
-
-.device-table-card {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 55, 110, 0.1);
-    border: none;
-}
-
-.table {
-    border-radius: 0px;
-    overflow: hidden;
-}
-
-.table thead th {
-    background: #00376e;
-    color: white;
-    border: none;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-}
-
-.table tbody tr {
-    transition: all 0.2s ease;
-}
-
-.table tbody tr:hover {
-    background-color: #f8f9ff;
-    transform: scale(1.01);
-}
-
-.status-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-    font-size: 0.8rem;
-}
-
-.action-btn {
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    text-decoration: none;
-}
-
-h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #00376e;
-}
-</style>
-{% endblock %}
+{% block page_title %}Device Management{% endblock %}
 
 {% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-laptop text-primary"></i>
+            Device Dashboard
+        </h1>
+        <p class="page-subtitle">Monitor and manage all company devices in real-time</p>
+    </div>
+    <a href="{% url 'employees:device_add' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Add New Device
+    </a>
+</div>
+
 <!-- Statistics Cards -->
 <div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-4">
-        <div class="stats-card">
-            <div class="d-flex align-items-center">
-                <div class="stats-icon">
-                    <i class="bi bi-laptop"></i>
-                </div>
-                <div class="ms-3 flex-grow-1">
-                    <h6 class="text-muted mb-1">Total Devices</h6>
-                    <h2 class="mb-0">{{ total_devices }}</h2>
-                </div>
+    <div class="col-xl-3 col-sm-6 mb-4 mb-xl-0">
+        <div class="stats-card h-100">
+            <div class="stats-icon bg-blue-light text-primary">
+                <i class="bi bi-laptop"></i>
             </div>
-            <div class="mt-3 pt-3 border-top">
-                <small class="text-muted">
-                    <i class="bi bi-box-seam text-primary me-1"></i>
-                    All registered devices
-                </small>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ total_devices }}</h3>
+                <p class="text-muted text-sm mb-0">Total Devices</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-4">
-        <div class="stats-card">
-            <div class="d-flex align-items-center">
-                <div class="stats-icon" style="background: #28a745;">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <div class="ms-3 flex-grow-1">
-                    <h6 class="text-muted mb-1">Available</h6>
-                    <h2 class="mb-0" style="color: #28a745;">{{ available_devices }}</h2>
-                </div>
+    <div class="col-xl-3 col-sm-6 mb-4 mb-xl-0">
+        <div class="stats-card h-100" style="border-left-color: var(--success);">
+            <div class="stats-icon text-success" style="background: rgba(16, 185, 129, 0.1);">
+                <i class="bi bi-check-circle"></i>
             </div>
-            <div class="mt-3 pt-3 border-top">
-                <small class="text-muted">
-                    <i class="bi bi-check-circle text-success me-1"></i>
-                    Ready for allocation
-                </small>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ available_devices }}</h3>
+                <p class="text-muted text-sm mb-0">Available</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-4">
-        <div class="stats-card">
-            <div class="d-flex align-items-center">
-                <div class="stats-icon" style="background: #ffc107;">
-                    <i class="bi bi-person-check"></i>
-                </div>
-                <div class="ms-3 flex-grow-1">
-                    <h6 class="text-muted mb-1">In Use</h6>
-                    <h2 class="mb-0" style="color: #ffc107;">{{ in_use_devices }}</h2>
-                </div>
+    <div class="col-xl-3 col-sm-6 mb-4 mb-xl-0">
+        <div class="stats-card h-100" style="border-left-color: var(--warning);">
+            <div class="stats-icon text-warning" style="background: rgba(245, 158, 11, 0.1);">
+                <i class="bi bi-person-check"></i>
             </div>
-            <div class="mt-3 pt-3 border-top">
-                <small class="text-muted">
-                    <i class="bi bi-person-check text-warning me-1"></i>
-                    Currently allocated
-                </small>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ in_use_devices }}</h3>
+                <p class="text-muted text-sm mb-0">In Use</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-4">
-        <div class="stats-card">
-            <div class="d-flex align-items-center">
-                <div class="stats-icon" style="background: #17a2b8;">
-                    <i class="bi bi-tools"></i>
-                </div>
-                <div class="ms-3 flex-grow-1">
-                    <h6 class="text-muted mb-1">Maintenance</h6>
-                    <h2 class="mb-0" style="color: #17a2b8;">{{ maintenance_devices }}</h2>
-                </div>
+    <div class="col-xl-3 col-sm-6 mb-4 mb-xl-0">
+        <div class="stats-card h-100" style="border-left-color: var(--info);">
+            <div class="stats-icon text-info" style="background: rgba(6, 182, 212, 0.1);">
+                <i class="bi bi-tools"></i>
             </div>
-            <div class="mt-3 pt-3 border-top">
-                <small class="text-muted">
-                    <i class="bi bi-tools text-info me-1"></i>
-                    Under maintenance
-                </small>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ maintenance_devices }}</h3>
+                <p class="text-muted text-sm mb-0">Maintenance</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Device Status Table -->
-<div class="row">
-    <div class="col-12">
-        <div class="device-table-card card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-eye me-2"></i>
-                        Real-time Device Status
-                    </h5>
-                    <a href="{% url 'employees:device_list' %}" class="btn btn-sm" style="background: #00376e; color: white; border-radius: 20px;">
-                        <i class="bi bi-gear me-1"></i>Manage Devices
-                    </a>
-                </div>
-            </div>
-            <div class="card-body p-0">
-                {% if devices %}
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Device Name</th>
-                                <th>Status</th>
-                                <th>Taken By</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for device in devices %}
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-{% if device.device_type == 'laptop' %}laptop{% elif device.device_type == 'mobile' %}phone{% elif device.device_type == 'tablet' %}tablet{% else %}gear{% endif %} me-2" style="color: #00376e;"></i>
-                                        <div>
-                                            <div class="fw-semibold">{{ device.device_name }}</div>
-                                            <small class="text-muted">{{ device.get_device_type_display }}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if device.status == 'available' %}
-                                        <span class="status-badge bg-success">Free</span>
-                                    {% elif device.status == 'in_use' %}
-                                        <span class="status-badge bg-warning">In Use</span>
-                                    {% elif device.status == 'maintenance' %}
-                                        <span class="status-badge bg-info">Maintenance</span>
-                                    {% else %}
-                                        <span class="status-badge bg-secondary">Retired</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if device.allocated_to %}
-                                        <div class="d-flex align-items-center">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
-                                                 style="width: 30px; height: 30px; background: #00376e; color: white; font-weight: bold; font-size: 0.7rem;">
-                                                {{ device.allocated_to.full_name|slice:":2"|upper }}
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold">{{ device.allocated_to.full_name }}</div>
-                                                <small class="text-muted">{{ device.allocated_to.employee_code }}</small>
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if device.status == 'available' %}
-                                        <a href="{% url 'employees:allocate_device' device.pk %}" class="action-btn btn-success">
-                                            <i class="bi bi-person-plus me-1"></i>Allocate
-                                        </a>
-                                    {% elif device.status == 'in_use' %}
-                                        <a href="{% url 'employees:return_device' device.pk %}" class="action-btn btn-warning">
-                                            <i class="bi bi-box-arrow-in-left me-1"></i>Return
-                                        </a>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3; color: #00376e;"></i>
-                    <h5 class="mt-3">No devices found</h5>
-                    <p class="text-muted">Start by adding new devices to your inventory.</p>
-                    <a href="{% url 'employees:device_add' %}" class="btn" style="background: #00376e; color: white; border-radius: 20px;">
-                        <i class="bi bi-plus-circle me-2"></i>Add First Device
-                    </a>
-                </div>
-                {% endif %}
-            </div>
+<div class="modern-card">
+    <div class="modern-card-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h5 class="modern-card-title mb-0">
+                <i class="bi bi-eye"></i>
+                Real-time Device Status
+            </h5>
+            <a href="{% url 'employees:device_list' %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-gear me-1"></i>Manage Devices
+            </a>
         </div>
+    </div>
+    <div class="modern-card-body p-0">
+        {% if devices %}
+        <div class="table-responsive">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Device Name</th>
+                        <th>Status</th>
+                        <th>Allocated To</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for device in devices %}
+                    <tr>
+                        <td data-label="Device Name">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="info-icon">
+                                    <i
+                                        class="bi bi-{% if device.device_type == 'laptop' %}laptop{% elif device.device_type == 'mobile' %}phone{% elif device.device_type == 'tablet' %}tablet{% else %}gear{% endif %}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ device.device_name }}</div>
+                                    <small class="text-muted">{{ device.get_device_type_display }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-label="Status">
+                            {% if device.status == 'available' %}
+                            <span class="status-badge success">
+                                <i class="bi bi-check-circle"></i> Available
+                            </span>
+                            {% elif device.status == 'in_use' %}
+                            <span class="status-badge warning">
+                                <i class="bi bi-person-check"></i> In Use
+                            </span>
+                            {% elif device.status == 'maintenance' %}
+                            <span class="status-badge info">
+                                <i class="bi bi-tools"></i> Maintenance
+                            </span>
+                            {% else %}
+                            <span class="status-badge danger">
+                                <i class="bi bi-x-circle"></i> Retired
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Allocated To">
+                            {% if device.allocated_to %}
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="employee-avatar" style="width: 32px; height: 32px; font-size: 12px;">
+                                    {{ device.allocated_to.full_name|slice:":2"|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">{{ device.allocated_to.full_name }}</div>
+                                    <small class="text-muted">{{ device.allocated_to.employee_code }}</small>
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Actions" class="text-end">
+                            <div class="table-actions justify-content-end">
+                                {% if device.status == 'available' %}
+                                <a href="{% url 'employees:allocate_device' device.pk %}" class="btn btn-sm btn-success"
+                                    title="Allocate Device">
+                                    <i class="bi bi-person-plus"></i>
+                                    <span class="d-none d-md-inline ms-1">Allocate</span>
+                                </a>
+                                {% elif device.status == 'in_use' %}
+                                <a href="{% url 'employees:return_device' device.pk %}" class="btn btn-sm btn-warning"
+                                    title="Return Device">
+                                    <i class="bi bi-box-arrow-in-left"></i>
+                                    <span class="d-none d-md-inline ms-1">Return</span>
+                                </a>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-laptop"></i>
+            </div>
+            <h3 class="empty-state-title">No Devices Found</h3>
+            <p class="empty-state-text">
+                Start by adding new devices to your inventory to track and manage them effectively.
+            </p>
+            <a href="{% url 'employees:device_add' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Add First Device
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

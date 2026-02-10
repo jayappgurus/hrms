@@ -1,11 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}HRMS Portal{% endblock %}</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -14,10 +15,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/hrms-portal.css' %}">
-    <link rel="stylesheet" href="{% static 'css/mobile-responsive.css' %}">
-    
+    <link rel="stylesheet" href="{% static 'css/shared-components.css' %}">
+
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
     <!-- Preloader -->
     <div id="preloader">
@@ -26,7 +28,7 @@
 
     <!-- Main Wrapper -->
     <div class="main-wrapper">
-        
+
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -36,69 +38,89 @@
                     </div>
                     <h4 class="logo-title">HRMS Portal</h4>
                 </div>
-                <button class="sidebar-toggle" id="sidebarToggle">
-                    <i class="bi bi-list"></i>
-                </button>
                 <!-- Mobile Menu Overlay -->
                 <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
             </div>
-            
+
             <div class="sidebar-body">
-                <ul class="sidebar-nav">
+                <ul class="sidebar-nav p-0">
+                    <li class="nav-label">Main</li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
-                           href="{% url 'employees:dashboard' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                            href="{% url 'employees:dashboard' %}">
                             <i class="bi bi-speedometer2"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    
+
+                    <li class="nav-label">Management</li>
                     <li class="nav-item">
-                        <a class="nav-link {% if 'employee' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'employees:employee_list' %}">
+                        <a class="nav-link {% if 'employee' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:employee_list' %}">
                             <i class="bi bi-people"></i>
                             <span>Employees</span>
                             <i class="bi bi-chevron-down nav-arrow"></i>
                         </a>
-                        <ul class="sub-menu">
-                            <li><a href="{% url 'employees:employee_list' %}">List View</a></li>
-                            <li><a href="{% url 'employees:employee_grid' %}">Grid View</a></li>
+                        <ul class="sub-menu {% if 'employee' in request.resolver_match.url_name %}show{% endif %}">
+                            <li><a href="{% url 'employees:employee_list' %}"
+                                    class="{% if request.resolver_match.url_name == 'employee_list' %}active{% endif %}">List
+                                    View</a></li>
+                            <li><a href="{% url 'employees:employee_grid' %}"
+                                    class="{% if request.resolver_match.url_name == 'employee_grid' %}active{% endif %}">Grid
+                                    View</a></li>
                         </ul>
                     </li>
-                    
+
                     <li class="nav-item">
-                        <a class="nav-link {% if 'device' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'employees:device_visibility' %}">
+                        <a class="nav-link {% if 'device' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:device_visibility' %}">
                             <i class="bi bi-laptop"></i>
                             <span>Devices</span>
                         </a>
                     </li>
-                    
+
                     <li class="nav-item">
-                        <a class="nav-link {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'employees:public_holidays' %}">
+                        <a class="nav-link {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:public_holidays' %}">
                             <i class="bi bi-calendar-event"></i>
-                            <span>Leave Management</span>
+                            <span>Leaves & Holidays</span>
                             <i class="bi bi-chevron-down nav-arrow"></i>
                         </a>
-                        <ul class="sub-menu">
-                            <li><a href="{% url 'employees:leave_types' %}">Leave Types</a></li>
-                            <li><a href="{% url 'employees:leave_application_list' %}">Leave Applications</a></li>
-                            <li><a href="{% url 'employees:public_holidays' %}">Public Holidays</a></li>
+                        <ul
+                            class="sub-menu {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name %}show{% endif %}">
+                            {% if not user.profile.role == 'employee' %}
+                            <li><a href="{% url 'employees:leave_types' %}"
+                                    class="{% if request.resolver_match.url_name == 'leave_types' %}active{% endif %}">Leave
+                                    Types</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'employees:leave_application_list' %}"
+                                    class="{% if request.resolver_match.url_name == 'leave_application_list' %}active{% endif %}">Leave
+                                    Applications</a></li>
+                            <li><a href="{% url 'employees:public_holidays' %}"
+                                    class="{% if request.resolver_match.url_name == 'public_holidays' %}active{% endif %}">Public
+                                    Holidays</a></li>
                         </ul>
                     </li>
-                    
+
+                    <li class="nav-label">Recruitment</li>
                     <li class="nav-item">
-                        <a class="nav-link {% if 'job' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'employees:job_list' %}">
+                        <a class="nav-link {% if 'job' in request.resolver_match.url_name or 'candidate' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:job_list' %}">
                             <i class="bi bi-briefcase"></i>
-                            <span>Jobs</span>
+                            <span>Jobs & Hiring</span>
                             <i class="bi bi-chevron-down nav-arrow"></i>
                         </a>
-                        <ul class="sub-menu">
-                            <li><a href="{% url 'employees:job_list' %}">Job Descriptions</a></li>
-                            <li><a href="{% url 'employees:candidate_tracker' %}">Candidate Tracker</a></li>
-                            <li><a href="{% url 'employees:current_openings' %}">Current Openings</a></li>
+                        <ul
+                            class="sub-menu {% if 'job' in request.resolver_match.url_name or 'candidate' in request.resolver_match.url_name %}show{% endif %}">
+                            <li><a href="{% url 'employees:job_list' %}"
+                                    class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">Job
+                                    Descriptions</a></li>
+                            <li><a href="{% url 'employees:candidate_tracker' %}"
+                                    class="{% if request.resolver_match.url_name == 'candidate_tracker' %}active{% endif %}">Candidate
+                                    Tracker</a></li>
+                            <li><a href="{% url 'employees:current_openings' %}"
+                                    class="{% if request.resolver_match.url_name == 'current_openings' %}active{% endif %}">Current
+                                    Openings</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -107,7 +129,7 @@
 
         <!-- Main Content -->
         <div class="page-wrapper">
-            
+
             <!-- Top Header -->
             <header class="top-header">
                 <div class="header-left">
@@ -119,7 +141,7 @@
                         <i class="bi bi-search"></i>
                     </div>
                 </div>
-                
+
                 <div class="header-right">
                     <!-- Notifications -->
                     <div class="dropdown">
@@ -130,28 +152,30 @@
                         <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
                             <li class="dropdown-header">Notifications</li>
                             <li><a class="dropdown-item" href="#">
-                                <div class="notification-item">
-                                    <i class="bi bi-person-plus text-primary"></i>
-                                    <div class="notification-content">
-                                        <p>New employee registered</p>
-                                        <small>2 minutes ago</small>
+                                    <div class="notification-item">
+                                        <i class="bi bi-person-plus text-primary"></i>
+                                        <div class="notification-content">
+                                            <p>New employee registered</p>
+                                            <small>2 minutes ago</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </a></li>
+                                </a></li>
                             <li><a class="dropdown-item" href="#">
-                                <div class="notification-item">
-                                    <i class="bi bi-calendar-check text-success"></i>
-                                    <div class="notification-content">
-                                        <p>Leave request approved</p>
-                                        <small>1 hour ago</small>
+                                    <div class="notification-item">
+                                        <i class="bi bi-calendar-check text-success"></i>
+                                        <div class="notification-content">
+                                            <p>Leave request approved</p>
+                                            <small>1 hour ago</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
                         </ul>
                     </div>
-                    
+
                     <!-- Messages -->
                     <div class="dropdown">
                         <button class="header-btn" type="button" data-bs-toggle="dropdown">
@@ -161,19 +185,21 @@
                         <ul class="dropdown-menu dropdown-menu-end message-dropdown">
                             <li class="dropdown-header">Messages</li>
                             <li><a class="dropdown-item" href="#">
-                                <div class="message-item">
-                                    <div class="message-avatar">JD</div>
-                                    <div class="message-content">
-                                        <p>John Doe</p>
-                                        <small>Meeting tomorrow at 10 AM</small>
+                                    <div class="message-item">
+                                        <div class="message-avatar">JD</div>
+                                        <div class="message-content">
+                                            <p>John Doe</p>
+                                            <small>Meeting tomorrow at 10 AM</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item text-center" href="#">View all messages</a></li>
                         </ul>
                     </div>
-                    
+
                     <!-- User Profile -->
                     <div class="dropdown">
                         <button class="user-profile-btn" type="button" data-bs-toggle="dropdown">
@@ -184,21 +210,29 @@
                             </div>
                             <div class="user-info">
                                 <span class="user-name">{{ user.get_full_name|default:user.username|title }}</span>
-                                <span class="user-role">{{ user.userprofile.get_role_display|default:"Admin" }}</span>
+                                <span class="user-role">
+                                    {% if user.profile %}
+                                    {{ user.profile.get_role_display }}
+                                    {% else %}
+                                    Employee
+                                    {% endif %}
+                                </span>
                             </div>
                             <i class="bi bi-chevron-down"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#">
-                                <i class="bi bi-person me-2"></i>Profile
-                            </a></li>
+                                    <i class="bi bi-person me-2"></i>Profile
+                                </a></li>
                             <li><a class="dropdown-item" href="#">
-                                <i class="bi bi-gear me-2"></i>Settings
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
+                                    <i class="bi bi-gear me-2"></i>Settings
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
-                                <i class="bi bi-box-arrow-right me-2"></i>Logout
-                            </a></li>
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </a></li>
                         </ul>
                     </div>
                 </div>
@@ -207,8 +241,9 @@
             <!-- Page Content -->
             <main class="main-content">
                 <!-- Page Header -->
+                {% if request.resolver_match.url_name == 'dashboard' %}
                 <div class="page-header">
-                    <div class="page-title">
+                    <div class="page-title w-100 justify-content-between">
                         <h2>{% block page_title %}Dashboard{% endblock %}</h2>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
@@ -217,16 +252,18 @@
                             </ol>
                         </nav>
                     </div>
-                    
+
                     {% block page_actions %}{% endblock %}
                 </div>
+                {% endif %}
 
                 <!-- Messages -->
                 {% if messages %}
                 <div class="messages-container">
                     {% for message in messages %}
                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}x-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                        <i
+                            class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}x-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -243,37 +280,37 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    
+
     <!-- Custom JavaScript -->
     <script>
         // Hide preloader when page loads
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             document.getElementById('preloader').style.display = 'none';
         });
 
         // Sidebar toggle functionality
-        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+        document.getElementById('sidebarToggle')?.addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('collapsed');
         });
 
-        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function() {
+        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('mobile-open');
         });
 
         // Submenu toggle
         document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 const submenu = this.nextElementSibling;
                 if (submenu && submenu.classList.contains('sub-menu')) {
                     e.preventDefault();
-                    
+
                     // Close other submenus
                     document.querySelectorAll('.sub-menu').forEach(menu => {
                         if (menu !== submenu) {
                             menu.classList.remove('show');
                         }
                     });
-                    
+
                     // Toggle current submenu
                     this.classList.toggle('active');
                     submenu.classList.toggle('show');
@@ -288,13 +325,13 @@
             if (submenu && submenu.classList.contains('sub-menu')) {
                 const links = submenu.querySelectorAll('a');
                 let hasActiveChild = false;
-                
+
                 links.forEach(subLink => {
                     if (subLink.getAttribute('href') === currentPath) {
                         hasActiveChild = true;
                     }
                 });
-                
+
                 if (hasActiveChild) {
                     link.classList.add('active');
                     submenu.classList.add('show');
@@ -303,55 +340,72 @@
         });
 
         // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             const sidebar = document.getElementById('sidebar');
             const toggle = document.getElementById('mobileSidebarToggle');
-            
+
             if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
                 sidebar.classList.remove('mobile-open');
             }
         });
     </script>
-    
+
     {% block extra_js %}
     <script>
-        // Mobile Sidebar Toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebarToggle');
+        // Enhanced Mobile Sidebar & Overlay Logic
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileToggle = document.getElementById('mobileSidebarToggle');
             const sidebar = document.getElementById('sidebar');
-            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-            
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                    mobileMenuOverlay.classList.toggle('show');
-                });
-                
-                // Close sidebar when clicking overlay
-                if (mobileMenuOverlay) {
-                    mobileMenuOverlay.addEventListener('click', function() {
-                        sidebar.classList.remove('show');
-                        mobileMenuOverlay.classList.remove('show');
-                    });
-                }
-                
-                // Close sidebar on escape key
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        sidebar.classList.remove('show');
-                        mobileMenuOverlay.classList.remove('show');
+            const overlay = document.getElementById('mobileMenuOverlay');
+
+            function searchToggle() {
+                // Implement if search needed on mobile
+            }
+
+            function toggleSidebar() {
+                if (window.innerWidth <= 991) {
+                    sidebar.classList.toggle('mobile-open');
+                    if (overlay) {
+                        overlay.classList.toggle('show');
                     }
+                } else {
+                    sidebar.classList.toggle('collapsed');
+                }
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('mobile-open');
+                if (overlay) {
+                    overlay.classList.remove('show');
+                }
+            }
+
+            // Bind Events
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    toggleSidebar();
                 });
             }
-            
-            // Handle window resize
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+
+            // Close on Escape key
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeSidebar();
+                }
+            });
+
+            // Handle resize
             let resizeTimer;
-            window.addEventListener('resize', function() {
+            window.addEventListener('resize', function () {
                 clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function() {
-                    if (window.innerWidth > 768) {
-                        sidebar.classList.remove('show');
-                        mobileMenuOverlay.classList.remove('show');
+                resizeTimer = setTimeout(function () {
+                    if (window.innerWidth > 991) {
+                        closeSidebar();
                     }
                 }, 250);
             });
@@ -359,4 +413,5 @@
     </script>
     {% endblock %}
 </body>
+
 </html>

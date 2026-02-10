@@ -4,148 +4,253 @@
 
 {% block page_title %}My Profile{% endblock %}
 
+{% block extra_css %}
+<style>
+    .profile-header-card {
+        background: linear-gradient(135deg, #00376e 0%, #002855 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
+    .profile-avatar-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%);
+        color: #002855;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        font-weight: 800;
+        margin: 0 auto 24px;
+        box-shadow: 0 12px 32px rgba(0, 201, 255, 0.4);
+        border: 6px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .quick-stat-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 16px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .quick-stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .quick-stat-label {
+        font-size: 13px;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<!-- Profile Header -->
+<div class="profile-header-card">
+    <div class="profile-avatar-large">
+        {{ employee.full_name|slice:":2"|upper }}
+    </div>
+    <h1 class="h2 mb-2">{{ employee.full_name }}</h1>
+    <p class="mb-3 opacity-90">{{ employee.designation.name }}</p>
+
+    <div class="d-flex gap-2 justify-content-center flex-wrap mb-3">
+        <span class="badge bg-light text-dark px-3 py-2">
+            <i class="bi bi-hash"></i> {{ employee.employee_code }}
+        </span>
+        <span class="badge bg-light text-dark px-3 py-2">
+            <i class="bi bi-building"></i> {{ employee.department.name }}
+        </span>
+        <span
+            class="badge {% if employee.employment_status == 'active' %}bg-success{% else %}bg-danger{% endif %} px-3 py-2">
+            <i
+                class="bi bi-{% if employee.employment_status == 'active' %}check-circle{% else %}x-circle{% endif %}"></i>
+            {{ employee.get_employment_status_display }}
+        </span>
+    </div>
+
+    <div class="quick-stats">
+        <div class="quick-stat-item">
+            <div class="quick-stat-value">{{ employee.total_experience_display }}</div>
+            <div class="quick-stat-label">Total Experience</div>
+        </div>
+        <div class="quick-stat-item">
+            <div class="quick-stat-value">{{ leave_balance.casual_leave|default:"0" }}</div>
+            <div class="quick-stat-label">Casual Leave Balance</div>
+        </div>
+        <div class="quick-stat-item">
+            <div class="quick-stat-value">{{ leave_balance.sick_leave|default:"0" }}</div>
+            <div class="quick-stat-label">Sick Leave Balance</div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0">
-                    <i class="bi bi-person-circle"></i> My Profile
-                </h5>
+    <!-- Left Column -->
+    <div class="col-lg-6">
+        <!-- Personal Information -->
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-person text-primary"></i>
+                Personal Information
+            </h5>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Date of Birth</div>
+                    <div class="detail-value">{{ employee.date_of_birth|date:"M d, Y" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Age</div>
+                    <div class="detail-value">{{ employee.age }} years</div>
+                </div>
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" value="{{ user.username }}" readonly>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" value="{{ user.email }}" readonly>
-                        </div>
-                    </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Gender</div>
+                    <div class="detail-value">{{ employee.get_gender_display }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Blood Group</div>
+                    <div class="detail-value">{{ employee.blood_group|default:"—" }}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Marital Status</div>
+                    <div class="detail-value">{{ employee.get_marital_status_display }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Nationality</div>
+                    <div class="detail-value">{{ employee.nationality|default:"—" }}</div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">First Name</label>
-                            <input type="text" class="form-control" value="{{ user.first_name }}" readonly>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Last Name</label>
-                            <input type="text" class="form-control" value="{{ user.last_name }}" readonly>
-                        </div>
-                    </div>
+        <!-- Contact Information -->
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-telephone text-success"></i>
+                Contact Information
+            </h5>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Mobile Number</div>
+                    <div class="detail-value">{{ employee.mobile_number }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Official Email</div>
+                    <div class="detail-value">{{ employee.official_email }}</div>
+                </div>
+            </div>
+            {% if employee.personal_email %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Personal Email</div>
+                    <div class="detail-value">{{ employee.personal_email }}</div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Local Address</div>
+                    <div class="detail-value">{{ employee.local_address|linebreaksbr }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.role.label_tag }}
-                            <div class="form-control bg-light">
-                                {{ profile.get_role_display }}
-                            </div>
-                            <small class="form-text text-muted">Role assigned by administrator</small>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.department.label_tag }}
-                            <div class="form-control bg-light">
-                                {{ profile.department.name|default:"Not assigned" }}
-                            </div>
-                        </div>
+    <!-- Right Column -->
+    <div class="col-lg-6">
+        <!-- Employment Details -->
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-briefcase text-info"></i>
+                Employment Details
+            </h5>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Joining Date</div>
+                    <div class="detail-value">{{ employee.joining_date|date:"M d, Y" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Employment Type</div>
+                    <div class="detail-value">{{ employee.get_employment_type_display }}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Probation Status</div>
+                    <div class="detail-value">
+                        <span
+                            class="status-badge {% if employee.probation_status == 'completed' %}success{% else %}warning{% endif %}">
+                            {{ employee.probation_status|title }}
+                        </span>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.phone.label_tag }}
-                            {{ form.phone }}
-                            {% if form.phone.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.phone.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Member Since</label>
-                            <div class="form-control bg-light">
-                                {{ user.date_joined|date:"d M Y" }}
-                            </div>
-                        </div>
-                    </div>
+        <!-- Emergency Contact -->
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-exclamation-triangle text-danger"></i>
+                Emergency Contact
+            </h5>
+            {% if employee.emergency_contact %}
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Name</div>
+                    <div class="detail-value">{{ employee.emergency_contact.name }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Relationship</div>
+                    <div class="detail-value">{{ employee.emergency_contact.relationship }}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Mobile</div>
+                    <div class="detail-value">{{ employee.emergency_contact.mobile_number }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">{{ employee.emergency_contact.email }}</div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">No emergency contact information available.</p>
+            {% endif %}
+        </div>
 
-                    <div class="row">
-                        <div class="col-12">
-                            <h6 class="text-primary mb-3">
-                                <i class="bi bi-shield-check"></i> My Permissions
-                            </h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h6 class="card-title">Employee Management</h6>
-                                            <ul class="list-unstyled">
-                                                <li class="mb-2">
-                                                    {% if profile.can_manage_employees %}
-                                                        <i class="bi bi-check-circle text-success"></i>
-                                                        <span>Can manage employees</span>
-                                                    {% else %}
-                                                        <i class="bi bi-x-circle text-danger"></i>
-                                                        <span>Cannot manage employees</span>
-                                                    {% endif %}
-                                                </li>
-                                                <li class="mb-2">
-                                                    {% if profile.can_view_all_employees %}
-                                                        <i class="bi bi-check-circle text-success"></i>
-                                                        <span>Can view all employees</span>
-                                                    {% else %}
-                                                        <i class="bi bi-x-circle text-danger"></i>
-                                                        <span>Limited employee access</span>
-                                                    {% endif %}
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h6 class="card-title">System Access</h6>
-                                            <ul class="list-unstyled">
-                                                <li class="mb-2">
-                                                    {% if profile.can_manage_system %}
-                                                        <i class="bi bi-check-circle text-success"></i>
-                                                        <span>Can manage system</span>
-                                                    {% else %}
-                                                        <i class="bi bi-x-circle text-danger"></i>
-                                                        <span>Limited system access</span>
-                                                    {% endif %}
-                                                </li>
-                                                <li class="mb-2">
-                                                    {% if user.is_staff %}
-                                                        <i class="bi bi-check-circle text-success"></i>
-                                                        <span>Admin access</span>
-                                                    {% else %}
-                                                        <i class="bi bi-x-circle text-danger"></i>
-                                                        <span>No admin access</span>
-                                                    {% endif %}
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Back to Dashboard
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle"></i> Update Profile
-                        </button>
-                    </div>
-                </form>
+        <!-- Quick Actions -->
+        <div class="detail-section">
+            <h5 class="detail-section-title">
+                <i class="bi bi-lightning text-warning"></i>
+                Quick Actions
+            </h5>
+            <div class="d-grid gap-2">
+                <a href="{% url 'employees:user_profile_edit' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil me-2"></i>Edit Profile
+                </a>
+                <a href="{% url 'employees:leave_application_add' %}" class="btn btn-outline-success">
+                    <i class="bi bi-calendar-plus me-2"></i>Apply for Leave
+                </a>
+                <a href="{% url 'employees:leave_applications' %}" class="btn btn-outline-info">
+                    <i class="bi bi-calendar-check me-2"></i>My Leave Applications
+                </a>
             </div>
         </div>
     </div>

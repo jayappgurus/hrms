@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Holiday{% else %}Add Holiday{% endif %} - HRMS Portal{% endblock %}
+
+{% block page_title %}{% if form.instance.pk %}Edit Holiday{% else %}Add Holiday{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-calendar-event text-primary"></i>
+            {% if form.instance.pk %}Edit Holiday{% else %}Add Holiday{% endif %}
+        </h1>
+        <p class="page-subtitle">
+            {% if form.instance.pk %}Update holiday information{% else %}Add a new public holiday to the calendar{% endif %}
+        </p>
+    </div>
+    <a href="{% url 'employees:public_holidays' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Holidays
+    </a>
+</div>
+
+<!-- Holiday Form -->
+<div class="modern-card">
+    <div class="modern-card-body">
+        <form method="post" id="holidayForm">
+            {% csrf_token %}
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.name.label }}</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Enter the name of the holiday (e.g., Diwali, Christmas)</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.date.label }}</label>
+                        {{ form.date }}
+                        {% if form.date.errors %}
+                        <div class="text-danger small mt-1">{{ form.date.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Select the date of the holiday</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">Day</label>
+                        {{ form.day }}
+                        <small class="form-help-text">Day will be automatically calculated from the date</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.year.label }}</label>
+                        {{ form.year }}
+                        {% if form.year.errors %}
+                        <div class="text-danger small mt-1">{{ form.year.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Year for which this holiday applies</small>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="modern-form-group">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                {{ form.is_active.label }}
+                            </label>
+                        </div>
+                        <small class="form-help-text">Uncheck to hide this holiday from the calendar</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{% url 'employees:public_holidays' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle me-2"></i>
+                    {% if form.instance.pk %}Update Holiday{% else %}Add Holiday{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.querySelector('[name="date"]');
+    const dayInput = document.querySelector('[name="day"]');
+    const yearInput = document.querySelector('[name="year"]');
+    
+    // Auto-calculate day when date changes
+    if (dateInput) {
+        dateInput.addEventListener('change', function() {
+            if (this.value) {
+                const date = new Date(this.value);
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const dayName = days[date.getDay()];
+                
+                if (dayInput) {
+                    dayInput.value = dayName;
+                }
+                
+                // Auto-set year from date
+                if (yearInput && !yearInput.value) {
+                    yearInput.value = date.getFullYear();
+                }
+            }
+        });
+        
+        // Trigger change event on page load if date has value
+        if (dateInput.value) {
+            dateInput.dispatchEvent(new Event('change'));
+        }
+    }
+});
+</script>
+{% endblock %}

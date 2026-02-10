@@ -99,26 +99,22 @@ WSGI_APPLICATION = 'hrms_portal.wsgi.application'
 #         }
 #     }
 
-# For production MySQL
-# if not DEBUG:
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.environ.get('DB_NAME', 'hrmsportalappdev_portal_hrms_db'),
-#         'USER': os.environ.get('DB_USER', 'hrmsportalappdev_root'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD', '.hY{4u~q9Hl#}]Q,'),
-#         'HOST': os.environ.get('DB_HOST', 'localhost'),
-#         'PORT': os.environ.get('DB_PORT', '3306'),
-#     }
-# }
-
-# For development SQLite
+# For development MySQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'hrmsportalappdev_portal_hrms_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
+
+
 
 
 # Password validation
@@ -190,6 +186,18 @@ MESSAGE_TAGS = {
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+# Session and Cookie Settings
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Custom Admin Styling
 ADMIN_TITLE = "HRMS Portal Administration"
