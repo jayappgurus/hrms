@@ -1,18 +1,19 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - HRMS Portal</title>
-    
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
         /* Creative and Attractive Login Design */
         :root {
@@ -36,7 +37,7 @@
             --gray-800: #1f2937;
             --gray-900: #111827;
         }
-        
+
         body {
             background: linear-gradient(135deg, #00376e 0%, #004d8a 50%, #00a8ff 100%);
             min-height: 100vh;
@@ -49,7 +50,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         /* Animated background shapes */
         body::before {
             content: '';
@@ -61,7 +62,7 @@
             background: radial-gradient(circle, rgba(0, 167, 255, 0.1) 0%, transparent 70%);
             animation: float 20s infinite ease-in-out;
         }
-        
+
         body::after {
             content: '';
             position: absolute;
@@ -72,16 +73,19 @@
             background: radial-gradient(circle, rgba(0, 200, 255, 0.05) 0%, transparent 70%);
             animation: float 15s infinite ease-in-out reverse;
         }
-        
+
         @keyframes float {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translate(0, 0) rotate(0deg);
             }
+
             50% {
                 transform: translate(-30px, -30px) rotate(180deg);
             }
         }
-        
+
         .login-container {
             width: 100%;
             max-width: 600px;
@@ -89,21 +93,21 @@
             position: relative;
             z-index: 10;
         }
-        
+
         .login-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 1.5rem;
             padding: 3rem 2.5rem;
-            box-shadow: 0 25px 50px rgba(0, 55, 110, 0.3), 
-                        0 10px 30px rgba(0, 167, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 55, 110, 0.3),
+                0 10px 30px rgba(0, 167, 255, 0.2);
             text-align: center;
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
         }
-        
+
         .login-card::before {
             content: '';
             position: absolute;
@@ -114,19 +118,21 @@
             background: linear-gradient(90deg, transparent, rgba(0, 167, 255, 0.1), transparent);
             animation: shimmer 3s infinite;
         }
-        
+
         @keyframes shimmer {
             0% {
                 left: -100%;
             }
+
             50% {
                 left: 100%;
             }
+
             100% {
                 left: -100%;
             }
         }
-        
+
         .lock-icon {
             width: 5rem;
             height: 5rem;
@@ -140,40 +146,42 @@
             box-shadow: 0 10px 25px rgba(0, 55, 110, 0.4);
             animation: pulse 2s infinite;
         }
-        
+
         @keyframes pulse {
             0% {
                 transform: scale(1);
                 box-shadow: 0 10px 25px rgba(0, 55, 110, 0.4);
             }
+
             50% {
                 transform: scale(1.05);
                 box-shadow: 0 15px 35px rgba(0, 55, 110, 0.6);
             }
+
             100% {
                 transform: scale(1);
                 box-shadow: 0 10px 25px rgba(0, 55, 110, 0.4);
             }
         }
-        
+
         .lock-icon i {
             font-size: 2rem;
             color: var(--white);
         }
-        
+
         .welcome-title {
             font-size: 2rem;
             font-weight: 700;
             color: var(--gray-800);
             margin-bottom: 0.5rem;
-            background:#00376e;
+            background: #00376e;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 2px 2px 4px rgba(0, 55, 110, 0.3);
         }
-        
+
         .welcome-subtitle {
             font-size: 1rem;
             color: var(--gray-500);
@@ -181,12 +189,12 @@
             line-height: 1.6;
             font-weight: 500;
         }
-        
+
         .form-group {
             margin-bottom: 1.5rem;
             text-align: left;
         }
-        
+
         .form-label {
             font-size: 0.875rem;
             font-weight: 500;
@@ -194,11 +202,11 @@
             margin-bottom: 0.5rem;
             display: block;
         }
-        
+
         .input-group {
             position: relative;
         }
-        
+
         .input-group i {
             position: absolute;
             left: 1rem;
@@ -208,9 +216,12 @@
             z-index: 2;
             font-size: 1rem;
         }
-        .input-group i.bi-eye{
+
+        .input-group i.bi-eye {
             position: relative;
+            left: 0;
         }
+
         .form-control {
             padding-left: 2.75rem;
             height: 3rem;
@@ -219,14 +230,19 @@
             font-size: 0.875rem;
             transition: all 0.3s ease;
             width: 100%;
+            border-top-left-radius: 0.5rem !important;
+            border-bottom-left-radius: 0.5rem !important;
+            border-top-right-radius: 0.5rem !important;
+            border-bottom-right-radius: 0.5rem !important;
         }
-        
+
         .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(0, 55, 110, 0.1);
             outline: none;
+            z-index: 1 !important;
         }
-        
+
         .password-toggle {
             position: absolute;
             right: 1rem;
@@ -240,11 +256,11 @@
             padding: 0.25rem;
             transition: color 0.3s ease;
         }
-        
+
         .password-toggle:hover {
             color: var(--primary);
         }
-        
+
         .login-btn {
             width: 100%;
             height: 3rem;
@@ -258,22 +274,22 @@
             transition: all 0.3s ease;
             margin-top: 1rem;
         }
-        
+
         .login-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0, 55, 110, 0.3);
         }
-        
+
         .login-btn:active {
             transform: translateY(0);
         }
-        
+
         .contact-hr {
             margin-top: 2rem;
             padding-top: 1.5rem;
             border-top: 1px solid var(--gray-200);
         }
-        
+
         .contact-hr a {
             color: var(--primary);
             text-decoration: none;
@@ -281,42 +297,43 @@
             font-size: 0.875rem;
             transition: color 0.3s ease;
         }
-        
+
         .contact-hr a:hover {
             color: var(--primary-dark);
             text-decoration: underline;
         }
-        
+
         .alert {
             margin-bottom: 1.5rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
             padding: 1rem;
         }
-        
+
         .text-danger {
             color: var(--danger);
         }
-        
+
         .small {
             font-size: 0.75rem;
         }
-        
+
         .mt-1 {
             margin-top: 0.25rem;
         }
-        
+
         @media (max-width: 480px) {
             .login-container {
                 padding: 1rem;
             }
-            
+
             .login-card {
                 padding: 2rem 1.5rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <div class="login-card">
@@ -324,23 +341,23 @@
             <div class="lock-icon">
                 <i class="bi bi-lock-fill"></i>
             </div>
-            
+
             <!-- Welcome Text -->
             <h1 class="welcome-title">Welcome Back</h1>
             <p class="welcome-subtitle">Enter your credentials to access HRMS Portal</p>
-            
+
             <!-- Login Form -->
             <form method="post">
                 {% csrf_token %}
-                
+
                 {% if form.non_field_errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
                 {% endif %}
-                
+
                 <!-- Username Field -->
                 <div class="form-group">
                     <label for="id_username" class="form-label">Username</label>
@@ -349,14 +366,14 @@
                         {{ form.username }}
                     </div>
                     {% if form.username.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.username.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
+                    <div class="text-danger small mt-1">
+                        {% for error in form.username.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
                     {% endif %}
                 </div>
-                
+
                 <!-- Password Field -->
                 <div class="form-group">
                     <label for="id_password" class="form-label">Password</label>
@@ -368,20 +385,20 @@
                         </button>
                     </div>
                     {% if form.password.errors %}
-                        <div class="text-danger small mt-1">
-                            {% for error in form.password.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
+                    <div class="text-danger small mt-1">
+                        {% for error in form.password.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
                     {% endif %}
                 </div>
-                
+
                 <!-- Login Button -->
                 <button type="submit" class="login-btn">
                     Login to Portal
                 </button>
             </form>
-            
+
             <!-- Contact HR Link -->
             <div class="contact-hr">
                 <a href="#" onclick="showContactInfo(); return false;">Contact HR</a>
@@ -391,29 +408,29 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         // Add form-control class to Django form fields
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const usernameField = document.getElementById('id_username');
             const passwordField = document.getElementById('id_password');
-            
+
             if (usernameField) {
                 usernameField.classList.add('form-control');
                 usernameField.placeholder = 'Enter your username';
             }
-            
+
             if (passwordField) {
                 passwordField.classList.add('form-control');
                 passwordField.placeholder = 'Enter your password';
                 passwordField.type = 'password';
             }
         });
-    
+
         function togglePassword() {
             const passwordField = document.getElementById('id_password');
             const toggleIcon = document.getElementById('toggleIcon');
-            
+
             if (passwordField && toggleIcon) {
                 if (passwordField.type === 'password') {
                     passwordField.type = 'text';
@@ -426,10 +443,11 @@
                 }
             }
         }
-    
+
         function showContactInfo() {
             alert('For HR support, please contact:\n\nEmail: hr@company.com\nPhone: +1-234-567-8900\n\nOffice Hours: Mon-Fri, 9:00 AM - 6:00 PM');
         }
     </script>
 </body>
+
 </html>
