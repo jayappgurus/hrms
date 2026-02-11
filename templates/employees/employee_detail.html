@@ -64,6 +64,34 @@
         gap: 12px;
         justify-content: center;
     }
+
+    .document-status-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .document-status-icon.success {
+        background: #e6fcf5;
+        color: #0ca678;
+    }
+
+    .document-status-icon.warning {
+        background: #fff9db;
+        color: #f08c00;
+    }
+
+    .bg-soft-info {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+
+    .font-size-11 {
+        font-size: 11px;
+    }
 </style>
 {% endblock %}
 
@@ -108,7 +136,7 @@
     <div class="col-lg-6">
         <!-- Contact Information -->
         <div class="detail-section">
-            <h5 class="detail-section-title">
+            <h5 class="detail-section-title d-flex gap-3">
                 <i class="bi bi-telephone text-primary"></i>
                 Contact Information
             </h5>
@@ -146,7 +174,7 @@
 
         <!-- Emergency Contact -->
         <div class="detail-section">
-            <h5 class="detail-section-title">
+            <h5 class="detail-section-title d-flex gap-3">
                 <i class="bi bi-exclamation-triangle text-danger"></i>
                 Emergency Contact
             </h5>
@@ -178,7 +206,7 @@
 
         <!-- Personal Information -->
         <div class="detail-section">
-            <h5 class="detail-section-title">
+            <h5 class="detail-section-title d-flex gap-3">
                 <i class="bi bi-person text-info"></i>
                 Personal Information
             </h5>
@@ -194,22 +222,8 @@
             </div>
             <div class="detail-row">
                 <div class="detail-item">
-                    <div class="detail-label">Gender</div>
-                    <div class="detail-value">{{ employee.get_gender_display }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Blood Group</div>
-                    <div class="detail-value">{{ employee.blood_group|default:"—" }}</div>
-                </div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-item">
                     <div class="detail-label">Marital Status</div>
                     <div class="detail-value">{{ employee.get_marital_status_display }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Nationality</div>
-                    <div class="detail-value">{{ employee.nationality|default:"—" }}</div>
                 </div>
             </div>
         </div>
@@ -219,7 +233,7 @@
     <div class="col-lg-6">
         <!-- Employment Details -->
         <div class="detail-section">
-            <h5 class="detail-section-title">
+            <h5 class="detail-section-title d-flex gap-3">
                 <i class="bi bi-briefcase text-success"></i>
                 Employment Details
             </h5>
@@ -259,8 +273,8 @@
         </div>
 
         <!-- Bank Details -->
-        <div class="detail-section">
-            <h5 class="detail-section-title">
+        <!-- <div class="detail-section">
+            <h5 class="detail-section-title d-flex gap-3">
                 <i class="bi bi-bank text-warning"></i>
                 Bank Details
             </h5>
@@ -288,54 +302,97 @@
             {% else %}
             <p class="text-muted">No bank details available.</p>
             {% endif %}
-        </div>
+        </div> -->
 
-        <!-- Documents -->
         <div class="detail-section">
-            <h5 class="detail-section-title">
+            <h5 class="detail-section-title d-flex gap-3">
                 <i class="bi bi-file-earmark-text text-primary"></i>
-                Documents
+                Identity Documents
             </h5>
-            {% if employee.documents %}
             <div class="detail-row">
                 <div class="detail-item">
                     <div class="detail-label">PAN Number</div>
-                    <div class="detail-value">{{ employee.documents.pan_number|default:"—" }}</div>
+                    <div class="detail-value">{{ employee.pan_card_number|default:"—" }}</div>
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">Aadhar Number</div>
-                    <div class="detail-value">{{ employee.documents.aadhar_number|default:"—" }}</div>
+                    <div class="detail-value">{{ employee.aadhar_card_number|default:"—" }}</div>
                 </div>
             </div>
-            <div class="detail-row">
-                <div class="detail-item">
-                    <div class="detail-label">Passport Number</div>
-                    <div class="detail-value">{{ employee.documents.passport_number|default:"—" }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">UAN Number</div>
-                    <div class="detail-value">{{ employee.documents.uan_number|default:"—" }}</div>
+        </div>
+
+        <!-- Document Submission Tracker -->
+        <div class="detail-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="detail-section-title mb-0 d-flex gap-3">
+                    <i class="bi bi-check2-all text-success"></i>
+                    Document Submission Tracker
+                </h5>
+                <div class="d-flex gap-2 align-items-center">
                 </div>
             </div>
-            {% else %}
-            <p class="text-muted">No documents available.</p>
-            {% endif %}
+
+            <div class="document-tracker">
+                {% for category_key, category in document_categories.items %}
+                <div class="mb-4">
+                    <h6 class="text-uppercase font-size-11 fw-bold text-muted mb-3" style="letter-spacing: 0.1em;">
+                        {{ category_key }}
+                    </h6>
+                    <div class="list-group list-group-flush border rounded-3">
+                        {% for doc in category %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% if doc.is_submitted %}
+                                    <div class="document-status-icon success">
+                                        <i class="bi bi-check-lg"></i>
+                                    </div>
+                                    {% else %}
+                                    <div class="document-status-icon warning">
+                                        <i class="bi bi-dash"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="fw-medium text-dark">{{ doc.display }}</div>
+                                    {% if doc.submitted_date %}
+                                    <small class="text-muted">Submitted on {{ doc.submitted_date|date:"M d, Y" }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input document-toggle" type="checkbox" id="documentToggle_{{ doc.id }}" data-document-id="{{ doc.id }}" {% if doc.is_submitted %}checked{% endif %}>
+                                <label class="form-check-label visually-hidden" for="documentToggle_{{ doc.id }}">Toggle document submission status</label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div
+                    class="list-group-item d-flex justify-content-between align-items-center py-3 border rounded-3 bg-light">
+                    <div class="fw-medium text-dark">Number of Graduation / Post-Graduation Marksheets</div>
+                    <span class="badge bg-primary px-3 py-2 fs-6">{{ employee.graduates_marksheet_count }}</span>
+                </div>
+            </div>
         </div>
 
         <!-- Login Credentials -->
         {% if request.user.is_superuser or request.user.is_staff %}
         <div class="detail-section">
-            <h5 class="detail-section-title">
+            <h5 class="detail-section-title d-flex gap-3">
                 <i class="bi bi-key text-danger"></i>
                 Login Credentials
             </h5>
             <div class="detail-row">
                 <div class="detail-item">
                     <div class="detail-label">Username</div>
-                    <div class="detail-value">{{ employee.user.username }}</div>
+                    <div class="detail-value">{{ employee.user_profile.user.username|default:"No account linked" }}
+                    </div>
                 </div>
                 <div class="detail-item">
-                    <div class="detail-label">Password</div>
+                    <div class="detail-label">Password (Initial)</div>
                     <div class="detail-value">
                         <span id="password-display">******{{ employee.plain_password|slice:"-3:" }}</span>
                         <button class="btn btn-sm btn-outline-primary ms-2"
@@ -360,5 +417,145 @@
             console.error('Could not copy password: ', err);
         });
     }
+
+    // Handle document toggle switches
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleElements = document.querySelectorAll('.document-toggle');
+        
+        toggleElements.forEach(function(toggle) {
+            toggle.addEventListener('change', function() {
+                const documentId = this.getAttribute('data-document-id');
+                const isSubmitted = this.checked;
+                
+                console.log('Toggle changed:', { documentId, isSubmitted });
+                
+                // Update the status icon immediately for better UX
+                const listItem = this.closest('.list-group-item');
+                const statusIcon = listItem.querySelector('.document-status-icon');
+                const iconElement = statusIcon.querySelector('i');
+                
+                if (isSubmitted) {
+                    statusIcon.classList.remove('warning');
+                    statusIcon.classList.add('success');
+                    iconElement.classList.remove('bi-dash');
+                    iconElement.classList.add('bi-check-lg');
+                } else {
+                    statusIcon.classList.remove('success');
+                    statusIcon.classList.add('warning');
+                    iconElement.classList.remove('bi-check-lg');
+                    iconElement.classList.add('bi-dash');
+                }
+                
+                // Send AJAX request to update the database
+                const url = `/employees/update-document-status/${documentId}/`;
+                console.log('Sending request to:', url);
+                console.log('Full URL should be:', window.location.origin + url);
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        'is_submitted': isSubmitted
+                    })
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        // Update submitted date if available
+                        const dateContainer = listItem.querySelector('small.text-muted');
+                        if (data.submitted_date) {
+                            if (dateContainer) {
+                                dateContainer.textContent = `Submitted on ${data.submitted_date}`;
+                            } else {
+                                const docInfo = listItem.querySelector('div > div:last-child');
+                                const newDateElement = document.createElement('small');
+                                newDateElement.className = 'text-muted';
+                                newDateElement.textContent = `Submitted on ${data.submitted_date}`;
+                                docInfo.appendChild(newDateElement);
+                            }
+                        } else {
+                            if (dateContainer) {
+                                dateContainer.remove();
+                            }
+                        }
+                        
+                        // Show success message
+                        showToast(`Document status updated to ${isSubmitted ? 'Submitted' : 'Pending'}`, 'success');
+                    } else {
+                        // Revert toggle on error
+                        this.checked = !isSubmitted;
+                        showToast('Failed to update document status', 'error');
+                    }
+                })
+                .catch(error => {
+                    // Revert toggle on error
+                    this.checked = !isSubmitted;
+                    console.error('Error:', error);
+                    showToast('Failed to update document status: ' + error.message, 'error');
+                });
+            });
+        });
+        
+        // Helper function to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Helper function to show toast notifications
+        function showToast(message, type = 'info') {
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            // Create toast container if it doesn't exist
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // Create and show toast
+            const toastElement = document.createElement('div');
+            toastElement.innerHTML = toastHtml;
+            const toast = new bootstrap.Toast(toastElement.querySelector('.toast'));
+            toastContainer.appendChild(toastElement);
+            toast.show();
+            
+            // Remove toast element after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', function() {
+                toastElement.remove();
+            });
+        }
+    });
 </script>
 {% endblock %}

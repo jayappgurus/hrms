@@ -19,7 +19,7 @@
         width: 120px;
         height: 120px;
         border-radius: 50%;
-        background:  #00C9FF;
+        background: #00C9FF;
         color: #002855;
         display: flex;
         align-items: center;
@@ -118,22 +118,8 @@
             </div>
             <div class="detail-row">
                 <div class="detail-item">
-                    <div class="detail-label">Gender</div>
-                    <div class="detail-value">{{ employee.get_gender_display }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Blood Group</div>
-                    <div class="detail-value">{{ employee.blood_group|default:"—" }}</div>
-                </div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-item">
                     <div class="detail-label">Marital Status</div>
                     <div class="detail-value">{{ employee.get_marital_status_display }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Nationality</div>
-                    <div class="detail-value">{{ employee.nationality|default:"—" }}</div>
                 </div>
             </div>
         </div>

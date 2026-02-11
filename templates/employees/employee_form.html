@@ -91,7 +91,18 @@
         </div>
 
         <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <div class="modern-form-group">
+                    <label class="modern-form-label">{{ form.employee_code.label }}</label>
+                    {{ form.employee_code }}
+                    {% if form.employee_code.errors %}
+                    <div class="text-danger small mt-1">{{ form.employee_code.errors.0 }}</div>
+                    {% endif %}
+                    <small class="form-help-text">Leave blank to auto-generate</small>
+                </div>
+            </div>
+
+            <div class="col-md-8">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.full_name.label }}</label>
                     {{ form.full_name }}
@@ -151,16 +162,6 @@
                     {% endif %}
                 </div>
             </div>
-
-            <div class="col-md-4">
-                <div class="modern-form-group">
-                    <label class="modern-form-label required">{{ form.date_of_birth.label }}</label>
-                    {{ form.date_of_birth }}
-                    {% if form.date_of_birth.errors %}
-                    <div class="text-danger small mt-1">{{ form.date_of_birth.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            </div>
         </div>
     </div>
 
@@ -183,44 +184,98 @@
                     {% endif %}
                 </div>
             </div>
+            <div class="row g-3">
+                <h6>Email Addresses</h6>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.official_email.label }}</label>
+                        {{ form.official_email }}
+                        {% if form.official_email.errors %}
+                        <div class="text-danger small mt-1">{{ form.official_email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
 
-            <div class="col-md-6">
-                <div class="modern-form-group">
-                    <label class="modern-form-label required">{{ form.official_email.label }}</label>
-                    {{ form.official_email }}
-                    {% if form.official_email.errors %}
-                    <div class="text-danger small mt-1">{{ form.official_email.errors.0 }}</div>
-                    {% endif %}
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.personal_email.label }}</label>
+                        {{ form.personal_email }}
+                        {% if form.personal_email.errors %}
+                        <div class="text-danger small mt-1">{{ form.personal_email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+            <div class="row g-3">
+                <h6>Address</h6>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.local_address.label }}</label>
+                        {{ form.local_address }}
+                        {% if form.local_address.errors %}
+                        <div class="text-danger small mt-1">{{ form.local_address.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
 
-            <div class="col-md-6">
-                <div class="modern-form-group">
-                    <label class="modern-form-label">{{ form.personal_email.label }}</label>
-                    {{ form.personal_email }}
-                    {% if form.personal_email.errors %}
-                    <div class="text-danger small mt-1">{{ form.personal_email.errors.0 }}</div>
-                    {% endif %}
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.permanent_address.label }}</label>
+                        {{ form.permanent_address }}
+                        {% if form.permanent_address.errors %}
+                        <div class="text-danger small mt-1">{{ form.permanent_address.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <div class="modern-form-group">
-                    <label class="modern-form-label">{{ form.local_address.label }}</label>
-                    {{ form.local_address }}
-                    {% if form.local_address.errors %}
-                    <div class="text-danger small mt-1">{{ form.local_address.errors.0 }}</div>
-                    {% endif %}
+            <div class="row g-3">
+                <h6>Emergency Contact</h6>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.emergency_contact_name.label }}</label>
+                        {{ form.emergency_contact_name }}
+                        {% if form.emergency_contact_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.emergency_contact_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-md-6">
-                <div class="modern-form-group">
-                    <label class="modern-form-label">{{ form.permanent_address.label }}</label>
-                    {{ form.permanent_address }}
-                    {% if form.permanent_address.errors %}
-                    <div class="text-danger small mt-1">{{ form.permanent_address.errors.0 }}</div>
-                    {% endif %}
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.emergency_contact_mobile.label }}</label>
+                        {{ form.emergency_contact_mobile }}
+                        {% if form.emergency_contact_mobile.errors %}
+                        <div class="text-danger small mt-1">{{ form.emergency_contact_mobile.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.emergency_contact_email.label }}</label>
+                        {{ form.emergency_contact_email }}
+                        {% if form.emergency_contact_email.errors %}
+                        <div class="text-danger small mt-1">{{ form.emergency_contact_email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.emergency_contact_address.label }}</label>
+                        {{ form.emergency_contact_address }}
+                        {% if form.emergency_contact_address.errors %}
+                        <div class="text-danger small mt-1">{{ form.emergency_contact_address.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6" style="display: none;">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.emergency_contact_relationship.label }}</label>
+                        {{ form.emergency_contact_relationship }}
+                        {% if form.emergency_contact_relationship.errors %}
+                        <div class="text-danger small mt-1">{{ form.emergency_contact_relationship.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -234,29 +289,17 @@
             </div>
             <h5 class="form-section-title">Personal Information</h5>
         </div>
-
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="modern-form-group">
-                    <label class="modern-form-label">{{ form.gender.label }}</label>
-                    {{ form.gender }}
-                    {% if form.gender.errors %}
-                    <div class="text-danger small mt-1">{{ form.gender.errors.0 }}</div>
+                    <label class="modern-form-label required">{{ form.date_of_birth.label }}</label>
+                    {{ form.date_of_birth }}
+                    {% if form.date_of_birth.errors %}
+                    <div class="text-danger small mt-1">{{ form.date_of_birth.errors.0 }}</div>
                     {% endif %}
                 </div>
             </div>
-
             <div class="col-md-4">
-                <div class="modern-form-group">
-                    <label class="modern-form-label">{{ form.blood_group.label }}</label>
-                    {{ form.blood_group }}
-                    {% if form.blood_group.errors %}
-                    <div class="text-danger small mt-1">{{ form.blood_group.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="col-md-6">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.marital_status.label }}</label>
                     {{ form.marital_status }}
@@ -266,7 +309,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6" id="anniversary_section" style="display: none;">
+            <div class="col-md-4" id="anniversary_section">
                 <div class="modern-form-group">
                     <label class="modern-form-label">{{ form.anniversary_date.label }}</label>
                     {{ form.anniversary_date }}
@@ -275,18 +318,17 @@
                     {% endif %}
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <div class="modern-form-group">
-                    <label class="modern-form-label">{{ form.nationality.label }}</label>
-                    {{ form.nationality }}
-                    {% if form.nationality.errors %}
-                    <div class="text-danger small mt-1">{{ form.nationality.errors.0 }}</div>
-                    {% endif %}
-                </div>
+        </div>
+    </div>
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon">
+                <i class="bi bi-briefcase-fill"></i>
             </div>
-
-            <div class="col-md-6">
+            <h5 class="form-section-title">Professional Information</h5>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-3">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.highest_qualification.label }}</label>
                     {{ form.highest_qualification }}
@@ -295,7 +337,6 @@
                     {% endif %}
                 </div>
             </div>
-
             <div class="col-md-3">
                 <div class="modern-form-group">
                     <label class="modern-form-label">{{ form.total_experience_years.label }}</label>
@@ -316,28 +357,47 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.aadhar_card_number.label }}</label>
-                        {{ form.aadhar_card_number }}
-                        {% if form.aadhar_card_number.errors %}
-                        <div class="text-danger small mt-1">{{ form.aadhar_card_number.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.pan_card_number.label }}</label>
-                        {{ form.pan_card_number }}
-                        {% if form.pan_card_number.errors %}
-                        <div class="text-danger small mt-1">{{ form.pan_card_number.errors.0 }}</div>
-                        {% endif %}
-                    </div>
+            <div class="col-md-3">
+                <div class="modern-form-group">
+                    <label class="modern-form-label">{{ form.probation_status.label }}</label>
+                    {{ form.probation_status }}
+                    {% if form.probation_status.errors %}
+                    <div class="text-danger small mt-1">{{ form.probation_status.errors.0 }}</div>
+                    {% endif %}
                 </div>
             </div>
         </div>
+
+    </div>
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon">
+                <i class="bi bi-person-vcard-fill"></i>
+            </div>
+            <h5 class="form-section-title">Identity & Compliance Proofs</h5>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">{{ form.aadhar_card_number.label }}</label>
+                    {{ form.aadhar_card_number }}
+                    {% if form.aadhar_card_number.errors %}
+                    <div class="text-danger small mt-1">{{ form.aadhar_card_number.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">{{ form.pan_card_number.label }}</label>
+                    {{ form.pan_card_number }}
+                    {% if form.pan_card_number.errors %}
+                    <div class="text-danger small mt-1">{{ form.pan_card_number.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Form Actions -->
@@ -378,8 +438,9 @@
         // Form validation feedback
         const form = document.getElementById('employeeForm');
         form.addEventListener('submit', function (e) {
-            // Allow form submission - Django will handle validation
-            form.classList.add('was-validated');
+            // Temporarily allow form submission without validation for testing
+            console.log('Form submitting...');
+            // form.classList.add('was-validated');
         });
 
         // Department-Designation dependency

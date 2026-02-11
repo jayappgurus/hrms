@@ -6,89 +6,210 @@
 
 {% block extra_css %}
 <style>
-    .kanban-board {
+    .designation-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 20px;
-        margin-top: 24px;
+        margin-bottom: 32px;
     }
 
-    .kanban-column {
-        background: #f8faff;
+    .designation-card {
+        background: white;
         border-radius: 16px;
-        padding: 20px;
-        min-height: 400px;
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        border: 2px solid var(--border-color);
+        transition: all 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
     }
 
-    .kanban-header {
+    .designation-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
+    }
+
+    .designation-card.active {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+    }
+
+    .designation-header {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid var(--border-color);
+        justify-content: between;
+        align-items: flex-start;
+        margin-bottom: 12px;
     }
 
-    .kanban-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--text-main);
-    }
-
-    .kanban-count {
-        background: var(--primary);
+    .designation-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #00376e 0%, #002855 100%);
         color: white;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 13px;
-        font-weight: 700;
-    }
-
-    .candidate-card {
-        background: white;
-        border-radius: 12px;
-        padding: 16px;
+        font-size: 20px;
         margin-bottom: 12px;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--border-color);
-        transition: all 0.3s;
-        cursor: move;
     }
 
-    .candidate-card:hover {
-        box-shadow: var(--shadow-md);
-        transform: translateY(-2px);
-    }
-
-    .candidate-name {
-        font-size: 15px;
-        font-weight: 600;
+    .designation-name {
+        font-size: 18px;
+        font-weight: 700;
         color: var(--text-main);
         margin-bottom: 8px;
     }
 
-    .candidate-job {
-        font-size: 13px;
-        color: var(--text-muted);
-        margin-bottom: 12px;
-    }
-
-    .candidate-meta {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        font-size: 12px;
+    .designation-count {
+        font-size: 14px;
         color: var(--text-muted);
     }
 
-    .candidate-meta-item {
+    .designation-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: var(--primary);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
-        gap: 4px;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .candidate-table-wrapper {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .table-header-custom {
+        background: linear-gradient(135deg, #00376e 0%, #002855 100%);
+        color: white;
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .candidate-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .candidate-table thead th {
+        background: #f8faff;
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--text-main);
+        border-bottom: 2px solid var(--border-color);
+        white-space: nowrap;
+    }
+
+    .candidate-table tbody td {
+        padding: 16px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .candidate-table tbody tr:hover {
+        background: #f8faff;
+    }
+
+    .candidate-name-cell {
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .source-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .source-linkedin { background: #e7f3ff; color: #0077b5; }
+    .source-whatsapp { background: #e7f8f0; color: #25d366; }
+    .source-email { background: #fff3e0; color: #f57c00; }
+    .source-website { background: #f3e5f5; color: #7b1fa2; }
+    .source-referral { background: #e8f5e9; color: #2e7d32; }
+    .source-campus { background: #fce4ec; color: #c2185b; }
+    .source-other { background: #f5f5f5; color: #616161; }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-received { background: #e3f2fd; color: #1976d2; }
+    .status-under_review { background: #fff3e0; color: #f57c00; }
+    .status-shortlisted { background: #f3e5f5; color: #7b1fa2; }
+    .status-interview_scheduled { background: #e1f5fe; color: #0277bd; }
+    .status-interviewed { background: #e8f5e9; color: #388e3c; }
+    .status-offer_extended { background: #c8e6c9; color: #2e7d32; }
+
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--text-main);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-icon:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: white;
+        border: 2px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        margin-bottom: 24px;
+    }
+
+    .back-button:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        transform: translateX(-4px);
     }
 </style>
 {% endblock %}
@@ -101,49 +222,71 @@
             <i class="bi bi-kanban text-primary"></i>
             Candidate Tracker
         </h1>
-        <p class="page-subtitle">Track candidates through the recruitment pipeline</p>
+        <p class="page-subtitle">Track candidates by designation through the recruitment pipeline</p>
     </div>
-    <a href="{% url 'employees:candidate_list' %}" class="btn btn-primary">
-        <i class="bi bi-person-plus me-2"></i>View Candidates
+    <a href="{% url 'employees:add_job_application' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-2"></i>Add Candidate
     </a>
 </div>
 
 <!-- Statistics -->
 <div class="row mb-4">
-    <div class="col-lg-3 col-sm-6 mb-3">
+    <div class="col-lg-2 col-sm-6 mb-3">
         <div class="stats-card">
             <div class="stats-icon bg-blue-light text-primary">
                 <i class="bi bi-people"></i>
             </div>
             <div class="stats-content ms-3">
                 <h3 class="mb-0">{{ total_candidates }}</h3>
-                <p class="text-muted text-sm mb-0">Total Candidates</p>
+                <p class="text-muted text-sm mb-0">Total</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="stats-card" style="border-left-color: var(--info);">
-            <div class="stats-icon text-info" style="background: rgba(6, 182, 212, 0.1);">
+    <div class="col-lg-2 col-sm-6 mb-3">
+        <div class="stats-card" style="border-left-color: #1976d2;">
+            <div class="stats-icon text-primary" style="background: rgba(25, 118, 210, 0.1);">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ received_count }}</h3>
+                <p class="text-muted text-sm mb-0">Received</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-sm-6 mb-3">
+        <div class="stats-card" style="border-left-color: #f57c00;">
+            <div class="stats-icon text-warning" style="background: rgba(245, 124, 0, 0.1);">
                 <i class="bi bi-hourglass-split"></i>
             </div>
             <div class="stats-content ms-3">
-                <h3 class="mb-0">{{ screening_count }}</h3>
-                <p class="text-muted text-sm mb-0">In Screening</p>
+                <h3 class="mb-0">{{ under_review_count }}</h3>
+                <p class="text-muted text-sm mb-0">Review</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
-        <div class="stats-card" style="border-left-color: var(--warning);">
-            <div class="stats-icon text-warning" style="background: rgba(245, 158, 11, 0.1);">
+    <div class="col-lg-2 col-sm-6 mb-3">
+        <div class="stats-card" style="border-left-color: #7b1fa2;">
+            <div class="stats-icon" style="background: rgba(123, 31, 162, 0.1); color: #7b1fa2;">
+                <i class="bi bi-star"></i>
+            </div>
+            <div class="stats-content ms-3">
+                <h3 class="mb-0">{{ shortlisted_count }}</h3>
+                <p class="text-muted text-sm mb-0">Shortlisted</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-sm-6 mb-3">
+        <div class="stats-card" style="border-left-color: var(--info);">
+            <div class="stats-icon text-info" style="background: rgba(6, 182, 212, 0.1);">
                 <i class="bi bi-chat-dots"></i>
             </div>
             <div class="stats-content ms-3">
                 <h3 class="mb-0">{{ interview_count }}</h3>
-                <p class="text-muted text-sm mb-0">Interviewing</p>
+                <p class="text-muted text-sm mb-0">Interview</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-sm-6 mb-3">
+    <div class="col-lg-2 col-sm-6 mb-3">
         <div class="stats-card" style="border-left-color: var(--success);">
             <div class="stats-icon text-success" style="background: rgba(16, 185, 129, 0.1);">
                 <i class="bi bi-check-circle"></i>
@@ -156,102 +299,273 @@
     </div>
 </div>
 
-<!-- Kanban Board -->
-<div class="kanban-board">
-    <!-- Applied Column -->
-    <div class="kanban-column">
-        <div class="kanban-header">
-            <span class="kanban-title">Applied</span>
-            <span class="kanban-count">{{ applied_candidates|length }}</span>
-        </div>
-        {% for candidate in applied_candidates %}
-        <div class="candidate-card">
-            <div class="candidate-name">{{ candidate.name }}</div>
-            <div class="candidate-job">{{ candidate.job.title }}</div>
-            <div class="candidate-meta">
-                <span class="candidate-meta-item">
-                    <i class="bi bi-envelope"></i> {{ candidate.email }}
-                </span>
-                <span class="candidate-meta-item">
-                    <i class="bi bi-telephone"></i> {{ candidate.phone }}
-                </span>
-            </div>
-        </div>
-        {% empty %}
-        <p class="text-muted text-center mt-4">No candidates</p>
-        {% endfor %}
+{% if not selected_designation_id %}
+<!-- Designation Selection View -->
+<div class="modern-card mb-4">
+    <div class="modern-card-header">
+        <h5 class="modern-card-title mb-0">
+            <i class="bi bi-briefcase me-2"></i>Select Designation
+        </h5>
     </div>
-
-    <!-- Screening Column -->
-    <div class="kanban-column">
-        <div class="kanban-header">
-            <span class="kanban-title">Screening</span>
-            <span class="kanban-count" style="background: var(--info);">{{ screening_candidates|length }}</span>
+    <div class="modern-card-body">
+        {% if designations %}
+        <div class="designation-grid">
+            {% for designation in designations %}
+            <a href="?designation={{ designation.id }}" class="designation-card">
+                <div style="position: relative;">
+                    <div class="designation-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div class="designation-badge">{{ designation.active_applications_count }}</div>
+                </div>
+                <div class="designation-name">{{ designation.name }}</div>
+                <div class="designation-count">
+                    {{ designation.active_applications_count }} active candidate{{ designation.active_applications_count|pluralize }}
+                </div>
+            </a>
+            {% endfor %}
         </div>
-        {% for candidate in screening_candidates %}
-        <div class="candidate-card">
-            <div class="candidate-name">{{ candidate.name }}</div>
-            <div class="candidate-job">{{ candidate.job.title }}</div>
-            <div class="candidate-meta">
-                <span class="candidate-meta-item">
-                    <i class="bi bi-envelope"></i> {{ candidate.email }}
-                </span>
-                <span class="candidate-meta-item">
-                    <i class="bi bi-telephone"></i> {{ candidate.phone }}
-                </span>
-            </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">No active candidates found</p>
+            <a href="{% url 'employees:add_job_application' %}" class="btn btn-primary mt-2">
+                <i class="bi bi-person-plus me-2"></i>Add First Candidate
+            </a>
         </div>
-        {% empty %}
-        <p class="text-muted text-center mt-4">No candidates</p>
-        {% endfor %}
-    </div>
-
-    <!-- Interview Column -->
-    <div class="kanban-column">
-        <div class="kanban-header">
-            <span class="kanban-title">Interview</span>
-            <span class="kanban-count" style="background: var(--warning);">{{ interview_candidates|length }}</span>
-        </div>
-        {% for candidate in interview_candidates %}
-        <div class="candidate-card">
-            <div class="candidate-name">{{ candidate.name }}</div>
-            <div class="candidate-job">{{ candidate.job.title }}</div>
-            <div class="candidate-meta">
-                <span class="candidate-meta-item">
-                    <i class="bi bi-envelope"></i> {{ candidate.email }}
-                </span>
-                <span class="candidate-meta-item">
-                    <i class="bi bi-telephone"></i> {{ candidate.phone }}
-                </span>
-            </div>
-        </div>
-        {% empty %}
-        <p class="text-muted text-center mt-4">No candidates</p>
-        {% endfor %}
-    </div>
-
-    <!-- Offered Column -->
-    <div class="kanban-column">
-        <div class="kanban-header">
-            <span class="kanban-title">Offered</span>
-            <span class="kanban-count" style="background: var(--success);">{{ offered_candidates|length }}</span>
-        </div>
-        {% for candidate in offered_candidates %}
-        <div class="candidate-card">
-            <div class="candidate-name">{{ candidate.name }}</div>
-            <div class="candidate-job">{{ candidate.job.title }}</div>
-            <div class="candidate-meta">
-                <span class="candidate-meta-item">
-                    <i class="bi bi-envelope"></i> {{ candidate.email }}
-                </span>
-                <span class="candidate-meta-item">
-                    <i class="bi bi-telephone"></i> {{ candidate.phone }}
-                </span>
-            </div>
-        </div>
-        {% empty %}
-        <p class="text-muted text-center mt-4">No candidates</p>
-        {% endfor %}
+        {% endif %}
     </div>
 </div>
+
+{% else %}
+<!-- Candidate List View -->
+<a href="{% url 'employees:candidate_tracker' %}" class="back-button">
+    <i class="bi bi-arrow-left"></i>
+    Back to Designations
+</a>
+
+<div class="candidate-table-wrapper">
+    <div class="table-header-custom">
+        <div>
+            <h5 class="mb-1 text-white">
+                <i class="bi bi-person-badge me-2"></i>
+                {% if selected_designation %}{{ selected_designation.name }}{% else %}All Candidates{% endif %}
+            </h5>
+            <p class="mb-0 opacity-75" style="font-size: 14px;">
+                {{ applications|length }} candidate{{ applications|length|pluralize }} found
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <form method="get" class="d-flex gap-2">
+                <input type="hidden" name="designation" value="{{ selected_designation_id }}">
+                <input type="text" 
+                       name="search" 
+                       class="form-control" 
+                       placeholder="Search candidates..." 
+                       value="{{ request.GET.search }}"
+                       style="min-width: 250px;">
+                <button type="submit" class="btn btn-light">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if applications %}
+    <div class="table-responsive">
+        <table class="candidate-table">
+            <thead>
+                <tr>
+                    <th>Candidate Name</th>
+                    <th>Source</th>
+                    <th>Referred By</th>
+                    <th>Contact</th>
+                    <th>Current Org</th>
+                    <th>Current CTC</th>
+                    <th>Expected CTC</th>
+                    <th>Negotiable</th>
+                    <th>Experience</th>
+                    <th>Relevant Exp</th>
+                    <th>Training</th>
+                    <th>Notice Period</th>
+                    <th>Education</th>
+                    <th>Location</th>
+                    <th>Available</th>
+                    <th>Status</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr>
+                    <td class="candidate-name-cell">
+                        <div>{{ application.candidate_name }}</div>
+                        <small class="text-muted">{{ application.email }}</small>
+                    </td>
+                    <td>
+                        <span class="source-badge source-{{ application.source }}">
+                            {{ application.get_source_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if application.referred_by %}
+                            <i class="bi bi-person-check text-success me-1"></i>
+                            {{ application.referred_by.get_full_name|default:application.referred_by.username }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="min-width: 120px;">
+                            <div><i class="bi bi-telephone me-1"></i>{{ application.phone_number|default:"—" }}</div>
+                        </div>
+                    </td>
+                    <td>{{ application.current_organization|default:"—" }}</td>
+                    <td>
+                        {% if application.current_ctc %}
+                            ₹{{ application.current_ctc|floatformat:0 }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if application.expected_ctc %}
+                            <strong>₹{{ application.expected_ctc|floatformat:0 }}</strong>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if application.is_negotiable %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ application.total_experience }} yrs</td>
+                    <td>
+                        {% if application.relevant_experience %}
+                            {{ application.relevant_experience }} yrs
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if application.training_included %}
+                            <i class="bi bi-check-circle text-success"></i>
+                        {% else %}
+                            <i class="bi bi-x-circle text-muted"></i>
+                        {% endif %}
+                    </td>
+                    <td>{{ application.official_notice_period|default:"—" }}</td>
+                    <td>
+                        {% if application.degree_name %}
+                            <div style="min-width: 150px;">
+                                <div>{{ application.degree_name }}</div>
+                                {% if application.passing_year %}
+                                    <small class="text-muted">{{ application.passing_year }}</small>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="min-width: 120px;">
+                            <div><strong>Current:</strong> {{ application.current_location|default:"—" }}</div>
+                            <div><strong>Preferred:</strong> {{ application.preferred_location|default:"—" }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if application.available_for_interview %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-warning">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ application.status }}">
+                            {{ application.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="min-width: 100px;">
+                            {{ application.created_at|date:"d M Y" }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1" style="min-width: 80px;">
+                            {% if application.resume %}
+                            <a href="{{ application.resume.url }}" 
+                               class="btn-icon" 
+                               title="Download CV"
+                               download>
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'employees:candidate_detail' application.pk %}" 
+                               class="btn-icon"
+                               title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="p-3 border-top">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?designation={{ selected_designation_id }}&page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?designation={{ selected_designation_id }}&page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?designation={{ selected_designation_id }}&page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+        <p class="text-muted mt-3">No candidates found</p>
+        {% if request.GET.search %}
+        <a href="?designation={{ selected_designation_id }}" class="btn btn-outline-secondary mt-2">
+            Clear Search
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
 {% endblock %}

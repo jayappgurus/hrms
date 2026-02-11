@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - HRMS Portal{% endblock %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .interview-form-card {
+        margin: 0 auto;
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+    }
+
+    .candidate-info-box {
+        background: linear-gradient(135deg, #f0f7ff 0%, #e6f2ff 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 32px;
+        border-left: 4px solid var(--primary);
+    }
+
+    .candidate-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+
+    .candidate-job {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .form-section {
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-calendar-plus text-primary"></i>
+            {{ page_title }}
+        </h1>
+        <p class="page-subtitle">Schedule interview round for candidate</p>
+    </div>
+    <a href="{% url 'employees:candidate_detail' application.pk %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Candidate
+    </a>
+</div>
+
+<div class="interview-form-card">
+    <!-- Candidate Info -->
+    <div class="candidate-info-box">
+        <div class="candidate-name">
+            <i class="bi bi-person-circle me-2"></i>{{ application.candidate_name }}
+        </div>
+        <div class="candidate-job">
+            <i class="bi bi-briefcase me-2"></i>{{ application.job.title }} - {{ application.job.designation.name }}
+        </div>
+    </div>
+
+    <form method="post" id="interviewForm">
+        {% csrf_token %}
+        
+        <!-- Interview Details -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="bi bi-calendar-event me-2"></i>Interview Details
+            </div>
+            
+            <div class="form-grid">
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">{{ form.interview_type.label }}</label>
+                    {{ form.interview_type }}
+                    {% if form.interview_type.errors %}
+                    <div class="text-danger small mt-1">{{ form.interview_type.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">{{ form.status.label }}</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                    <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">{{ form.scheduled_date.label }}</label>
+                    {{ form.scheduled_date }}
+                    {% if form.scheduled_date.errors %}
+                    <div class="text-danger small mt-1">{{ form.scheduled_date.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">{{ form.scheduled_time.label }}</label>
+                    {{ form.scheduled_time }}
+                    {% if form.scheduled_time.errors %}
+                    <div class="text-danger small mt-1">{{ form.scheduled_time.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Platform & Location -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="bi bi-geo-alt me-2"></i>Platform & Location
+            </div>
+            
+            <div class="form-grid">
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">{{ form.platform.label }}</label>
+                    {{ form.platform }}
+                    {% if form.platform.errors %}
+                    <div class="text-danger small mt-1">{{ form.platform.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="modern-form-group" id="meetingLinkGroup">
+                    <label class="modern-form-label">{{ form.meeting_link.label }}</label>
+                    {{ form.meeting_link }}
+                    {% if form.meeting_link.errors %}
+                    <div class="text-danger small mt-1">{{ form.meeting_link.errors.0 }}</div>
+                    {% endif %}
+                    <small class="form-help-text">For virtual interviews</small>
+                </div>
+
+                <div class="modern-form-group" id="locationGroup" style="display: none;">
+                    <label class="modern-form-label">{{ form.location.label }}</label>
+                    {{ form.location }}
+                    {% if form.location.errors %}
+                    <div class="text-danger small mt-1">{{ form.location.errors.0 }}</div>
+                    {% endif %}
+                    <small class="form-help-text">For physical interviews</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interviewer -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="bi bi-person-badge me-2"></i>Interviewer
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">{{ form.taken_by.label }}</label>
+                {{ form.taken_by }}
+                {% if form.taken_by.errors %}
+                <div class="text-danger small mt-1">{{ form.taken_by.errors.0 }}</div>
+                {% endif %}
+                <small class="form-help-text">Employee conducting the interview</small>
+            </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="bi bi-chat-text me-2"></i>Remarks
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">{{ form.remarks.label }}</label>
+                {{ form.remarks }}
+                {% if form.remarks.errors %}
+                <div class="text-danger small mt-1">{{ form.remarks.errors.0 }}</div>
+                {% endif %}
+                <small class="form-help-text">No character limit</small>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-4" style="border-top: 2px solid var(--border-color);">
+            <a href="{% url 'employees:candidate_detail' application.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-check-circle me-2"></i>
+                {% if interview %}Update Interview{% else %}Add Interview{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add modern-form-control class to all form inputs
+    const formInputs = document.querySelectorAll('#interviewForm input:not([type="checkbox"]), #interviewForm select, #interviewForm textarea');
+    formInputs.forEach(input => {
+        input.classList.add('modern-form-control');
+        if (input.tagName === 'SELECT') {
+            input.classList.add('modern-form-select');
+        }
+        if (input.tagName === 'TEXTAREA') {
+            input.classList.add('modern-form-textarea');
+        }
+    });
+
+    // Toggle meeting link/location based on platform
+    const platformField = document.getElementById('id_platform');
+    const meetingLinkGroup = document.getElementById('meetingLinkGroup');
+    const locationGroup = document.getElementById('locationGroup');
+
+    function togglePlatformFields() {
+        const platform = platformField.value;
+        if (platform === 'physical') {
+            meetingLinkGroup.style.display = 'none';
+            locationGroup.style.display = 'block';
+        } else {
+            meetingLinkGroup.style.display = 'block';
+            locationGroup.style.display = 'none';
+        }
+    }
+
+    if (platformField) {
+        platformField.addEventListener('change', togglePlatformFields);
+        togglePlatformFields(); // Run on load
+    }
+});
+</script>
+{% endblock %}

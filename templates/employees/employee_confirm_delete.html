@@ -12,7 +12,7 @@
         margin: 0 auto;
         padding: 32px;
     }
-    
+
     .delete-card {
         background: white;
         border-radius: 16px;
@@ -21,7 +21,7 @@
         padding: 32px;
         text-align: center;
     }
-    
+
     .delete-icon {
         width: 80px;
         height: 80px;
@@ -32,44 +32,44 @@
         justify-content: center;
         margin: 0 auto 24px;
     }
-    
+
     .delete-icon i {
         font-size: 2.5rem;
         color: white;
     }
-    
+
     .employee-info {
         background: #f8faff;
         padding: 16px;
         border-radius: 8px;
         margin-bottom: 24px;
     }
-    
+
     .employee-name {
         font-size: 20px;
         font-weight: 700;
         color: var(--text-main);
         margin-bottom: 8px;
     }
-    
+
     .employee-details {
         font-size: 14px;
         color: var(--text-muted);
         line-height: 1.6;
     }
-    
+
     .warning-text {
         color: #dc3545;
         font-weight: 600;
         margin-bottom: 16px;
     }
-    
+
     .btn-danger {
         background: #dc3545;
         border-color: #dc3545;
         color: white;
     }
-    
+
     .btn-secondary {
         background: #6c757d;
         border-color: #6c757d;
@@ -97,7 +97,7 @@
         <div class="delete-icon">
             <i class="bi bi-person-x"></i>
         </div>
-        
+
         <div class="employee-info">
             <h3 class="employee-name">{{ employee.full_name }}</h3>
             <div class="employee-details">
@@ -108,17 +108,17 @@
                 <p><strong>Mobile:</strong> {{ employee.mobile_number|default:"Not provided" }}</p>
             </div>
         </div>
-        
+
         <div class="warning-text">
             <i class="bi bi-exclamation-triangle me-2"></i>
             <strong>Warning:</strong> This will permanently delete the employee record and all associated data.
         </div>
-        
+
         <div class="d-flex gap-2 justify-content-center mt-4">
             <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">
                 <i class="bi bi-x-circle me-2"></i>Cancel
             </a>
-            <form method="post" action="{% url 'employees:employee_delete' employee.pk %}">
+            <form method="post" action="{% url 'employees:employee_delete_record' employee.pk %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">
                     <i class="bi bi-trash me-2"></i>

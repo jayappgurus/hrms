@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -15,7 +16,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, Device, DeviceAllocation, PublicHoliday, LeaveType, LeaveApplication, UserProfile
 from .models_job import InterviewSchedule
-from .forms import EmployeeForm, EmergencyContactForm, EmployeeSearchForm, EmployeeDocumentForm, LeaveTypeForm, LeaveApplicationForm, PublicHolidayForm
+from .forms import EmployeeForm, EmergencyContactForm, EmployeeSearchForm, EmployeeDocumentForm, LeaveTypeForm, LeaveApplicationForm, PublicHolidayForm, EmployeeRegistrationForm
 
 
 class DashboardView(LoginRequiredMixin, ListView):
@@ -44,6 +45,7 @@ class DashboardView(LoginRequiredMixin, ListView):
             'departments': Department.objects.all(),
             'total_departments': Department.objects.count(),
             'interviews_today': InterviewSchedule.objects.filter(scheduled_date=timezone.now().date()).count(),
+            'upcoming_holidays': PublicHoliday.objects.filter(date__gte=timezone.now().date(), is_active=True).order_by('date')[:5],
         })
         
         return context
@@ -86,7 +88,7 @@ class CalendarEventsView(LoginRequiredMixin, View):
                 if start_date <= bday <= end_date:
                     events.append({
                         'id': f'bday-{emp.id}',
-                        'title': f'🎂 Birthday: {emp.full_name}',
+                        'title': f'🎂 {emp.full_name}',
                         'start': bday.isoformat(),
                         'allDay': True,
                         'className': 'bg-primary-subtle text-primary border-primary',
@@ -110,7 +112,7 @@ class CalendarEventsView(LoginRequiredMixin, View):
                     if start_date <= bday_next <= end_date:
                         events.append({
                             'id': f'bday-next-{emp.id}',
-                            'title': f'🎂 Birthday: {emp.full_name}',
+                            'title': f'🎂  {emp.full_name}',
                             'start': bday_next.isoformat(),
                             'allDay': True,
                             'className': 'bg-primary-subtle text-primary border-primary',
@@ -160,6 +162,25 @@ class CalendarEventsView(LoginRequiredMixin, View):
                 }
             })
             
+        # 4. Public Holidays
+        holidays = PublicHoliday.objects.filter(
+            date__gte=start_date,
+            date__lte=end_date,
+            is_active=True
+        )
+        
+        for holiday in holidays:
+            events.append({
+                'id': f'holiday-{holiday.id}',
+                'title': f'🚩 {holiday.name}',
+                'start': holiday.date.isoformat(),
+                'allDay': True,
+                'className': 'bg-danger-subtle text-danger border-danger',
+                'extendedProps': {
+                    'type': 'holiday'
+                }
+            })
+            
         return JsonResponse(events, safe=False)
 
 
@@ -190,33 +211,6 @@ class EmployeeListView(LoginRequiredMixin, ListView):
         return context
 
 
-class EmployeeGridView(LoginRequiredMixin, ListView):
-    model = Employee
-    template_name = 'employees/employee_grid.html'
-    context_object_name = 'employees'
-    paginate_by = 12
-
-    def get_queryset(self):
-        queryset = Employee.objects.select_related('department', 'designation').all()
-        
-        # Search functionality
-        search_term = self.request.GET.get('search', '')
-        if search_term:
-            queryset = queryset.filter(
-                Q(full_name__icontains=search_term) |
-                Q(employee_code__icontains=search_term)
-            )
-        
-        return queryset.order_by('-created_at')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['search_form'] = EmployeeSearchForm(self.request.GET)
-        context['active_employees_count'] = self.get_queryset().filter(employment_status='active').count()
-        context['total_employees'] = Employee.objects.count()
-        context['departments'] = Department.objects.all()
-        context['is_paginated'] = self.get_queryset().count() > self.paginate_by
-        return context
 
 
 class EmployeeDetailView(LoginRequiredMixin, DetailView):
@@ -231,22 +225,22 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
         
         # Define document categories for the tracker
         document_categories = {
-            'photographs': [
+            'Photographs': [
                 {'type': 'passport_photo', 'display': 'Passport Size Photos – 4 Copies'},
             ],
-            'identity_proofs': [
+            'Identity Proofs': [
                 {'type': 'aadhar_card', 'display': 'Aadhar Card'},
                 {'type': 'pan_card', 'display': 'PAN Card'},
                 {'type': 'driving_license', 'display': 'Driving License'},
                 {'type': 'voter_id', 'display': 'Voter ID'},
                 {'type': 'passport', 'display': 'Passport'},
             ],
-            'address_proofs': [
+            'Address Proofs': [
                 {'type': 'electricity_bill', 'display': 'Electricity Bill'},
                 {'type': 'tax_bill', 'display': 'Tax Bill'},
                 {'type': 'rent_agreement', 'display': 'Rent Agreement'},
             ],
-            'education_proofs': [
+            'Education Proofs': [
                 {'type': 'ssc_marksheet', 'display': 'SSC Marksheet'},
                 {'type': 'hsc_marksheet', 'display': 'HSC Marksheet'},
                 {'type': 'graduation_certificate', 'display': 'Graduation Certificate'},
@@ -304,6 +298,19 @@ class EmployeeCreateView(LoginRequiredMixin, CreateView):
         with transaction.atomic():
             response = super().form_valid(form)
             employee = self.object
+
+            # Handle emergency contact
+            ec_name = form.cleaned_data.get('emergency_contact_name')
+            if ec_name:
+                ec = EmergencyContact.objects.create(
+                    name=ec_name,
+                    mobile_number=form.cleaned_data.get('emergency_contact_mobile'),
+                    email=form.cleaned_data.get('emergency_contact_email'),
+                    address=form.cleaned_data.get('emergency_contact_address'),
+                    relationship=form.cleaned_data.get('emergency_contact_relationship')
+                )
+                employee.emergency_contact = ec
+                employee.save()
             
             # Create User for the employee
             username = employee.official_email
@@ -361,9 +368,31 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, 'Employee updated successfully!')
-        return response
+        with transaction.atomic():
+            response = super().form_valid(form)
+            employee = self.object
+
+            # Handle emergency contact
+            ec_name = form.cleaned_data.get('emergency_contact_name')
+            if ec_name:
+                ec_data = {
+                    'name': ec_name,
+                    'mobile_number': form.cleaned_data.get('emergency_contact_mobile'),
+                    'email': form.cleaned_data.get('emergency_contact_email'),
+                    'address': form.cleaned_data.get('emergency_contact_address'),
+                    'relationship': form.cleaned_data.get('emergency_contact_relationship')
+                }
+                if employee.emergency_contact:
+                    for key, value in ec_data.items():
+                        setattr(employee.emergency_contact, key, value)
+                    employee.emergency_contact.save()
+                else:
+                    ec = EmergencyContact.objects.create(**ec_data)
+                    employee.emergency_contact = ec
+                    employee.save()
+
+            messages.success(self.request, 'Employee updated successfully!')
+            return response
 
 
 class EmployeeDeleteView(LoginRequiredMixin, DeleteView):
@@ -450,6 +479,47 @@ def get_designations_by_department(request):
         return JsonResponse(list(designations), safe=False)
     
     return JsonResponse([], safe=False)
+
+
+@require_POST
+@login_required
+def update_document_status_by_id(request, document_id):
+    """
+    AJAX view to update document submission status by document ID
+    """
+    try:
+        # Parse the request body
+        data = json.loads(request.body)
+        is_submitted = data.get('is_submitted', False)
+        
+        # Get the document
+        document = EmployeeDocument.objects.get(id=document_id)
+        
+        # Update the document status
+        document.is_submitted = is_submitted
+        if is_submitted:
+            document.submitted_date = timezone.now()
+        else:
+            document.submitted_date = None
+        
+        document.save()
+        
+        return JsonResponse({
+            'success': True,
+            'submitted_date': document.submitted_date.strftime('%b %d, %Y') if document.submitted_date else None
+        })
+        
+    except EmployeeDocument.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Document not found'
+        }, status=404)
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 
 # Device Management Views
@@ -573,13 +643,11 @@ class DeviceVisibilityView(LoginRequiredMixin, ListView):
         total_devices = Device.objects.count()
         available_devices = Device.objects.filter(status='available').count()
         in_use_devices = Device.objects.filter(status='in_use').count()
-        maintenance_devices = Device.objects.filter(status='maintenance').count()
         
         context.update({
             'total_devices': total_devices,
             'available_devices': available_devices,
             'in_use_devices': in_use_devices,
-            'maintenance_devices': maintenance_devices,
         })
         
         return context
@@ -647,15 +715,16 @@ class PublicHolidayListView(LoginRequiredMixin, ListView):
     model = PublicHoliday
     template_name = 'leave/public_holidays.html'
     context_object_name = 'holidays'
-    paginate_by = 20
 
     def get_queryset(self):
         queryset = PublicHoliday.objects.filter(is_active=True)
-        year = timezone.now().year
-        return queryset.filter(year=year)
+        # Show holidays for previous, current and next years
+        return queryset.filter(year__in=[2024, 2025, 2026]).order_by('date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Get all unique years from the queryset for filtering
+        context['available_years'] = PublicHoliday.objects.filter(is_active=True).values_list('year', flat=True).distinct().order_by('year')
         context['current_year'] = timezone.now().year
         return context
 

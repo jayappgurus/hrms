@@ -167,6 +167,7 @@ class JobApplication(models.Model):
     # Additional Information
     training_included = models.BooleanField(default=False, help_text="Training included in package")
     official_notice_period = models.CharField(max_length=50, blank=True, null=True, help_text="Official notice period")
+    current_location = models.CharField(max_length=200, blank=True, null=True, help_text="Current location")
     preferred_location = models.CharField(max_length=200, blank=True, null=True, help_text="Preferred work location")
     available_for_interview = models.BooleanField(default=True, help_text="Available for interview")
     
@@ -217,16 +218,23 @@ class InterviewSchedule(models.Model):
     """Interview scheduling model"""
     
     INTERVIEW_TYPE_CHOICES = [
-        ('phone', 'Phone Screen'),
-        ('video', 'Video Call'),
         ('technical', 'Technical Round'),
-        ('hr', 'HR Round'),
+        ('practical', 'Practical Round'),
         ('managerial', 'Managerial Round'),
-        ('final', 'Final Round'),
+        ('hr', 'HR Round'),
+    ]
+    
+    PLATFORM_CHOICES = [
+        ('google_meet', 'Google Meet'),
+        ('physical', 'Physical'),
+        ('zoom', 'Zoom'),
+        ('teams', 'Microsoft Teams'),
+        ('phone', 'Phone'),
     ]
     
     STATUS_CHOICES = [
         ('scheduled', 'Scheduled'),
+        ('pending', 'Pending'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
         ('rescheduled', 'Rescheduled'),
@@ -234,16 +242,20 @@ class InterviewSchedule(models.Model):
     
     application = models.ForeignKey(JobApplication, on_delete=models.CASCADE, related_name='interviews')
     interview_type = models.CharField(max_length=20, choices=INTERVIEW_TYPE_CHOICES)
-    scheduled_date = models.DateTimeField()
-    scheduled_time = models.TimeField()
-    duration_minutes = models.PositiveIntegerField(default=60, help_text="Expected duration in minutes")
-    interview_mode = models.CharField(max_length=50, help_text="Interview mode (Phone, Video, In-person)")
+    scheduled_date = models.DateField(help_text="Interview date")
+    scheduled_time = models.TimeField(help_text="Interview time")
+    platform = models.CharField(max_length=50, choices=PLATFORM_CHOICES, default='google_meet', help_text="Interview platform")
     meeting_link = models.URLField(blank=True, null=True, help_text="Meeting link for virtual interviews")
-    location = models.CharField(max_length=200, blank=True, null=True, help_text="Interview location")
+    location = models.CharField(max_length=200, blank=True, null=True, help_text="Interview location for physical interviews")
     
-    interviewer = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, related_name='interviews_conducted')
+    taken_by = models.ForeignKey('Employee', on_delete=models.SET_NULL, null=True, blank=True, related_name='interviews_conducted', help_text="Employee conducting the interview")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
+    remarks = models.TextField(blank=True, null=True, help_text="Interview remarks (no character limit)")
     
+    # Legacy fields (keeping for backward compatibility)
+    duration_minutes = models.PositiveIntegerField(default=60, help_text="Expected duration in minutes")
+    interview_mode = models.CharField(max_length=50, blank=True, null=True, help_text="Interview mode (deprecated, use platform)")
+    interviewer = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='interviews_conducted_legacy')
     notes = models.TextField(blank=True, null=True, help_text="Interview notes")
     feedback = models.TextField(blank=True, null=True, help_text="Interview feedback")
     rating = models.PositiveIntegerField(null=True, blank=True, help_text="Candidate rating (1-10)")
@@ -254,7 +266,7 @@ class InterviewSchedule(models.Model):
     class Meta:
         verbose_name = "Interview Schedule"
         verbose_name_plural = "Interview Schedules"
-        ordering = ['scheduled_date']
+        ordering = ['scheduled_date', 'scheduled_time']
     
     def __str__(self):
-        return f"{self.application.candidate_name} - {self.interview_type} - {self.scheduled_date}"
+        return f"{self.application.candidate_name} - {self.get_interview_type_display()} - {self.scheduled_date}"

@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ application.candidate_name }} - Candidate Details{% endblock %}
+
+{% block page_title %}Candidate Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .detail-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .detail-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .detail-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+    }
+
+    .detail-value {
+        font-size: 15px;
+        color: var(--text-main);
+    }
+
+    .interview-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        border: 2px solid var(--border-color);
+        transition: all 0.3s;
+    }
+
+    .interview-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+    }
+
+    .interview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    .interview-type {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .interview-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .interview-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .interview-detail-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .interview-detail-item i {
+        color: var(--primary);
+    }
+
+    .interview-remarks {
+        background: #f8faff;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 12px;
+    }
+
+    .interview-remarks-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+    }
+
+    .interview-remarks-text {
+        font-size: 14px;
+        color: var(--text-main);
+        white-space: pre-wrap;
+    }
+
+    .status-badge-large {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+    }
+
+    .empty-state i.bi-calendar-x {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-person-circle text-primary"></i>
+            {{ application.candidate_name }}
+        </h1>
+        <p class="page-subtitle">{{ application.job.title }} - {{ application.job.designation.name }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'employees:candidate_tracker' %}?designation={{ application.job.designation.id }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Tracker
+        </a>
+        {% if request.user.is_superuser or request.user.is_staff %}
+        <a href="{% url 'employees:add_interview' application.pk %}" class="btn btn-primary">
+            <i class="bi bi-calendar-plus me-2"></i>Add Interview
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Basic Information -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="detail-title">
+            <i class="bi bi-person-badge"></i>
+            Basic Information
+        </div>
+        <span class="status-badge status-{{ application.status }}">
+            {{ application.get_status_display }}
+        </span>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">Email</div>
+            <div class="detail-value">{{ application.email }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Phone Number</div>
+            <div class="detail-value">{{ application.phone_number|default:"—" }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Source</div>
+            <div class="detail-value">
+                <span class="source-badge source-{{ application.source }}">
+                    {{ application.get_source_display }}
+                </span>
+            </div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Referred By</div>
+            <div class="detail-value">
+                {% if application.referred_by %}
+                    {{ application.referred_by.get_full_name|default:application.referred_by.username }}
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Professional Information -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="detail-title">
+            <i class="bi bi-building"></i>
+            Professional Information
+        </div>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">Current Organization</div>
+            <div class="detail-value">{{ application.current_organization|default:"—" }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Current CTC</div>
+            <div class="detail-value">
+                {% if application.current_ctc %}
+                    ₹{{ application.current_ctc|floatformat:0 }}
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Expected CTC</div>
+            <div class="detail-value">
+                {% if application.expected_ctc %}
+                    <strong>₹{{ application.expected_ctc|floatformat:0 }}</strong>
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Negotiable</div>
+            <div class="detail-value">
+                {% if application.is_negotiable %}
+                    <span class="badge bg-success">Yes</span>
+                {% else %}
+                    <span class="badge bg-secondary">No</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Total Experience</div>
+            <div class="detail-value">{{ application.total_experience }} years</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Relevant Experience</div>
+            <div class="detail-value">
+                {% if application.relevant_experience %}
+                    {{ application.relevant_experience }} years
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Education & Additional Details -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="detail-title">
+                    <i class="bi bi-mortarboard"></i>
+                    Education
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Degree Name</div>
+                <div class="detail-value">{{ application.degree_name|default:"—" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Passing Year</div>
+                <div class="detail-value">{{ application.passing_year|default:"—" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="detail-title">
+                    <i class="bi bi-info-circle"></i>
+                    Additional Details
+                </div>
+            </div>
+            
+            <div class="detail-item">
+                <div class="detail-label">Notice Period</div>
+                <div class="detail-value">{{ application.official_notice_period|default:"—" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Training Included</div>
+                <div class="detail-value">
+                    {% if application.training_included %}
+                        <i class="bi bi-check-circle text-success"></i> Yes
+                    {% else %}
+                        <i class="bi bi-x-circle text-muted"></i> No
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Location Details -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="detail-title">
+            <i class="bi bi-geo-alt"></i>
+            Location Details
+        </div>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">Current Location</div>
+            <div class="detail-value">{{ application.current_location|default:"—" }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Preferred Location</div>
+            <div class="detail-value">{{ application.preferred_location|default:"—" }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Available for Interview</div>
+            <div class="detail-value">
+                {% if application.available_for_interview %}
+                    <span class="badge bg-success">Yes</span>
+                {% else %}
+                    <span class="badge bg-warning">No</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Documents -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="detail-title">
+            <i class="bi bi-file-earmark-pdf"></i>
+            Documents
+        </div>
+    </div>
+    
+    <div class="d-flex gap-3">
+        {% if application.resume %}
+        <a href="{{ application.resume.url }}" class="btn btn-outline-primary" download>
+            <i class="bi bi-download me-2"></i>Download Resume
+        </a>
+        {% endif %}
+        {% if application.cover_letter %}
+        <a href="{{ application.cover_letter.url }}" class="btn btn-outline-secondary" download>
+            <i class="bi bi-download me-2"></i>Download Cover Letter
+        </a>
+        {% endif %}
+        {% if not application.resume and not application.cover_letter %}
+        <p class="text-muted mb-0">No documents uploaded</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Interviews Conducted -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="detail-title">
+            <i class="bi bi-calendar-check"></i>
+            Interviews Conducted
+        </div>
+        {% if request.user.is_superuser or request.user.is_staff %}
+        <a href="{% url 'employees:add_interview' application.pk %}" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Add Interview Round
+        </a>
+        {% endif %}
+    </div>
+    
+    {% if interviews %}
+        {% for interview in interviews %}
+        <div class="interview-card">
+            <div class="interview-header">
+                <div class="interview-type">
+                    <i class="bi bi-chat-dots"></i>
+                    {{ interview.get_interview_type_display }}
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="status-badge-large status-{{ interview.status }}">
+                        {{ interview.get_status_display }}
+                    </span>
+                    {% if request.user.is_superuser or request.user.is_staff %}
+                    <div class="interview-actions">
+                        <a href="{% url 'employees:edit_interview' interview.pk %}" 
+                           class="btn btn-sm btn-outline-secondary"
+                           title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'employees:delete_interview' interview.pk %}" 
+                           class="btn btn-sm btn-outline-danger"
+                           title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="interview-details">
+                <div class="interview-detail-item">
+                    <i class="bi bi-calendar3"></i>
+                    <span><strong>Date:</strong> {{ interview.scheduled_date|date:"d M Y" }}</span>
+                </div>
+                <div class="interview-detail-item">
+                    <i class="bi bi-clock"></i>
+                    <span><strong>Time:</strong> {{ interview.scheduled_time|time:"g:i A" }}</span>
+                </div>
+                <div class="interview-detail-item">
+                    <i class="bi bi-laptop"></i>
+                    <span><strong>Platform:</strong> {{ interview.get_platform_display }}</span>
+                </div>
+                {% if interview.taken_by %}
+                <div class="interview-detail-item">
+                    <i class="bi bi-person-badge"></i>
+                    <span><strong>Taken By:</strong> 
+                        <a href="{% url 'employees:employee_detail' interview.taken_by.pk %}" class="text-primary">
+                            {{ interview.taken_by.full_name }}
+                        </a>
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if interview.meeting_link %}
+            <div class="interview-detail-item mb-2">
+                <i class="bi bi-link-45deg"></i>
+                <span><strong>Meeting Link:</strong> 
+                    <a href="{{ interview.meeting_link }}" target="_blank" class="text-primary">
+                        {{ interview.meeting_link|truncatechars:50 }}
+                    </a>
+                </span>
+            </div>
+            {% endif %}
+            
+            {% if interview.location %}
+            <div class="interview-detail-item mb-2">
+                <i class="bi bi-geo-alt"></i>
+                <span><strong>Location:</strong> {{ interview.location }}</span>
+            </div>
+            {% endif %}
+            
+            {% if interview.remarks %}
+            <div class="interview-remarks">
+                <div class="interview-remarks-label">REMARKS:</div>
+                <div class="interview-remarks-text">{{ interview.remarks }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-calendar-x"></i>
+            <p class="mb-0">No interviews scheduled yet</p>
+            {% if request.user.is_superuser or request.user.is_staff %}
+            <a href="{% url 'employees:add_interview' application.pk %}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Schedule First Interview
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Metadata -->
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="detail-title">
+            <i class="bi bi-clock-history"></i>
+            Timeline
+        </div>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">Registered Date</div>
+            <div class="detail-value">{{ application.created_at|date:"d M Y, g:i A" }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Last Updated</div>
+            <div class="detail-value">{{ application.updated_at|date:"d M Y, g:i A" }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

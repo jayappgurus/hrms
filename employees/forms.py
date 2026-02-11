@@ -1,5 +1,6 @@
 from django import forms
 from django.core.validators import RegexValidator, EmailValidator
+from django.contrib.auth.models import User
 from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday
 
 
@@ -32,17 +33,30 @@ class EmergencyContactForm(forms.ModelForm):
         }
 
 
+
 class EmployeeForm(forms.ModelForm):
+    # Emergency Contact Fields
+    emergency_contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter emergency contact name'}))
+    emergency_contact_mobile = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter mobile number'}))
+    emergency_contact_email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter email address'}))
+    emergency_contact_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Enter address'}))
+    emergency_contact_relationship = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Spouse, Parent, Sibling'}))
+
     class Meta:
         model = Employee
         fields = [
-            'full_name', 'department', 'designation', 'joining_date', 'relieving_date',
+            'employee_code', 'full_name', 'department', 'designation', 'joining_date', 'relieving_date',
             'employment_status', 'mobile_number', 'official_email', 'personal_email', 'local_address',
-            'permanent_address', 'date_of_birth', 'gender', 'blood_group', 'marital_status', 'anniversary_date',
-            'nationality', 'highest_qualification', 'total_experience_years', 'total_experience_months',
-            'aadhar_card_number', 'pan_card_number'
+            'permanent_address', 'date_of_birth', 'marital_status', 'anniversary_date',
+            'highest_qualification', 'total_experience_years', 'total_experience_months',
+            'probation_status', 'aadhar_card_number', 'pan_card_number', 'graduates_marksheet_count',
+            'emergency_contact_name', 'emergency_contact_mobile', 'emergency_contact_email', 'emergency_contact_address', 'emergency_contact_relationship'
         ]
         widgets = {
+            'employee_code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Auto-generated if left blank'
+            }),
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter full name'
@@ -84,8 +98,6 @@ class EmployeeForm(forms.ModelForm):
                 'class': 'form-control',
                 'type': 'date'
             }),
-            'gender': forms.Select(attrs={'class': 'form-select'}),
-            'blood_group': forms.Select(attrs={'class': 'form-select'}),
             'marital_status': forms.Select(attrs={'class': 'form-select'}),
             'anniversary_date': forms.DateInput(attrs={
                 'class': 'form-control',
@@ -94,10 +106,6 @@ class EmployeeForm(forms.ModelForm):
             'highest_qualification': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'e.g., B.Tech, MBA, etc.'
-            }),
-            'nationality': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter nationality'
             }),
             'total_experience_years': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -120,11 +128,28 @@ class EmployeeForm(forms.ModelForm):
                 'placeholder': 'PAN number (e.g., ABCDE1234F)',
                 'style': 'text-transform: uppercase'
             }),
+            'probation_status': forms.Select(choices=[('On Probation', 'On Probation'), ('Confirmed', 'Confirmed')], attrs={'class': 'form-select'}),
+            'graduates_marksheet_count': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'placeholder': 'No. of marksheets'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['department'].queryset = Department.objects.all()
+        self.fields['employee_code'].required = False
+        self.fields['probation_status'].required = False
+        self.fields['graduates_marksheet_count'].required = False
+
+        if self.instance and self.instance.pk and self.instance.emergency_contact:
+            ec = self.instance.emergency_contact
+            self.fields['emergency_contact_name'].initial = ec.name
+            self.fields['emergency_contact_mobile'].initial = ec.mobile_number
+            self.fields['emergency_contact_email'].initial = ec.email
+            self.fields['emergency_contact_address'].initial = ec.address
+            self.fields['emergency_contact_relationship'].initial = ec.relationship
         
         # Always show all designations for now
         self.fields['designation'].queryset = Designation.objects.all()
@@ -169,6 +194,91 @@ class EmployeeForm(forms.ModelForm):
             raise forms.ValidationError("Anniversary date is required when marital status is Married.")
 
         return cleaned_data
+
+
+class EmployeeRegistrationForm(forms.ModelForm):
+    """Form for employee self-registration"""
+    # User fields
+    username = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Choose a username', 'id': 'id_username'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Create a password', 'id': 'id_password'}))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm password', 'id': 'id_confirm_password'}))
+    full_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter full name', 'id': 'id_full_name'}))
+
+    class Meta:
+        model = Employee
+        fields = [
+            'full_name', 'department', 'designation', 'mobile_number', 'personal_email',
+            'date_of_birth', 'marital_status',
+            'highest_qualification', 'total_experience_years', 'total_experience_months',
+            'aadhar_card_number', 'pan_card_number', 'local_address', 'permanent_address'
+        ]
+        widgets = {
+            'department': forms.Select(attrs={'class': 'form-select'}),
+            'designation': forms.Select(attrs={'class': 'form-select'}),
+            'mobile_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter mobile number'}),
+            'personal_email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'personal@email.com'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'marital_status': forms.Select(attrs={'class': 'form-select'}),
+            'highest_qualification': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Highest Qualification'}),
+            'total_experience_years': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'total_experience_months': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 11}),
+            'aadhar_card_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '12-digit Aadhar number', 'maxlength': 12}),
+            'pan_card_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'PAN number', 'style': 'text-transform: uppercase'}),
+            'local_address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter local address'}),
+            'permanent_address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter permanent address'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['department'].queryset = Department.objects.all()
+        self.fields['designation'].queryset = Designation.objects.all()
+
+    def clean_aadhar_card_number(self):
+        aadhar = self.cleaned_data.get('aadhar_card_number')
+        if aadhar and len(aadhar) != 12:
+            raise forms.ValidationError("Aadhar card number must be exactly 12 digits.")
+        return aadhar
+
+    def clean_pan_card_number(self):
+        pan = self.cleaned_data.get('pan_card_number')
+        if pan:
+            pan = pan.upper()
+            if len(pan) != 10:
+                raise forms.ValidationError("PAN card number must be exactly 10 characters.")
+        return pan
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Username already exists.")
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+        marital_status = cleaned_data.get('marital_status')
+        # Since we don't have anniversary_date in registration form, 
+        # we might want to handle it or just allow it to be empty for now.
+        # But the model might require it if we add it later.
+        
+        if password != confirm_password:
+            raise forms.ValidationError("Passwords do not match.")
+        
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # Save emergency contact fields directly to the employee model
+        instance.emergency_contact_name = self.cleaned_data.get('emergency_contact_name', '')
+        instance.emergency_contact_mobile = self.cleaned_data.get('emergency_contact_mobile', '')
+        instance.emergency_contact_email = self.cleaned_data.get('emergency_contact_email', '')
+        instance.emergency_contact_address = self.cleaned_data.get('emergency_contact_address', '')
+        
+        if commit:
+            instance.save()
+        return instance
 
 
 class EmployeeSearchForm(forms.Form):

@@ -24,7 +24,6 @@ class CustomUserAdmin(DefaultUserAdmin):
     list_display = ['username', 'email', 'first_name', 'last_name', 'user_role', 'is_staff', 'is_active']
     list_filter = ['is_staff', 'is_superuser', 'is_active', 'date_joined', 'profile__role']
     search_fields = ['username', 'first_name', 'last_name', 'email']
-    ordering = ['-date_joined']
     
     # Define fieldsets directly to avoid super() calls
     fieldsets = (
@@ -234,6 +233,88 @@ class EmployeeDocumentAdmin(admin.ModelAdmin):
         )
     is_submitted_badge.short_description = 'Status'
     is_submitted_badge.admin_order_field = 'is_submitted'
+    
+    def changelist_view(self, request, extra_context=None):
+        # Python 3.14 compatibility fix - bypass Django's template system entirely
+        from django.http import HttpResponse
+        
+        # Get queryset
+        queryset = self.get_queryset(request)
+        
+        # Apply filters from GET parameters
+        employee_id = request.GET.get('employee__id__exact')
+        if employee_id:
+            queryset = queryset.filter(employee_id=employee_id)
+        
+        # Build a simple HTML response
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Employee Documents - HRMS Portal</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                table {{ border-collapse: collapse; width: 100%; }}
+                th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+                th {{ background-color: #f2f2f2; }}
+                .header {{ background-color: #007cba; color: white; padding: 10px; margin-bottom: 20px; }}
+                .back-link {{ margin-bottom: 20px; }}
+                .filter-info {{ background-color: #e7f3ff; padding: 10px; margin-bottom: 20px; border-radius: 4px; }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Employee Documents</h1>
+                <p>Python 3.14 Compatibility Mode</p>
+            </div>
+            
+            <div class="back-link">
+                <a href="/admin/">← Back to Admin</a>
+            </div>
+        """
+        
+        # Show filter info if applicable
+        if employee_id:
+            try:
+                from .models import Employee
+                employee = Employee.objects.get(id=employee_id)
+                html += f'<div class="filter-info">Filtering documents for: <strong>{employee.full_name}</strong> ({employee.employee_code})</div>'
+            except:
+                html += f'<div class="filter-info">Filtering for Employee ID: {employee_id}</div>'
+        
+        html += """
+            <table>
+                <tr>
+                    <th>Employee</th>
+                    <th>Document Type</th>
+                    <th>Status</th>
+                    <th>Submitted Date</th>
+                    <th>Created</th>
+                </tr>
+        """
+        
+        for doc in queryset:
+            status = "Submitted" if doc.is_submitted else "Pending"
+            submitted_date = doc.submitted_date.strftime('%Y-%m-%d') if doc.submitted_date else "—"
+            created_date = doc.created_at.strftime('%Y-%m-%d')
+            
+            html += f"""
+                <tr>
+                    <td>{doc.employee.full_name}</td>
+                    <td>{doc.get_document_type_display()}</td>
+                    <td>{status}</td>
+                    <td>{submitted_date}</td>
+                    <td>{created_date}</td>
+                </tr>
+            """
+        
+        html += """
+            </table>
+        </body>
+        </html>
+        """
+        
+        return HttpResponse(html)
 
 
 # Hide Group model from admin

@@ -150,10 +150,10 @@ class JobApplicationForm(forms.ModelForm):
     class Meta:
         model = JobApplication
         fields = [
-            'job', 'candidate_name', 'email', 'phone_number', 'source',
+            'job', 'candidate_name', 'email', 'phone_number', 'source', 'referred_by', 'referral_notes',
             'current_organization', 'current_ctc', 'expected_ctc', 'is_negotiable',
             'total_experience', 'relevant_experience', 'degree_name', 'passing_year',
-            'training_included', 'official_notice_period', 'preferred_location',
+            'training_included', 'official_notice_period', 'current_location', 'preferred_location',
             'available_for_interview', 'resume', 'cover_letter'
         ]
         widgets = {
@@ -174,6 +174,14 @@ class JobApplicationForm(forms.ModelForm):
             }),
             'source': forms.Select(attrs={
                 'class': 'form-control',
+            }),
+            'referred_by': forms.Select(attrs={
+                'class': 'form-control',
+            }),
+            'referral_notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Referral details...'
             }),
             'current_organization': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -213,6 +221,10 @@ class JobApplicationForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'e.g., 30 days, 3 months'
             }),
+            'current_location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Current location'
+            }),
             'preferred_location': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Preferred work location'
@@ -234,20 +246,27 @@ class JobApplicationForm(forms.ModelForm):
         self.fields['email'].label = 'Email Address'
         self.fields['phone_number'].label = 'Contact Number'
         self.fields['source'].label = 'Source'
+        self.fields['referred_by'].label = 'Referred By (Employee)'
+        self.fields['referral_notes'].label = 'Referral Notes'
         self.fields['current_organization'].label = 'Current Organization'
         self.fields['current_ctc'].label = 'Current CTC'
         self.fields['expected_ctc'].label = 'Expected CTC (ECTC)'
         self.fields['is_negotiable'].label = 'Negotiable'
-        self.fields['total_experience'].label = 'Total Experience'
-        self.fields['relevant_experience'].label = 'Relevant Experience'
+        self.fields['total_experience'].label = 'Total Experience (Years)'
+        self.fields['relevant_experience'].label = 'Relevant Experience (Years)'
         self.fields['degree_name'].label = 'Degree Name'
         self.fields['passing_year'].label = 'Passing Year'
         self.fields['training_included'].label = 'Training Included'
         self.fields['official_notice_period'].label = 'Official Notice Period'
+        self.fields['current_location'].label = 'Current Location'
         self.fields['preferred_location'].label = 'Preferred Location'
         self.fields['available_for_interview'].label = 'Available for Interview'
         self.fields['resume'].label = 'Resume/CV'
         self.fields['cover_letter'].label = 'Cover Letter'
+        
+        # Make referred_by optional and add empty label
+        self.fields['referred_by'].required = False
+        self.fields['referred_by'].empty_label = "No Referral"
         
         # Add Bootstrap classes to checkboxes
         self.fields['is_negotiable'].widget.attrs['class'] = 'form-check-input'
@@ -261,8 +280,7 @@ class InterviewScheduleForm(forms.ModelForm):
         model = InterviewSchedule
         fields = [
             'application', 'interview_type', 'scheduled_date', 'scheduled_time',
-            'duration_minutes', 'interview_mode', 'meeting_link', 'location',
-            'interviewer', 'status'
+            'platform', 'meeting_link', 'location', 'taken_by', 'status', 'remarks'
         ]
         widgets = {
             'application': forms.Select(attrs={
@@ -279,15 +297,8 @@ class InterviewScheduleForm(forms.ModelForm):
                 'class': 'form-control',
                 'type': 'time'
             }),
-            'duration_minutes': forms.NumberInput(attrs={
+            'platform': forms.Select(attrs={
                 'class': 'form-control',
-                'min': '15',
-                'max': '480',
-                'placeholder': 'Duration in minutes'
-            }),
-            'interview_mode': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Phone, Video, In-person'
             }),
             'meeting_link': forms.URLInput(attrs={
                 'class': 'form-control',
@@ -295,28 +306,42 @@ class InterviewScheduleForm(forms.ModelForm):
             }),
             'location': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Interview location'
+                'placeholder': 'Office address or location'
             }),
-            'interviewer': forms.Select(attrs={
+            'taken_by': forms.Select(attrs={
                 'class': 'form-control',
             }),
             'status': forms.Select(attrs={
                 'class': 'form-control',
+            }),
+            'remarks': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Enter interview remarks (no character limit)...'
             }),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['application'].label = 'Candidate'
-        self.fields['interview_type'].label = 'Interview Type'
-        self.fields['scheduled_date'].label = 'Interview Date'
-        self.fields['scheduled_time'].label = 'Interview Time'
-        self.fields['duration_minutes'].label = 'Duration (Minutes)'
-        self.fields['interview_mode'].label = 'Interview Mode'
+        self.fields['interview_type'].label = 'Type of Round'
+        self.fields['scheduled_date'].label = 'Date'
+        self.fields['scheduled_time'].label = 'Time'
+        self.fields['platform'].label = 'Platform'
         self.fields['meeting_link'].label = 'Meeting Link'
         self.fields['location'].label = 'Location'
-        self.fields['interviewer'].label = 'Interviewer'
+        self.fields['taken_by'].label = 'Taken By (Employee)'
         self.fields['status'].label = 'Status'
+        self.fields['remarks'].label = 'Remarks'
+        
+        # Make fields optional as needed
+        self.fields['meeting_link'].required = False
+        self.fields['location'].required = False
+        self.fields['remarks'].required = False
+        self.fields['taken_by'].required = False
+        
+        # Add empty label for taken_by
+        self.fields['taken_by'].empty_label = "Select Employee"
 
 
 class JobSearchForm(forms.Form):

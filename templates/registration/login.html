@@ -399,8 +399,9 @@
                 </button>
             </form>
 
-            <!-- Contact HR Link -->
-            <div class="contact-hr">
+            <!-- Registration and Contact HR Link -->
+            <div class="contact-hr d-flex justify-content-between align-items-center">
+                <a href="{% url 'employees:register' %}">Create Account</a>
                 <a href="#" onclick="showContactInfo(); return false;">Contact HR</a>
             </div>
         </div>

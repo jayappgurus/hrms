@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Add Job Application - HRMS Portal{% endblock %}
+{% block title %}Add Candidate - HRMS Portal{% endblock %}
 
-{% block page_title %}Add Job Application{% endblock %}
+{% block page_title %}Add Candidate{% endblock %}
 
 {% block extra_css %}
 <style>
     .application-form {
-        max-width: 900px;
         margin: 0 auto;
         padding: 32px;
         background: white;
@@ -19,13 +18,19 @@
     
     .form-section {
         margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .form-section:last-of-type {
+        border-bottom: none;
     }
     
     .section-title {
         font-size: 18px;
         font-weight: 700;
         color: var(--text-main);
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 12px;
@@ -33,40 +38,13 @@
     
     .section-title i {
         color: var(--primary);
-    }
-    
-    .job-selector {
-        margin-bottom: 16px;
-    }
-    
-    .candidate-info {
-        background: #f8faff;
-        padding: 16px;
-        border-radius: 8px;
-        margin-bottom: 16px;
+        font-size: 22px;
     }
     
     .candidate-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 16px;
-    }
-    
-    .info-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #e9ecef;
-    }
-    
-    .info-label {
-        font-weight: 600;
-        color: var(--text-muted);
-    }
-    
-    .info-value {
-        color: var(--text-main);
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
     }
     
     .form-actions {
@@ -87,10 +65,13 @@
     <div>
         <h1 class="page-title">
             <i class="bi bi-person-plus text-primary"></i>
-            Add Job Application
+            Add Candidate
         </h1>
-        <p class="page-subtitle">Create a new job application and link it to a candidate</p>
+        <p class="page-subtitle">Add a new candidate to the recruitment pipeline</p>
     </div>
+    <a href="{% url 'employees:candidate_tracker' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Tracker
+    </a>
 </div>
 
 <form method="post" id="applicationForm" enctype="multipart/form-data" class="application-form">
@@ -99,62 +80,85 @@
     <!-- Job Selection -->
     <div class="form-section">
         <div class="section-title">
-            <i class="bi bi-briefcase"></i>
-            Job Selection
+            <i class="bi bi-briefcase-fill"></i>
+            Job Position
         </div>
         
-        <div class="job-selector">
-            <div class="modern-form-group">
-                <label class="modern-form-label required">Select Job *</label>
-                <select name="job" id="jobSelect" class="modern-form-control modern-form-select" required>
-                    <option value="">Choose a job position...</option>
-                    {% for job in available_jobs %}
-                    <option value="{{ job.pk }}">{{ job.title }} - {{ job.designation.name }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.job.errors %}
-                <div class="text-danger small mt-1">{{ form.job.errors.0 }}</div>
-                {% endif %}
-            </div>
+        <div class="modern-form-group">
+            <label class="modern-form-label required">{{ form.job.label }}</label>
+            {{ form.job }}
+            {% if form.job.errors %}
+            <div class="text-danger small mt-1">{{ form.job.errors.0 }}</div>
+            {% endif %}
         </div>
     </div>
     
-    <!-- User Selection -->
+    <!-- Basic Information -->
     <div class="form-section">
         <div class="section-title">
-            <i class="bi bi-person"></i>
-            User Selection
+            <i class="bi bi-person-circle"></i>
+            Basic Information
         </div>
         
         <div class="candidate-grid">
             <div class="modern-form-group">
-                <label class="modern-form-label required">Select User *</label>
-                <select name="application_user" id="userSelect" class="modern-form-control modern-form-select" required>
-                    <option value="">Choose or create a user...</option>
-                    {% for user in available_users %}
-                    <option value="{{ user.id }}">{{ user.full_name }} ({{ user.email }})</option>
-                    {% endfor %}
-                    <option value="new_user">+ Create New User</option>
-                </select>
-                {% if form.application_user.errors %}
-                <div class="text-danger small mt-1">{{ form.application_user.errors.0 }}</div>
+                <label class="modern-form-label required">{{ form.candidate_name.label }}</label>
+                {{ form.candidate_name }}
+                {% if form.candidate_name.errors %}
+                <div class="text-danger small mt-1">{{ form.candidate_name.errors.0 }}</div>
                 {% endif %}
             </div>
             
-            <!-- Show new user form when "Create New User" is selected -->
-            <div id="newUserForm" style="display: none;">
-                <div class="modern-form-group">
-                    <label class="modern-form-label required">Full Name *</label>
-                    <input type="text" name="new_user_full_name" class="modern-form-control" placeholder="Enter full name">
-                </div>
-                <div class="modern-form-group">
-                    <label class="modern-form-label required">Email *</label>
-                    <input type="email" name="new_user_email" class="modern-form-control" placeholder="Enter email address">
-                </div>
-                <div class="modern-form-group">
-                    <label class="modern-form-label">Phone Number</label>
-                    <input type="tel" name="new_user_phone" class="modern-form-control" placeholder="Enter phone number">
-                </div>
+            <div class="modern-form-group">
+                <label class="modern-form-label required">{{ form.email.label }}</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">{{ form.phone_number.label }}</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                <div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label required">{{ form.source.label }}</label>
+                {{ form.source }}
+                {% if form.source.errors %}
+                <div class="text-danger small mt-1">{{ form.source.errors.0 }}</div>
+                {% endif %}
+                <small class="form-help-text">How did you find this candidate?</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Referral Information -->
+    <div class="form-section">
+        <div class="section-title">
+            <i class="bi bi-person-check-fill"></i>
+            Referral Information
+        </div>
+        
+        <div class="candidate-grid">
+            <div class="modern-form-group">
+                <label class="modern-form-label">{{ form.referred_by.label }}</label>
+                {{ form.referred_by }}
+                {% if form.referred_by.errors %}
+                <div class="text-danger small mt-1">{{ form.referred_by.errors.0 }}</div>
+                {% endif %}
+                <small class="form-help-text">Select if this candidate was referred by an employee</small>
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">{{ form.referral_notes.label }}</label>
+                {{ form.referral_notes }}
+                {% if form.referral_notes.errors %}
+                <div class="text-danger small mt-1">{{ form.referral_notes.errors.0 }}</div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -162,13 +166,13 @@
     <!-- Professional Information -->
     <div class="form-section">
         <div class="section-title">
-            <i class="bi bi-briefcase"></i>
+            <i class="bi bi-building"></i>
             Professional Information
         </div>
         
         <div class="candidate-grid">
             <div class="modern-form-group">
-                <label class="modern-form-label">Current Company</label>
+                <label class="modern-form-label">{{ form.current_organization.label }}</label>
                 {{ form.current_organization }}
                 {% if form.current_organization.errors %}
                 <div class="text-danger small mt-1">{{ form.current_organization.errors.0 }}</div>
@@ -176,25 +180,27 @@
             </div>
             
             <div class="modern-form-group">
-                <label class="modern-form-label">Current CTC</label>
+                <label class="modern-form-label">{{ form.current_ctc.label }}</label>
                 {{ form.current_ctc }}
                 {% if form.current_ctc.errors %}
                 <div class="text-danger small mt-1">{{ form.current_ctc.errors.0 }}</div>
                 {% endif %}
+                <small class="form-help-text">In INR per annum</small>
             </div>
             
             <div class="modern-form-group">
-                <label class="modern-form-label">Expected CTC</label>
+                <label class="modern-form-label">{{ form.expected_ctc.label }}</label>
                 {{ form.expected_ctc }}
                 {% if form.expected_ctc.errors %}
                 <div class="text-danger small mt-1">{{ form.expected_ctc.errors.0 }}</div>
                 {% endif %}
+                <small class="form-help-text">In INR per annum</small>
             </div>
             
             <div class="modern-form-group">
-                <div class="form-check">
-                    <input type="checkbox" name="is_negotiable" class="form-check-input">
-                    <label class="form-check-label">Salary is negotiable</label>
+                <div class="form-check mt-4">
+                    {{ form.is_negotiable }}
+                    <label class="form-check-label">{{ form.is_negotiable.label }}</label>
                 </div>
             </div>
         </div>
@@ -203,13 +209,13 @@
     <!-- Experience & Education -->
     <div class="form-section">
         <div class="section-title">
-            <i class="bi bi-mortarboard"></i>
+            <i class="bi bi-mortarboard-fill"></i>
             Experience & Education
         </div>
         
         <div class="candidate-grid">
             <div class="modern-form-group">
-                <label class="modern-form-label">Total Experience (years)</label>
+                <label class="modern-form-label required">{{ form.total_experience.label }}</label>
                 {{ form.total_experience }}
                 {% if form.total_experience.errors %}
                 <div class="text-danger small mt-1">{{ form.total_experience.errors.0 }}</div>
@@ -217,7 +223,7 @@
             </div>
             
             <div class="modern-form-group">
-                <label class="modern-form-label">Relevant Experience (years)</label>
+                <label class="modern-form-label">{{ form.relevant_experience.label }}</label>
                 {{ form.relevant_experience }}
                 {% if form.relevant_experience.errors %}
                 <div class="text-danger small mt-1">{{ form.relevant_experience.errors.0 }}</div>
@@ -225,7 +231,7 @@
             </div>
             
             <div class="modern-form-group">
-                <label class="modern-form-label">Degree Name</label>
+                <label class="modern-form-label">{{ form.degree_name.label }}</label>
                 {{ form.degree_name }}
                 {% if form.degree_name.errors %}
                 <div class="text-danger small mt-1">{{ form.degree_name.errors.0 }}</div>
@@ -233,7 +239,7 @@
             </div>
             
             <div class="modern-form-group">
-                <label class="modern-form-label">Passing Year</label>
+                <label class="modern-form-label">{{ form.passing_year.label }}</label>
                 {{ form.passing_year }}
                 {% if form.passing_year.errors %}
                 <div class="text-danger small mt-1">{{ form.passing_year.errors.0 }}</div>
@@ -242,59 +248,33 @@
         </div>
     </div>
     
-    <!-- Documents -->
+    <!-- Additional Details -->
     <div class="form-section">
         <div class="section-title">
-            <i class="bi bi-file-earmark"></i>
-            Documents
+            <i class="bi bi-info-circle-fill"></i>
+            Additional Details
         </div>
         
         <div class="candidate-grid">
             <div class="modern-form-group">
-                <label class="modern-form-label">Resume</label>
-                {{ form.resume }}
-                {% if form.resume.errors %}
-                <div class="text-danger small mt-1">{{ form.resume.errors.0 }}</div>
-                {% endif %}
-                <small class="form-help-text">Upload your resume (PDF, DOC, DOCX)</small>
-            </div>
-            
-            <div class="modern-form-group">
-                <label class="modern-form-label">Cover Letter</label>
-                {{ form.cover_letter }}
-                {% if form.cover_letter.errors %}
-                <div class="text-danger small mt-1">{{ form.cover_letter.errors.0 }}</div>
-                {% endif %}
-                <small class="form-help-text">Optional: Cover letter explaining your interest</small>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Additional Information -->
-    <div class="form-section">
-        <div class="section-title">
-            <i class="bi bi-info-circle"></i>
-            Additional Information
-        </div>
-        
-        <div class="candidate-grid">
-            <div class="modern-form-group">
-                <div class="form-check">
-                    <input type="checkbox" name="training_included" class="form-check-input">
-                    <label class="form-check-label">Training included in package</label>
-                </div>
-            </div>
-            
-            <div class="modern-form-group">
-                <label class="modern-form-label">Official Notice Period</label>
+                <label class="modern-form-label">{{ form.official_notice_period.label }}</label>
                 {{ form.official_notice_period }}
                 {% if form.official_notice_period.errors %}
                 <div class="text-danger small mt-1">{{ form.official_notice_period.errors.0 }}</div>
                 {% endif %}
+                <small class="form-help-text">e.g., 30 days, 2 months</small>
             </div>
             
             <div class="modern-form-group">
-                <label class="modern-form-label">Preferred Location</label>
+                <label class="modern-form-label">{{ form.current_location.label }}</label>
+                {{ form.current_location }}
+                {% if form.current_location.errors %}
+                <div class="text-danger small mt-1">{{ form.current_location.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">{{ form.preferred_location.label }}</label>
                 {{ form.preferred_location }}
                 {% if form.preferred_location.errors %}
                 <div class="text-danger small mt-1">{{ form.preferred_location.errors.0 }}</div>
@@ -302,22 +282,54 @@
             </div>
             
             <div class="modern-form-group">
-                <div class="form-check">
-                    <input type="checkbox" name="available_for_interview" class="form-check-input" checked>
-                    <label class="form-check-label">Available for interview</label>
+                <div class="form-check mt-4">
+                    {{ form.training_included }}
+                    <label class="form-check-label">{{ form.training_included.label }}</label>
                 </div>
+                <div class="form-check mt-2">
+                    {{ form.available_for_interview }}
+                    <label class="form-check-label">{{ form.available_for_interview.label }}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Documents -->
+    <div class="form-section">
+        <div class="section-title">
+            <i class="bi bi-file-earmark-pdf-fill"></i>
+            Documents
+        </div>
+        
+        <div class="candidate-grid">
+            <div class="modern-form-group">
+                <label class="modern-form-label">{{ form.resume.label }}</label>
+                {{ form.resume }}
+                {% if form.resume.errors %}
+                <div class="text-danger small mt-1">{{ form.resume.errors.0 }}</div>
+                {% endif %}
+                <small class="form-help-text">Upload resume (PDF, DOC, DOCX)</small>
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">{{ form.cover_letter.label }}</label>
+                {{ form.cover_letter }}
+                {% if form.cover_letter.errors %}
+                <div class="text-danger small mt-1">{{ form.cover_letter.errors.0 }}</div>
+                {% endif %}
+                <small class="form-help-text">Optional cover letter</small>
             </div>
         </div>
     </div>
     
     <!-- Form Actions -->
     <div class="form-actions">
-        <a href="{% url 'employees:job_list' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-2"></i>Cancel
+        <a href="{% url 'employees:candidate_tracker' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-circle me-2"></i>Cancel
         </a>
         <button type="submit" class="btn btn-primary btn-lg">
-            <i class="bi bi-send me-2"></i>
-            Submit Application
+            <i class="bi bi-check-circle me-2"></i>
+            Add Candidate
         </button>
     </div>
 </form>
@@ -325,7 +337,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Add modern-form-control class to all form inputs
-    const formInputs = document.querySelectorAll('#applicationForm input, #applicationForm select, #applicationForm textarea');
+    const formInputs = document.querySelectorAll('#applicationForm input:not([type="checkbox"]), #applicationForm select, #applicationForm textarea');
     formInputs.forEach(input => {
         input.classList.add('modern-form-control');
         if (input.tagName === 'SELECT') {
@@ -335,29 +347,6 @@ document.addEventListener('DOMContentLoaded', function() {
             input.classList.add('modern-form-textarea');
         }
     });
-    
-    // Handle job selection change
-    const jobSelect = document.getElementById('jobSelect');
-    const userSelect = document.getElementById('userSelect');
-    const newUserForm = document.getElementById('newUserForm');
-    
-    if (jobSelect && userSelect && newUserForm) {
-        userSelect.addEventListener('change', function() {
-            const selectedValue = this.value;
-            if (selectedValue === 'new_user') {
-                newUserForm.style.display = 'block';
-            } else {
-                newUserForm.style.display = 'none';
-            }
-        });
-        
-        jobSelect.addEventListener('change', function() {
-            const selectedJobId = this.value;
-            if (selectedJobId) {
-                console.log('Selected job ID:', selectedJobId);
-            }
-        });
-    }
 });
 </script>
 {% endblock %}

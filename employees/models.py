@@ -127,23 +127,6 @@ class Employee(models.Model):
         ('single', 'Single'),
         ('married', 'Married'),
     ]
-    
-    GENDER_CHOICES = [
-        ('male', 'Male'),
-        ('female', 'Female'),
-        ('other', 'Other'),
-    ]
-    
-    BLOOD_GROUP_CHOICES = [
-        ('a+', 'A+'),
-        ('a-', 'A-'),
-        ('b+', 'B+'),
-        ('b-', 'B-'),
-        ('ab+', 'AB+'),
-        ('ab-', 'AB-'),
-        ('o+', 'O+'),
-        ('o-', 'O-'),
-    ]
 
     # Core Employee Details
     employee_code = models.CharField(max_length=20, unique=True, help_text="Unique employee code")
@@ -166,20 +149,29 @@ class Employee(models.Model):
 
     # Emergency Contact
     emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Direct Emergency Contact Fields
+    emergency_contact_name = models.CharField(max_length=100, blank=True, null=True)
+    emergency_contact_mobile = models.CharField(
+        max_length=15,
+        blank=True, 
+        null=True,
+        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Enter a valid mobile number.")]
+    )
+    emergency_contact_email = models.EmailField(validators=[EmailValidator()], blank=True, null=True)
+    emergency_contact_address = models.TextField(blank=True, null=True)
+    emergency_contact_relationship = models.CharField(max_length=50, blank=True, null=True)
 
     # Personal Information
     date_of_birth = models.DateField()
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
-    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES, blank=True, null=True)
     marital_status = models.CharField(max_length=10, choices=MARITAL_STATUS_CHOICES)
     anniversary_date = models.DateField(null=True, blank=True)
-    nationality = models.CharField(max_length=50, default='Indian')
 
     # Professional Information
     highest_qualification = models.CharField(max_length=100)
     total_experience_years = models.PositiveIntegerField(default=0)
     total_experience_months = models.PositiveIntegerField(default=0)
-    probation_status = models.CharField(max_length=20, editable=False)
+    probation_status = models.CharField(max_length=20)
 
     # Identity & Compliance
     aadhar_card_number = models.CharField(
@@ -192,6 +184,9 @@ class Employee(models.Model):
         validators=[RegexValidator(regex=r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$', message="Enter a valid PAN number.")],
         unique=True
     )
+    
+    # Document Tracker Extras
+    graduates_marksheet_count = models.PositiveIntegerField(default=0, help_text="Number of marksheets for graduation/post-graduation")
 
     # Additional fields
     created_at = models.DateTimeField(auto_now_add=True)
@@ -278,6 +273,13 @@ class Employee(models.Model):
         today = date.today()
         return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
 
+    @property
+    def plain_password(self):
+        """Return the default generated password for the employee"""
+        if hasattr(self, 'user_profile'):
+            return f"{self.user_profile.user.username}@123"
+        return "—"
+
 
 class EmployeeDocument(models.Model):
     DOCUMENT_TYPES = [
@@ -335,7 +337,6 @@ class Device(models.Model):
     STATUS_CHOICES = [
         ('available', 'Available'),
         ('in_use', 'In Use'),
-        ('maintenance', 'Maintenance'),
         ('retired', 'Retired'),
     ]
 

@@ -153,11 +153,25 @@
     </div>
     {% if request.user.is_superuser or request.user.is_staff %}
     <div class="d-flex gap-2 mb-4">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-file-earmark-spreadsheet me-2"></i>CSV
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'employees:export_job_descriptions_csv' %}">
+                    <i class="bi bi-download me-2"></i>Export CSV
+                </a></li>
+                <li><a class="dropdown-item" href="{% url 'employees:import_job_descriptions_csv' %}">
+                    <i class="bi bi-upload me-2"></i>Import CSV
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'employees:download_job_description_sample_csv' %}">
+                    <i class="bi bi-file-earmark-text me-2"></i>Download Sample
+                </a></li>
+            </ul>
+        </div>
         <a href="{% url 'employees:job_create' %}" class="btn btn-primary">
             <i class="bi bi-plus-circle me-2"></i>Create Job Description
-        </a>
-        <a href="{% url 'employees:add_job_application' %}" class="btn btn-success">
-            <i class="bi bi-person-plus me-2"></i>Add Job Application
         </a>
     </div>
     {% endif %}
@@ -218,9 +232,11 @@
                     <select name="department" class="modern-form-control modern-form-select">
                         <option value="">All Departments</option>
                         {% for department in departments %}
-                        <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:"s" %}selected{% endif %}>
-                            {{ department.name }}
-                        </option>
+                        {% if request.GET.department == department.id|stringformat:"s" %}
+                        <option value="{{ department.id }}" selected>{{ department.name }}</option>
+                        {% else %}
+                        <option value="{{ department.id }}">{{ department.name }}</option>
+                        {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -229,9 +245,11 @@
                     <select name="employment_type" class="modern-form-control modern-form-select">
                         <option value="">All Types</option>
                         {% for value, label in job_form.fields.employment_type.choices %}
-                        <option value="{{ value }}" {% if request.GET.employment_type == value %}selected{% endif %}>
-                            {{ label }}
-                        </option>
+                        {% if request.GET.employment_type == value %}
+                        <option value="{{ value }}" selected>{{ label }}</option>
+                        {% else %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -240,9 +258,11 @@
                     <select name="status" class="modern-form-control modern-form-select">
                         <option value="">All Status</option>
                         {% for value, label in job_form.fields.status.choices %}
-                        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
-                            {{ label }}
-                        </option>
+                        {% if request.GET.status == value %}
+                        <option value="{{ value }}" selected>{{ label }}</option>
+                        {% else %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endif %}
                         {% endfor %}
                     </select>
                 </div>
