@@ -11,7 +11,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
 from django.utils import timezone
-from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, Device, DeviceAllocation, PublicHoliday, LeaveType, LeaveApplication
+from django.contrib.auth.models import User
+from django.db import transaction
+from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, Device, DeviceAllocation, PublicHoliday, LeaveType, LeaveApplication, UserProfile
 from .forms import EmployeeForm, EmergencyContactForm, EmployeeSearchForm, EmployeeDocumentForm, LeaveTypeForm, LeaveApplicationForm, PublicHolidayForm
 
 
@@ -166,17 +168,57 @@ class EmployeeCreateView(LoginRequiredMixin, CreateView):
     template_name = 'employees/employee_form.html'
     success_url = reverse_lazy('employees:employee_list')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to create employees
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to add employees.')
+            return redirect('employees:employee_list')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Add Employee'
         context['emergency_contact_form'] = EmergencyContactForm()
-        context['all_designations'] = list(Designation.objects.values('id', 'name', 'department_id'))
+        # Serialize designations to JSON for JavaScript use
+        all_designations = list(Designation.objects.values('id', 'name', 'department_id'))
+        context['all_designations'] = json.dumps(all_designations)
         return context
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        employee_code = form.instance.employee_code
-        messages.success(self.request, f'Employee added successfully! Employee ID: {employee_code}')
+        with transaction.atomic():
+            response = super().form_valid(form)
+            employee = self.object
+            
+            # Create User for the employee
+            username = employee.official_email
+            email = employee.official_email
+            # Default password
+            password = f"Welcome@{timezone.now().year}"
+            
+            try:
+                if not User.objects.filter(username=username).exists():
+                    user = User.objects.create_user(username=username, email=email, password=password)
+                    name_parts = employee.full_name.split()
+                    user.first_name = name_parts[0]
+                    if len(name_parts) > 1:
+                        user.last_name = " ".join(name_parts[1:])
+                    user.save()
+                    
+                    # Create UserProfile
+                    UserProfile.objects.create(
+                        user=user,
+                        employee=employee,
+                        role='employee',
+                        department=employee.department,
+                        phone=employee.mobile_number
+                    )
+                    
+                    messages.success(self.request, f'Employee added successfully! ID: {employee.employee_code}. User account created (Pass: {password})')
+                else:
+                    messages.warning(self.request, f'Employee added (ID: {employee.employee_code}), but user account for {email} already exists.')
+            except Exception as e:
+                messages.error(self.request, f'Employee added, but error creating user account: {str(e)}')
+            
         return response
 
 
@@ -186,11 +228,20 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'employees/employee_form.html'
     success_url = reverse_lazy('employees:employee_list')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to edit employees
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to edit employees.')
+            return redirect('employees:employee_list')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Edit Employee'
         context['emergency_contact_form'] = EmergencyContactForm()
-        context['all_designations'] = list(Designation.objects.values('id', 'name', 'department_id'))
+        # Serialize designations to JSON for JavaScript use
+        all_designations = list(Designation.objects.values('id', 'name', 'department_id'))
+        context['all_designations'] = json.dumps(all_designations)
         return context
 
     def form_valid(self, form):
@@ -199,8 +250,32 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
         return response
 
 
+class EmployeeDeleteView(LoginRequiredMixin, DeleteView):
+    model = Employee
+    template_name = 'employees/employee_confirm_delete.html'
+    success_url = reverse_lazy('employees:employee_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to delete employees
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to delete employees.')
+            return redirect('employees:employee_list')
+        return super().dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Employee deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+
+
 @require_POST
 def toggle_employee_status(request, pk):
+    # Only allow superusers and staff to toggle employee status
+    if not request.user.is_superuser and not request.user.is_staff:
+        return JsonResponse({
+            'success': False,
+            'message': 'You do not have permission to change employee status.'
+        }, status=403)
+    
     employee = get_object_or_404(Employee, pk=pk)
     
     if employee.employment_status == 'active':
@@ -218,6 +293,13 @@ def toggle_employee_status(request, pk):
 
 @require_POST
 def update_document_status(request, employee_pk, document_type):
+    # Only allow superusers and staff to update document status
+    if not request.user.is_superuser and not request.user.is_staff:
+        return JsonResponse({
+            'success': False,
+            'message': 'You do not have permission to update document status.'
+        }, status=403)
+    
     employee = get_object_or_404(Employee, pk=employee_pk)
     
     # Get or create the document record
@@ -300,6 +382,13 @@ class DeviceCreateView(LoginRequiredMixin, CreateView):
     fields = ['device_type', 'device_name', 'serial_number', 'purchase_date', 'warranty_details']
     success_url = reverse_lazy('employees:device_list')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to create devices
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to add devices.')
+            return redirect('employees:device_list')
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         messages.success(self.request, 'Device added successfully!')
         return super().form_valid(form)
@@ -317,6 +406,13 @@ class DeviceUpdateView(LoginRequiredMixin, UpdateView):
     fields = ['device_type', 'device_name', 'serial_number', 'purchase_date', 'warranty_details', 'status']
     success_url = reverse_lazy('employees:device_list')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to edit devices
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to edit devices.')
+            return redirect('employees:device_list')
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         messages.success(self.request, 'Device updated successfully!')
         return super().form_valid(form)
@@ -333,6 +429,13 @@ class DeviceDeleteView(LoginRequiredMixin, DeleteView):
     model = Device
     template_name = 'devices/device_confirm_delete.html'
     success_url = reverse_lazy('employees:device_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to delete devices
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to delete devices.')
+            return redirect('employees:device_list')
+        return super().dispatch(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Device deleted successfully!')
@@ -367,6 +470,11 @@ class DeviceVisibilityView(LoginRequiredMixin, ListView):
 
 
 def allocate_device(request, pk):
+    # Only allow superusers and staff to allocate devices
+    if not request.user.is_superuser and not request.user.is_staff:
+        messages.error(request, 'You do not have permission to allocate devices.')
+        return redirect('employees:device_visibility')
+    
     device = get_object_or_404(Device, pk=pk)
     
     if request.method == 'POST':
@@ -391,6 +499,11 @@ def allocate_device(request, pk):
 
 
 def return_device(request, pk):
+    # Only allow superusers and staff to return devices
+    if not request.user.is_superuser and not request.user.is_staff:
+        messages.error(request, 'You do not have permission to return devices.')
+        return redirect('employees:device_visibility')
+    
     device = get_object_or_404(Device, pk=pk)
     allocation = device.current_allocation
     
@@ -597,6 +710,13 @@ class LeaveTypeCreateView(LoginRequiredMixin, CreateView):
     template_name = 'leave/leave_type_form.html'
     success_url = reverse_lazy('employees:leave_types')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to create leave types
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to add leave types.')
+            return redirect('employees:leave_types')
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         messages.success(self.request, 'Leave type added successfully!')
         return super().form_valid(form)
@@ -608,6 +728,13 @@ class LeaveTypeUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'leave/leave_type_form.html'
     success_url = reverse_lazy('employees:leave_types')
 
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to edit leave types
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to edit leave types.')
+            return redirect('employees:leave_types')
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         messages.success(self.request, 'Leave type updated successfully!')
         return super().form_valid(form)
@@ -617,6 +744,13 @@ class LeaveTypeDeleteView(LoginRequiredMixin, DeleteView):
     model = LeaveType
     template_name = 'leave/leave_type_confirm_delete.html'
     success_url = reverse_lazy('employees:leave_types')
+
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow superusers and staff to delete leave types
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to delete leave types.')
+            return redirect('employees:leave_types')
+        return super().dispatch(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Leave type deleted successfully!')

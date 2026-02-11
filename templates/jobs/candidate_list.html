@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Job Applications - HRMS Portal{% endblock %}
+
+{% block page_title %}Job Applications{% endblock %}
+
+{% block extra_css %}
+<style>
+    .application-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .application-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .application-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-premium);
+        border-color: var(--primary);
+    }
+
+    .application-header {
+        padding: 24px;
+        background: linear-gradient(135deg, #00376e 0%, #002855 100%);
+        color: white;
+    }
+
+    .candidate-name {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: white;
+    }
+
+    .job-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .application-meta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .meta-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        gap: 6px;
+    }
+
+    .application-body {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .application-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 4px;
+    }
+
+    .section-content {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    .application-footer {
+        padding: 16px 24px;
+        background: #f8faff;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-received { background: #e3f2fd; color: #1e40af; }
+    .status-under_review { background: #fff3cd; color: #856404; }
+    .status-shortlisted { background: #d1ecf1; color: #0f5132; }
+    .status-interview_scheduled { background: #fff7e5; color: #856404; }
+    .status-interviewed { background: #d4edda; color: #f59e0b; }
+    .status-offered { background: #d1f2eb; color: #0f5132; }
+    .status-accepted { background: #d4edda; color: #155724; }
+    .status-rejected { background: #f8d7da; color: #721c24; }
+
+    @media (max-width: 767px) {
+        .application-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .application-footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .application-footer .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-person-check text-primary"></i>
+            Job Applications
+        </h1>
+        <p class="page-subtitle">Manage and track job applications</p>
+    </div>
+</div>
+
+<!-- Applications Grid -->
+{% if applications %}
+<div class="application-grid">
+    {% for application in applications %}
+    <div class="application-card">
+        <div class="application-header">
+            <div class="candidate-name">{{ application.candidate_name }}</div>
+            <div class="job-title">{{ application.job.title }}</div>
+            <div class="application-meta">
+                <span class="meta-badge">
+                    <i class="bi bi-calendar3"></i>
+                    {{ application.created_at|date:"M d, Y" }}
+                </span>
+                <span class="meta-badge">
+                    <i class="bi bi-briefcase"></i>
+                    {{ application.job.designation.name }}
+                </span>
+            </div>
+        </div>
+
+        <div class="application-body">
+            <div class="application-section">
+                <div class="section-title">Email</div>
+                <div class="section-content">{{ application.email }}</div>
+            </div>
+
+            <div class="application-section">
+                <div class="section-title">Phone</div>
+                <div class="section-content">{{ application.phone|default:"Not provided" }}</div>
+            </div>
+
+            {% if application.cover_letter %}
+            <div class="application-section">
+                <div class="section-title">Cover Letter</div>
+                <div class="section-content">{{ application.cover_letter|truncatewords:30 }}</div>
+            </div>
+            {% endif %}
+
+            {% if application.resume %}
+            <div class="application-section">
+                <div class="section-title">Resume</div>
+                <div class="section-content">
+                    <a href="{% url 'employees:download_resume' application.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-download me-1"></i>Download Resume
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="application-footer">
+            <div class="status-badge status-{{ application.status }}">
+                {{ application.get_status_display }}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'employees:job_detail' application.job.pk %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-eye me-1"></i>View Job
+                </a>
+                {% if request.user.is_superuser or request.user.is_staff %}
+                <a href="{% url 'employees:update_application_status' application.pk %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil me-1"></i>Update Status
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+    <p class="text-muted mt-3">No job applications found</p>
+</div>
+{% endif %}
+{% endblock %}

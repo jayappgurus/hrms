@@ -192,7 +192,7 @@
         width: 80px;
         height: 80px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%);
+        background: #00C9FF;
         color: #002855;
         display: flex;
         align-items: center;
@@ -201,7 +201,6 @@
         font-weight: 800;
         margin: 0 auto 16px;
         box-shadow: 0 8px 24px rgba(0, 201, 255, 0.3);
-        border: 4px solid rgba(255, 255, 255, 0.2);
     }
 
     .employee-name {
@@ -487,9 +486,11 @@
         <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
         Employee Directory
     </h1>
+    {% if request.user.is_superuser or request.user.is_staff %}
     <a href="{% url 'employees:employee_add' %}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-2"></i>Add New Employee
     </a>
+    {% endif %}
 </div>
 
 <!-- Statistics Section -->
@@ -628,9 +629,11 @@
             <a href="{% url 'employees:employee_detail' employee.pk %}" class="action-btn primary">
                 <i class="bi bi-eye"></i> View
             </a>
+            {% if request.user.is_superuser or request.user.is_staff %}
             <a href="{% url 'employees:employee_edit' employee.pk %}" class="action-btn secondary">
                 <i class="bi bi-pencil"></i> Edit
             </a>
+            {% endif %}
         </div>
     </div>
     {% endfor %}
@@ -702,9 +705,11 @@
         No employees have been added yet. Start by adding your first employee.
         {% endif %}
     </p>
+    {% if request.user.is_superuser or request.user.is_staff %}
     <a href="{% url 'employees:employee_add' %}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-2"></i>Add First Employee
     </a>
+    {% endif %}
 </div>
 {% endif %}
 {% endblock %}

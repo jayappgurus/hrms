@@ -161,8 +161,8 @@ class Employee(models.Model):
     )
     official_email = models.EmailField(validators=[EmailValidator()], unique=True)
     personal_email = models.EmailField(validators=[EmailValidator()], blank=True, null=True)
-    local_address = models.TextField()
-    permanent_address = models.TextField()
+    local_address = models.TextField(blank=True)
+    permanent_address = models.TextField(blank=True)
 
     # Emergency Contact
     emergency_contact = models.ForeignKey(EmergencyContact, on_delete=models.SET_NULL, null=True, blank=True)
@@ -249,6 +249,14 @@ class Employee(models.Model):
                 self.probation_status = "Confirmed"
         
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Delete the associated UserProfile and User if they exist
+        if hasattr(self, 'user_profile'):
+            user = self.user_profile.user
+            self.user_profile.delete()
+            user.delete()
+        super().delete(*args, **kwargs)
 
     @property
     def total_experience_display(self):

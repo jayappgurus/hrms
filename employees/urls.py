@@ -1,8 +1,9 @@
 from django.urls import path
-from . import views
-from . import views_user_management
 from . import views_job
+from . import views_user_management
 from . import views_department
+from . import views
+from . import views_job_application as views_job_app
 
 app_name = 'employees'
 
@@ -20,6 +21,7 @@ urlpatterns = [
     path('employees/grid/', views.EmployeeGridView.as_view(), name='employee_grid'),
     path('employee/<int:pk>/', views.EmployeeDetailView.as_view(), name='employee_detail'),
     path('employee/<int:pk>/edit/', views.EmployeeUpdateView.as_view(), name='employee_edit'),
+    path('employee/<int:pk>/delete/', views.EmployeeDeleteView.as_view(), name='employee_delete'),
     path('api/designations/', views.DesignationAPIView.as_view(), name='designations_api'),
     path('employee/<int:pk>/toggle-status/', views.toggle_employee_status, name='toggle_employee_status'),
     path('employee/<int:employee_pk>/document/<str:document_type>/update/', 
@@ -69,6 +71,10 @@ urlpatterns = [
     path('jobs/<int:pk>/', views_job.JobDescriptionDetailView.as_view(), name='job_detail'),
     path('jobs/<int:pk>/edit/', views_job.JobDescriptionUpdateView.as_view(), name='job_edit'),
     path('jobs/<int:pk>/delete/', views_job.JobDescriptionDeleteView.as_view(), name='job_delete'),
+    
+    # Job Application URLs
+    path('jobs/apply/', views_job_app.add_job_application_view, name='add_job_application'),
+    path('jobs/application/success/', views_job_app.job_application_success_view, name='job_application_success'),
     
     # Candidate Management URLs
     path('candidates/', views_job.JobApplicationListView.as_view(), name='candidate_list'),

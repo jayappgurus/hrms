@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Job Application - HRMS Portal{% endblock %}
+
+{% block page_title %}Add Job Application{% endblock %}
+
+{% block extra_css %}
+<style>
+    .application-form {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 32px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+    }
+    
+    .form-section {
+        margin-bottom: 32px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .section-title i {
+        color: var(--primary);
+    }
+    
+    .job-selector {
+        margin-bottom: 16px;
+    }
+    
+    .candidate-info {
+        background: #f8faff;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .candidate-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+    
+    .info-value {
+        color: var(--text-main);
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 2px solid var(--border-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-person-plus text-primary"></i>
+            Add Job Application
+        </h1>
+        <p class="page-subtitle">Create a new job application and link it to a candidate</p>
+    </div>
+</div>
+
+<form method="post" id="applicationForm" enctype="multipart/form-data" class="application-form">
+    {% csrf_token %}
+    
+    <!-- Job Selection -->
+    <div class="form-section">
+        <div class="section-title">
+            <i class="bi bi-briefcase"></i>
+            Job Selection
+        </div>
+        
+        <div class="job-selector">
+            <div class="modern-form-group">
+                <label class="modern-form-label required">Select Job *</label>
+                <select name="job" id="jobSelect" class="modern-form-control modern-form-select" required>
+                    <option value="">Choose a job position...</option>
+                    {% for job in available_jobs %}
+                    <option value="{{ job.pk }}">{{ job.title }} - {{ job.designation.name }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.job.errors %}
+                <div class="text-danger small mt-1">{{ form.job.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Selection -->
+    <div class="form-section">
+        <div class="section-title">
+            <i class="bi bi-person"></i>
+            User Selection
+        </div>
+        
+        <div class="candidate-grid">
+            <div class="modern-form-group">
+                <label class="modern-form-label required">Select User *</label>
+                <select name="application_user" id="userSelect" class="modern-form-control modern-form-select" required>
+                    <option value="">Choose or create a user...</option>
+                    {% for user in available_users %}
+                    <option value="{{ user.id }}">{{ user.full_name }} ({{ user.email }})</option>
+                    {% endfor %}
+                    <option value="new_user">+ Create New User</option>
+                </select>
+                {% if form.application_user.errors %}
+                <div class="text-danger small mt-1">{{ form.application_user.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <!-- Show new user form when "Create New User" is selected -->
+            <div id="newUserForm" style="display: none;">
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">Full Name *</label>
+                    <input type="text" name="new_user_full_name" class="modern-form-control" placeholder="Enter full name">
+                </div>
+                <div class="modern-form-group">
+                    <label class="modern-form-label required">Email *</label>
+                    <input type="email" name="new_user_email" class="modern-form-control" placeholder="Enter email address">
+                </div>
+                <div class="modern-form-group">
+                    <label class="modern-form-label">Phone Number</label>
+                    <input type="tel" name="new_user_phone" class="modern-form-control" placeholder="Enter phone number">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Professional Information -->
+    <div class="form-section">
+        <div class="section-title">
+            <i class="bi bi-briefcase"></i>
+            Professional Information
+        </div>
+        
+        <div class="candidate-grid">
+            <div class="modern-form-group">
+                <label class="modern-form-label">Current Company</label>
+                {{ form.current_organization }}
+                {% if form.current_organization.errors %}
+                <div class="text-danger small mt-1">{{ form.current_organization.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">Current CTC</label>
+                {{ form.current_ctc }}
+                {% if form.current_ctc.errors %}
+                <div class="text-danger small mt-1">{{ form.current_ctc.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">Expected CTC</label>
+                {{ form.expected_ctc }}
+                {% if form.expected_ctc.errors %}
+                <div class="text-danger small mt-1">{{ form.expected_ctc.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <div class="form-check">
+                    <input type="checkbox" name="is_negotiable" class="form-check-input">
+                    <label class="form-check-label">Salary is negotiable</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Experience & Education -->
+    <div class="form-section">
+        <div class="section-title">
+            <i class="bi bi-mortarboard"></i>
+            Experience & Education
+        </div>
+        
+        <div class="candidate-grid">
+            <div class="modern-form-group">
+                <label class="modern-form-label">Total Experience (years)</label>
+                {{ form.total_experience }}
+                {% if form.total_experience.errors %}
+                <div class="text-danger small mt-1">{{ form.total_experience.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">Relevant Experience (years)</label>
+                {{ form.relevant_experience }}
+                {% if form.relevant_experience.errors %}
+                <div class="text-danger small mt-1">{{ form.relevant_experience.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">Degree Name</label>
+                {{ form.degree_name }}
+                {% if form.degree_name.errors %}
+                <div class="text-danger small mt-1">{{ form.degree_name.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">Passing Year</label>
+                {{ form.passing_year }}
+                {% if form.passing_year.errors %}
+                <div class="text-danger small mt-1">{{ form.passing_year.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Documents -->
+    <div class="form-section">
+        <div class="section-title">
+            <i class="bi bi-file-earmark"></i>
+            Documents
+        </div>
+        
+        <div class="candidate-grid">
+            <div class="modern-form-group">
+                <label class="modern-form-label">Resume</label>
+                {{ form.resume }}
+                {% if form.resume.errors %}
+                <div class="text-danger small mt-1">{{ form.resume.errors.0 }}</div>
+                {% endif %}
+                <small class="form-help-text">Upload your resume (PDF, DOC, DOCX)</small>
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">Cover Letter</label>
+                {{ form.cover_letter }}
+                {% if form.cover_letter.errors %}
+                <div class="text-danger small mt-1">{{ form.cover_letter.errors.0 }}</div>
+                {% endif %}
+                <small class="form-help-text">Optional: Cover letter explaining your interest</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Information -->
+    <div class="form-section">
+        <div class="section-title">
+            <i class="bi bi-info-circle"></i>
+            Additional Information
+        </div>
+        
+        <div class="candidate-grid">
+            <div class="modern-form-group">
+                <div class="form-check">
+                    <input type="checkbox" name="training_included" class="form-check-input">
+                    <label class="form-check-label">Training included in package</label>
+                </div>
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">Official Notice Period</label>
+                {{ form.official_notice_period }}
+                {% if form.official_notice_period.errors %}
+                <div class="text-danger small mt-1">{{ form.official_notice_period.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <label class="modern-form-label">Preferred Location</label>
+                {{ form.preferred_location }}
+                {% if form.preferred_location.errors %}
+                <div class="text-danger small mt-1">{{ form.preferred_location.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="modern-form-group">
+                <div class="form-check">
+                    <input type="checkbox" name="available_for_interview" class="form-check-input" checked>
+                    <label class="form-check-label">Available for interview</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Form Actions -->
+    <div class="form-actions">
+        <a href="{% url 'employees:job_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Cancel
+        </a>
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-send me-2"></i>
+            Submit Application
+        </button>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add modern-form-control class to all form inputs
+    const formInputs = document.querySelectorAll('#applicationForm input, #applicationForm select, #applicationForm textarea');
+    formInputs.forEach(input => {
+        input.classList.add('modern-form-control');
+        if (input.tagName === 'SELECT') {
+            input.classList.add('modern-form-select');
+        }
+        if (input.tagName === 'TEXTAREA') {
+            input.classList.add('modern-form-textarea');
+        }
+    });
+    
+    // Handle job selection change
+    const jobSelect = document.getElementById('jobSelect');
+    const userSelect = document.getElementById('userSelect');
+    const newUserForm = document.getElementById('newUserForm');
+    
+    if (jobSelect && userSelect && newUserForm) {
+        userSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+            if (selectedValue === 'new_user') {
+                newUserForm.style.display = 'block';
+            } else {
+                newUserForm.style.display = 'none';
+            }
+        });
+        
+        jobSelect.addEventListener('change', function() {
+            const selectedJobId = this.value;
+            if (selectedJobId) {
+                console.log('Selected job ID:', selectedJobId);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

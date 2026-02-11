@@ -195,6 +195,24 @@ class JobApplication(models.Model):
         return self.status in ['received', 'under_review', 'shortlisted', 'interview_scheduled', 'interviewed']
 
 
+class JobApplicationUser(models.Model):
+    """User model for job applications"""
+    username = models.CharField(max_length=150, unique=True, help_text="Username for application tracking")
+    email = models.EmailField(unique=True, help_text="User email address")
+    full_name = models.CharField(max_length=200, help_text="Full name of user")
+    phone_number = models.CharField(max_length=20, blank=True, null=True, help_text="Contact number")
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True, help_text="Whether this user account is active")
+    
+    class Meta:
+        verbose_name = "Job Application User"
+        verbose_name_plural = "Job Application Users"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return self.full_name
+
+
 class InterviewSchedule(models.Model):
     """Interview scheduling model"""
     

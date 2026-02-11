@@ -2,7 +2,8 @@
 
 {% block title %}{% if form.instance.pk %}Edit Job{% else %}Create Job{% endif %} - HRMS Portal{% endblock %}
 
-{% block page_title %}{% if form.instance.pk %}Edit Job Description{% else %}Create Job Description{% endif %}{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit Job Description{% else %}Create Job Description{% endif %}
+{%endblock %}
 
 {% block content %}
 <!-- Page Header -->
@@ -19,7 +20,7 @@
     </a>
 </div>
 
-<form method="post" id="jobForm" enctype="multipart/form-data">
+<form method="post" id="jobForm" enctype="multipart/form-data" data-designations="{{ all_designations|safe }}">
     {% csrf_token %}
 
     <!-- Basic Information -->
@@ -32,7 +33,7 @@
         </div>
         <div class="modern-card-body">
             <div class="row g-3">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="modern-form-group">
                         <label class="modern-form-label required">{{ form.title.label }}</label>
                         {{ form.title }}
@@ -42,13 +43,24 @@
                     </div>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="modern-form-group">
                         <label class="modern-form-label required">{{ form.department.label }}</label>
                         {{ form.department }}
                         {% if form.department.errors %}
                         <div class="text-danger small mt-1">{{ form.department.errors.0 }}</div>
                         {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.designation.label }}</label>
+                        {{ form.designation }}
+                        {% if form.designation.errors %}
+                        <div class="text-danger small mt-1">{{ form.designation.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Select a department first to load designations</small>
                     </div>
                 </div>
 
@@ -111,6 +123,54 @@
                         {% endif %}
                     </div>
                 </div>
+
+                <div class="col-md-3">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.work_mode.label }}</label>
+                        {{ form.work_mode }}
+                        {% if form.work_mode.errors %}
+                        <div class="text-danger small mt-1">{{ form.work_mode.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check mb-3">
+                        {{ form.travel_required }}
+                        <label class="form-check-label" for="{{ form.travel_required.id_for_label }}">
+                            {{ form.travel_required.label }}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check mb-3">
+                        {{ form.is_featured }}
+                        <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                            {{ form.is_featured.label }}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check mb-3">
+                        {{ form.is_urgent }}
+                        <label class="form-check-label" for="{{ form.is_urgent.id_for_label }}">
+                            {{ form.is_urgent.label }}
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.jd_document.label }}</label>
+                        {{ form.jd_document }}
+                        {% if form.jd_document.errors %}
+                        <div class="text-danger small mt-1">{{ form.jd_document.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Upload detailed Job Description (PDF, DOC, DOCX)</small>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -156,6 +216,37 @@
                         <small class="form-help-text">List each responsibility on a new line</small>
                     </div>
                 </div>
+
+                <div class="col-12">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.experience_criteria.label }}</label>
+                        {{ form.experience_criteria }}
+                        {% if form.experience_criteria.errors %}
+                        <div class="text-danger small mt-1">{{ form.experience_criteria.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Specific experience or eligibility criteria</small>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.company_description.label }}</label>
+                        {{ form.company_description }}
+                        {% if form.company_description.errors %}
+                        <div class="text-danger small mt-1">{{ form.company_description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.interview_process.label }}</label>
+                        {{ form.interview_process }}
+                        {% if form.interview_process.errors %}
+                        <div class="text-danger small mt-1">{{ form.interview_process.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -186,6 +277,16 @@
                         {{ form.max_salary }}
                         {% if form.max_salary.errors %}
                         <div class="text-danger small mt-1">{{ form.max_salary.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.currency.label }}</label>
+                        {{ form.currency }}
+                        {% if form.currency.errors %}
+                        <div class="text-danger small mt-1">{{ form.currency.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -220,35 +321,84 @@
             }
         });
 
+        // Department-Designation dependency
+        const departmentField = document.getElementById('id_department');
+        const designationField = document.getElementById('id_designation');
+        const formTag = document.getElementById('jobForm');
+
+        if (departmentField && designationField && formTag) {
+            // Store all designations data from Django template
+            const allDesignations = JSON.parse(formTag.getAttribute('data-designations'));
+            console.log('Designations loaded successfully:', allDesignations.length);
+
+            function loadDesignations(departmentId) {
+                console.log('Loading designations for department:', departmentId);
+
+                // Store current selection to restore if possible
+                const currentSelection = designationField.value;
+
+                // Clear current designation options
+                designationField.innerHTML = '<option value="">Select a designation</option>';
+
+                // Filter designations by department if selected, otherwise show all
+                const filteredDesignations = departmentId ?
+                    allDesignations.filter(d => d.department_id == departmentId) :
+                    allDesignations;
+
+                console.log('Filtered designations:', filteredDesignations);
+
+                if (filteredDesignations.length === 0) {
+                    designationField.innerHTML = '<option value="">No designations available</option>';
+                } else {
+                    filteredDesignations.forEach(designation => {
+                        const option = document.createElement('option');
+                        option.value = designation.id;
+                        option.textContent = designation.name;
+                        if (designation.id == currentSelection) {
+                            option.selected = true;
+                        }
+                        designationField.appendChild(option);
+                    });
+                }
+            }
+
+            departmentField.addEventListener('change', function () {
+                loadDesignations(this.value);
+            });
+
+            // Load designations on page load
+            loadDesignations(departmentField.value);
+        }
+
         // Form validation and submission
         const jobForm = document.getElementById('jobForm');
         if (jobForm) {
-            jobForm.addEventListener('submit', function(e) {
+            jobForm.addEventListener('submit', function (e) {
                 // Basic validation
                 const title = document.querySelector('[name="title"]');
                 const jobDescription = document.querySelector('[name="job_description"]');
-                
+
                 if (!title || !title.value.trim()) {
                     e.preventDefault();
                     alert('Please enter a job title');
                     title.focus();
                     return false;
                 }
-                
+
                 if (!jobDescription || !jobDescription.value.trim()) {
                     e.preventDefault();
                     alert('Please enter a job description');
                     jobDescription.focus();
                     return false;
                 }
-                
+
                 // Show loading state
                 const submitBtn = document.querySelector('button[type="submit"]');
                 if (submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Saving...';
                 }
-                
+
                 return true;
             });
         }

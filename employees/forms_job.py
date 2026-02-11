@@ -132,6 +132,18 @@ class JobDescriptionForm(forms.ModelForm):
         self.fields['is_featured'].widget.attrs['class'] = 'form-check-input'
         self.fields['is_urgent'].widget.attrs['class'] = 'form-check-input'
 
+        # Set currency choices
+        self.fields['currency'].widget.choices = [
+            ('INR', 'INR - Indian Rupee'),
+            ('USD', 'USD - US Dollar'),
+            ('EUR', 'EUR - Euro'),
+            ('GBP', 'GBP - British Pound'),
+            ('AUD', 'AUD - Australian Dollar'),
+            ('CAD', 'CAD - Canadian Dollar'),
+            ('SGD', 'SGD - Singapore Dollar'),
+            ('AED', 'AED - UAE Dirham'),
+        ]
+
 
 class JobApplicationForm(forms.ModelForm):
     """Form for job applications"""

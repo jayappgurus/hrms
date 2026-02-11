@@ -85,6 +85,14 @@ class JobDescriptionCreateView(LoginRequiredMixin, CreateView):
     template_name = 'jobs/job_form.html'
     success_url = reverse_lazy('employees:job_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Serialize designations to JSON for JavaScript use
+        all_designations = list(Designation.objects.values('id', 'name', 'department_id'))
+        import json
+        context['all_designations'] = json.dumps(all_designations)
+        return context
+
     def form_valid(self, form):
         form.instance.posted_by = self.request.user
         messages.success(self.request, 'Job description created successfully!')
@@ -96,6 +104,14 @@ class JobDescriptionUpdateView(LoginRequiredMixin, UpdateView):
     form_class = JobDescriptionForm
     template_name = 'jobs/job_form.html'
     success_url = reverse_lazy('employees:job_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Serialize designations to JSON for JavaScript use
+        all_designations = list(Designation.objects.values('id', 'name', 'department_id'))
+        import json
+        context['all_designations'] = json.dumps(all_designations)
+        return context
 
     def form_valid(self, form):
         messages.success(self.request, 'Job description updated successfully!')
