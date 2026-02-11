@@ -3,9 +3,66 @@
 {% block title %}HRMS Dashboard{% endblock %}
 
 {% block page_title %}Dashboard{% endblock %}
-
 {% block extra_css %}
-<!-- Dashboard specific styles moved to global CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
+<style>
+    .fc {
+        --fc-border-color: #e2e8f0;
+        --fc-daygrid-dot-event-hover-bg-color: #f1f5f9;
+        --fc-button-bg-color: var(--primary-color, #4f46e5);
+        --fc-button-border-color: var(--primary-color, #4f46e5);
+        --fc-button-hover-bg-color: #4338ca;
+        --fc-button-active-bg-color: #3730a3;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .fc .fc-col-header-cell-cushion {
+        padding: 10px 0;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+    }
+
+    .fc-event {
+        cursor: pointer;
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .bg-primary-subtle {
+        background-color: var(--primary) !important;
+        color: white !important;
+    }
+
+    .bg-warning-subtle {
+        background-color: var(--warning) !important;
+        color: white !important;
+    }
+
+    .fc-day-today {
+        background-color: rgba(79, 70, 229, 0.03) !important;
+    }
+
+    .calendar-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .fc .fc-list-event:hover td {
+        background-color: inherit !important;
+        opacity: 0.3;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -86,6 +143,29 @@
     </div>
 </div>
 
+<!-- Calendar Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card calendar-card">
+            <div
+                class="card-header bg-transparent border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0">Event Calendar</h5>
+                    <p class="text-muted small mb-0">Birthdays, Interviews, and Leaves</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">🎂 Birthday</span>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle">🤝 Interview</span>
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle">🌴 Leave</span>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Recent Employees -->
 <div class="row">
     <div class="col-12">
@@ -154,4 +234,40 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        if (calendarEl) {
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listMonth'
+                },
+                events: '{% url "employees:calendar_events" %}',
+                eventClick: function (info) {
+                    if (info.event.url) {
+                        info.jsEvent.preventDefault();
+                        window.location.href = info.event.url;
+                    }
+                },
+                height: 'auto',
+                aspectRatio: 1.8,
+                dayMaxEvents: true,
+                themeSystem: 'bootstrap5',
+                eventTimeFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    meridiem: 'short'
+                }
+            });
+            calendar.render();
+        }
+    });
+</script>
 {% endblock %}

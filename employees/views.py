@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db import transaction
 from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, Device, DeviceAllocation, PublicHoliday, LeaveType, LeaveApplication, UserProfile
+from .models_job import InterviewSchedule
 from .forms import EmployeeForm, EmergencyContactForm, EmployeeSearchForm, EmployeeDocumentForm, LeaveTypeForm, LeaveApplicationForm, PublicHolidayForm
 
 
@@ -42,9 +43,124 @@ class DashboardView(LoginRequiredMixin, ListView):
             'recent_employees': self.get_queryset(),
             'departments': Department.objects.all(),
             'total_departments': Department.objects.count(),
+            'interviews_today': InterviewSchedule.objects.filter(scheduled_date=timezone.now().date()).count(),
         })
         
         return context
+
+
+class CalendarEventsView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        start_str = request.GET.get('start')
+        end_str = request.GET.get('end')
+        
+        if not start_str or not end_str:
+            return JsonResponse({'error': 'Missing start or end date'}, status=400)
+            
+        from datetime import datetime
+        try:
+            # FullCalendar sends ISO strings like 2024-05-26T00:00:00Z or just 2024-05-26
+            start_date = datetime.fromisoformat(start_str.replace('Z', '')).date()
+            end_date = datetime.fromisoformat(end_str.replace('Z', '')).date()
+        except ValueError:
+            return JsonResponse({'error': 'Invalid date format'}, status=400)
+            
+        events = []
+        
+        # 1. Birthdays
+        employees = Employee.objects.filter(employment_status='active').exclude(date_of_birth__isnull=True)
+        for emp in employees:
+            # Create a birthday date for the range years
+            current_year = start_date.year
+            try:
+                # Handle Feb 29
+                if emp.date_of_birth.month == 2 and emp.date_of_birth.day == 29:
+                    # check if current year is leap, else use Feb 28
+                    if current_year % 4 == 0 and (current_year % 100 != 0 or current_year % 400 == 0):
+                        bday = emp.date_of_birth.replace(year=current_year)
+                    else:
+                        bday = emp.date_of_birth.replace(year=current_year, day=28)
+                else:
+                    bday = emp.date_of_birth.replace(year=current_year)
+                
+                if start_date <= bday <= end_date:
+                    events.append({
+                        'id': f'bday-{emp.id}',
+                        'title': f'🎂 Birthday: {emp.full_name}',
+                        'start': bday.isoformat(),
+                        'allDay': True,
+                        'className': 'bg-primary-subtle text-primary border-primary',
+                        'extendedProps': {
+                            'type': 'birthday',
+                            'employee_id': emp.id
+                        }
+                    })
+                    
+                # Also check next year if the range spans across years
+                if end_date.year > start_date.year:
+                    next_year = end_date.year
+                    if emp.date_of_birth.month == 2 and emp.date_of_birth.day == 29:
+                        if next_year % 4 == 0 and (next_year % 100 != 0 or next_year % 400 == 0):
+                            bday_next = emp.date_of_birth.replace(year=next_year)
+                        else:
+                            bday_next = emp.date_of_birth.replace(year=next_year, day=28)
+                    else:
+                        bday_next = emp.date_of_birth.replace(year=next_year)
+                        
+                    if start_date <= bday_next <= end_date:
+                        events.append({
+                            'id': f'bday-next-{emp.id}',
+                            'title': f'🎂 Birthday: {emp.full_name}',
+                            'start': bday_next.isoformat(),
+                            'allDay': True,
+                            'className': 'bg-primary-subtle text-primary border-primary',
+                        })
+            except Exception:
+                continue
+
+        # 2. Interviews
+        interviews = InterviewSchedule.objects.filter(
+            scheduled_date__gte=start_date,
+            scheduled_date__lte=end_date
+        ).select_related('application')
+        
+        for interview in interviews:
+            from django.urls import reverse
+            url = reverse('employees:candidate_detail', args=[interview.application.id])
+            events.append({
+                'id': f'interview-{interview.id}',
+                'title': f'🤝 {interview.application.candidate_name}',
+                'start': f"{interview.scheduled_date.isoformat()}T{interview.scheduled_time.isoformat()}",
+                'className': 'bg-info-subtle text-info border-info',
+                'url': url,
+                'extendedProps': {
+                    'type': 'interview',
+                    'time': interview.scheduled_time.strftime('%I:%M %p'),
+                    'candidate': interview.application.candidate_name
+                }
+            })
+            
+        # 3. Leave Applications
+        leaves = LeaveApplication.objects.filter(
+            start_date__lte=end_date,
+            end_date__gte=start_date,
+            status='approved'
+        ).select_related('employee', 'leave_type')
+        
+        for leave in leaves:
+            events.append({
+                'id': f'leave-{leave.id}',
+                'title': f'🌴 {leave.employee.full_name} ({leave.leave_type.name})',
+                'start': leave.start_date.isoformat(),
+                'end': (leave.end_date + timezone.timedelta(days=1)).isoformat(), # Inclusive end for FullCalendar
+                'className': 'bg-warning-subtle text-warning border-warning',
+                'extendedProps': {
+                    'type': 'leave',
+                    'employee': leave.employee.full_name
+                }
+            })
+            
+        return JsonResponse(events, safe=False)
 
 
 class EmployeeListView(LoginRequiredMixin, ListView):

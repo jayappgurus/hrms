@@ -721,7 +721,8 @@ ul {
     color: var(--text-main);
     cursor: pointer;
 }
-.employee-avatar{
+
+.employee-avatar {
     background-color: var(--primary);
     color: white;
     border-radius: 50%;
