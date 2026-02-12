@@ -66,6 +66,7 @@
             <table class="modern-table">
                 <thead>
                     <tr>
+                        <th>No</th>
                         <th>Holiday Name</th>
                         <th>Date</th>
                         <th>Day</th>
@@ -78,6 +79,9 @@
                 <tbody>
                     {% for holiday in holidays %}
                     <tr data-year="{{ holiday.year }}">
+                        <td data-label="#">
+                            <span class="fw-medium text-muted">1</span>
+                        </td>
                         <td data-label="Holiday Name">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="info-icon">
@@ -148,10 +152,17 @@
                 this.classList.add('active');
 
                 const year = this.dataset.year;
+                let counter = 1; // Reset counter for each filter
 
                 tableRows.forEach(row => {
                     if (year === 'all' || row.dataset.year === year) {
                         row.style.display = '';
+                        // Update row number
+                        const rowNumberCell = row.querySelector('td[data-label="#"] span');
+                        if (rowNumberCell) {
+                            rowNumberCell.textContent = counter;
+                            counter++;
+                        }
                     } else {
                         row.style.display = 'none';
                     }
@@ -159,13 +170,21 @@
             });
         });
 
-        // Initialize visibility based on the active pill
+        // Initialize visibility and row numbers based on the active pill
         const activePill = document.querySelector('.filter-pill.active');
         if (activePill) {
             const initialYear = activePill.dataset.year;
+            let counter = 1; // Reset counter for initial display
+
             tableRows.forEach(row => {
                 if (initialYear === 'all' || row.dataset.year === initialYear) {
                     row.style.display = '';
+                    // Update row number
+                    const rowNumberCell = row.querySelector('td[data-label="#"] span');
+                    if (rowNumberCell) {
+                        rowNumberCell.textContent = counter;
+                        counter++;
+                    }
                 } else {
                     row.style.display = 'none';
                 }
