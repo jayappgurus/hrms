@@ -1,6 +1,7 @@
 /* ========================================
    HRMS Portal - Modern 'Dark Executive' Design
-   Primary Color: #00376e
+   Primary Color: #433185
+   Accent Color: #e50880
    Aesthetics: Bold, Clean, Professional
    ======================================== */
 
@@ -8,15 +9,15 @@
 
 :root {
     /* Primary Brand Colors */
-    --primary: #00376e;
-    --primary-dark: #002a55;
-    --primary-light: #335f8b;
-    --primary-gradient: linear-gradient(180deg, #00376e 0%, #002855 100%);
+    --primary: #433185;
+    --primary-dark: #332666;
+    --primary-light: #5a4299;
+    --primary-gradient: linear-gradient(180deg, #433185 0%, #332666 100%);
 
     /* Accent Colors */
-    --accent: #FFD700;
-    /* Gold accent for premium feel */
-    --accent-soft: rgba(255, 215, 0, 0.1);
+    --accent: #e50880;
+    /* Pink accent for modern feel */
+    --accent-soft: rgba(229, 8, 128, 0.1);
 
     /* Status Colors */
     --success: #059669;
@@ -27,7 +28,7 @@
     /* Backgrounds & Surfaces */
     --bg-body: #f3f4f6;
     --bg-card: #ffffff;
-    --bg-sidebar: #00376e;
+    --bg-sidebar: #433185;
 
     /* Typography */
     --text-white: #ffffff;
@@ -37,7 +38,7 @@
     --border-color: #e2e8f0;
 
     /* Dimensions & Effects */
-    --sidebar-width: 280px;
+    --sidebar-width: 350px;
     --header-height: 80px;
     --border-radius-xl: 16px;
     --border-radius-lg: 12px;
@@ -45,7 +46,7 @@
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-premium: 0 20px 25px -5px rgba(0, 55, 110, 0.1), 0 10px 10px -5px rgba(0, 55, 110, 0.04);
+    --shadow-premium: 0 20px 25px -5px rgba(67, 49, 133, 0.1), 0 10px 10px -5px rgba(67, 49, 133, 0.04);
 
     --transition: cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
 }
@@ -141,13 +142,43 @@ ul {
     left: 0;
     top: 0;
     /* Deep Rich Gradient Background */
-    background: linear-gradient(160deg, #00376e 0%, #001e3d 100%);
+    background: linear-gradient(160deg, #433185 0%, #332666 100%);
     color: var(--text-white);
     display: flex;
     flex-direction: column;
     z-index: 1000;
     transition: var(--transition);
-    box-shadow: 10px 0 40px rgba(0, 55, 110, 0.15);
+    box-shadow: 10px 0 40px rgba(67, 49, 133, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 50% 0%,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.08) 30%,
+        transparent 70%
+    );
+    animation: pulsing-shine 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes pulsing-shine {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1) translateY(0);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1) translateY(-10px);
+    }
 }
 
 .sidebar-header {
@@ -155,7 +186,7 @@ ul {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border: 3px solid rgba(67, 49, 133, 0.1);
 }
 
 .sidebar-logo {
@@ -175,7 +206,7 @@ ul {
     justify-content: center;
     color: #002855;
     font-size: 20px;
-    box-shadow: 0 0 15px rgba(0, 201, 255, 0.4);
+    box-shadow: 0 0 15px rgba(229, 8, 128, 0.4);
 }
 
 .logo-title {
@@ -238,16 +269,16 @@ ul {
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
     color: white;
     font-weight: 600;
-    border-left-color: #00C9FF;
+    border-left-color: #e50880;
     /* Cyan Neon Border */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(5px);
 }
 
 .nav-link.active i {
-    color: #00C9FF;
+    color: #e50880;
     opacity: 1;
-    filter: drop-shadow(0 0 5px rgba(0, 201, 255, 0.5));
+    filter: drop-shadow(0 0 5px rgba(229, 8, 128, 0.5));
     /* Glowing Icon */
 }
 
@@ -308,7 +339,7 @@ ul {
 .sub-menu li a.active {
     color: #fff;
     font-weight: 600;
-    background: linear-gradient(45deg, #00376e 0%, #00376e 100%);
+    background: linear-gradient(45deg, #433185 0%, #433185 100%);
     /* mini gradient */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     padding-left: 16px;
@@ -318,7 +349,6 @@ ul {
    TOP HEADER (Floaty & Clean)
    ======================================== */
 .page-wrapper {
-    margin-left: var(--sidebar-width);
     width: calc(100% - var(--sidebar-width));
     transition: var(--transition);
     display: flex;
@@ -365,7 +395,7 @@ ul {
 .search-bar input:focus {
     background: white;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(0, 55, 110, 0.1);
+    box-shadow: 0 0 0 3px rgba(67, 49, 133, 0.1);
     outline: none;
 }
 
@@ -539,9 +569,6 @@ ul {
     background: white;
     border-bottom: 1px solid var(--border-color);
     padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
 }
 
 .card-header h5 {
@@ -665,7 +692,7 @@ ul {
 .form-control:focus,
 .form-select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(0, 55, 110, 0.1);
+    box-shadow: 0 0 0 3px rgba(67, 49, 133, 0.1);
 }
 
 /* ========================================
@@ -752,7 +779,7 @@ ul {
     .sidebar.mobile-open {
         width: calc(100% - 100px);
         transform: translateX(0);
-        box-shadow: 10px 0 50px rgba(0, 0, 0, 0.3);
+        box-shadow: 10px 0 50px rgba(67, 49, 133, 0.15);
     }
 
     .page-wrapper {
@@ -789,7 +816,7 @@ ul {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(67, 49, 133, 0.05);
         z-index: 998;
         display: none;
         backdrop-filter: blur(2px);
