@@ -60,16 +60,28 @@
 
                 <div class="col-md-6">
                     <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.year.label }}</label>
-                        {{ form.year }}
-                        {% if form.year.errors %}
-                        <div class="text-danger small mt-1">{{ form.year.errors.0 }}</div>
+                        <label class="modern-form-label">{{ form.country.label }}</label>
+                        {{ form.country }}
+                        {% if form.country.errors %}
+                        <div class="text-danger small mt-1">{{ form.country.errors.0 }}</div>
                         {% endif %}
-                        <small class="form-help-text">Year for which this holiday applies</small>
+                        <small class="form-help-text">Select the country for this holiday</small>
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-md-3">
+                    <div class="modern-form-group">
+                        <div class="form-check">
+                            {{ form.is_optional }}
+                            <label class="form-check-label" for="{{ form.is_optional.id_for_label }}">
+                                {{ form.is_optional.label }}
+                            </label>
+                        </div>
+                        <small class="form-help-text">Check if this is an optional holiday</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
                     <div class="modern-form-group">
                         <div class="form-check">
                             {{ form.is_active }}
@@ -78,6 +90,16 @@
                             </label>
                         </div>
                         <small class="form-help-text">Uncheck to hide this holiday from the calendar</small>
+                    </div>
+                </div>
+                <div class="col-md-6" style="display: none;">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label required">{{ form.year.label }}</label>
+                        {{ form.year }}
+                        {% if form.year.errors %}
+                        <div class="text-danger small mt-1">{{ form.year.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-help-text">Year for which this holiday applies</small>
                     </div>
                 </div>
             </div>
@@ -101,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dayInput = document.querySelector('[name="day"]');
     const yearInput = document.querySelector('[name="year"]');
     
-    // Auto-calculate day when date changes
+    // Auto-calculate day and year when date changes
     if (dateInput) {
         dateInput.addEventListener('change', function() {
             if (this.value) {
@@ -109,13 +131,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 const dayName = days[date.getDay()];
                 
+                // Auto-set day from date
                 if (dayInput) {
                     dayInput.value = dayName;
+                    console.log('Day set to:', dayName);
                 }
                 
-                // Auto-set year from date
-                if (yearInput && !yearInput.value) {
+                // Auto-set year from date (always update)
+                if (yearInput) {
                     yearInput.value = date.getFullYear();
+                    console.log('Year set to:', date.getFullYear());
+                }
+            }
+        });
+        
+        // Also listen to input event for better responsiveness
+        dateInput.addEventListener('input', function() {
+            if (this.value) {
+                const date = new Date(this.value);
+                if (!isNaN(date.getTime())) {
+                    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    const dayName = days[date.getDay()];
+                    
+                    if (dayInput) {
+                        dayInput.value = dayName;
+                    }
+                    
+                    if (yearInput) {
+                        yearInput.value = date.getFullYear();
+                    }
                 }
             }
         });

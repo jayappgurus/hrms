@@ -52,6 +52,8 @@ urlpatterns = [
     # Leave & Holiday Management
     path('holidays/', views.PublicHolidayListView.as_view(), name='public_holidays'),
     path('holidays/add/', views.PublicHolidayCreateView.as_view(), name='public_holiday_add'),
+    path('holidays/bulk-delete/', views.bulk_delete_public_holidays, name='bulk_delete_public_holidays'),
+    path('holidays/<str:country>/', views.PublicHolidayListView.as_view(), name='public_holidays_by_country'),
     path('holidays/<int:pk>/edit/', views.PublicHolidayUpdateView.as_view(), name='public_holiday_edit'),
     path('holidays/<int:pk>/delete/', views.PublicHolidayDeleteView.as_view(), name='public_holiday_delete'),
     
@@ -76,6 +78,8 @@ urlpatterns = [
     path('users/<int:pk>/delete/', views_user_management.UserDeleteView.as_view(), name='delete_user'),
     path('users/<int:user_id>/create-profile/', views_user_management.create_user_profile, name='create_user_profile'),
     path('users/<int:user_id>/assign-role/', views_user_management.assign_role, name='assign_role'),
+    path('users/credentials/', views_user_management.UserCredentialsAPIView.as_view(), name='user_credentials_api'),
+    path('users/credentials-collection/', views_user_management.UserCredentialsCollectionView.as_view(), name='user_credentials_collection'),
     path('my-profile/', views_user_management.my_profile, name='my_profile'),
 
     # Job & Recruitment Management

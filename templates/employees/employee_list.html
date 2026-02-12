@@ -62,7 +62,7 @@
                         <th class="ps-4">Name</th>
                         <th>Designation</th>
                         <th>Department</th>
-                        <th>Date of Birth</th>
+                        <th>Dob</th>
                         <th>Experience</th>
                         <th>Status</th>
                         <th class="text-end pe-4">Actions</th>
@@ -74,7 +74,12 @@
                         <td class="ps-4" data-label="Name">
                             <div class="d-flex align-items-center">
                                 <div class="employee-avatar me-3">
-                                    {{ employee.full_name|slice:":2"|upper }}
+                                    {% if employee.profile_picture %}
+                                        <img src="{{ employee.profile_picture.url }}" alt="{{ employee.full_name }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                        <div style="display:none;" class="avatar-fallback">{{ employee.full_name|slice:":2"|upper }}</div>
+                                    {% else %}
+                                        {{ employee.full_name|slice:":2"|upper }}
+                                    {% endif %}
                                 </div>
                                 <div>
                                     <div class="fw-bold">{{ employee.full_name }}</div>
@@ -118,7 +123,7 @@
                                 <a href="{% url 'employees:employee_delete_record' employee.pk %}"
                                     class="btn btn-sm btn-outline-danger px-2"
                                     title="Delete Employee"
-                                    onclick="return confirm('Are you sure you want to delete this employee? This action cannot be undone.')">
+                                    onclick="return confirm('Are you sure you want to delete {{ employee.full_name }}? This action cannot be undone and will permanently remove all employee records.', 'Delete Employee')">
                                     <i class="bi bi-trash"></i>
                                 </a>
                                 {% endif %}
@@ -185,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleButtons = document.querySelectorAll('.toggle-status-btn');
     
     toggleButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', async function() {
             const employeeId = this.dataset.employeeId;
             const employeeName = this.dataset.employeeName;
             const currentStatus = this.dataset.currentStatus;
@@ -193,7 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const action = currentStatus === 'active' ? 'deactivate' : 'activate';
             
             // Confirm action
-            if (!confirm(`Are you sure you want to ${action} ${employeeName}?`)) {
+            const confirmed = await confirm(`Are you sure you want to ${action} ${employeeName}?`, `${action.charAt(0).toUpperCase() + action.slice(1)} Employee`);
+            if (!confirmed) {
                 return;
             }
             

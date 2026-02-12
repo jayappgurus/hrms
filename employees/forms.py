@@ -45,11 +45,11 @@ class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
         fields = [
-            'employee_code', 'full_name', 'department', 'designation', 'joining_date', 'relieving_date',
+            'employee_code', 'full_name', 'profile_picture', 'department', 'designation', 'joining_date', 'relieving_date',
             'employment_status', 'mobile_number', 'official_email', 'personal_email', 'local_address',
             'permanent_address', 'date_of_birth', 'marital_status', 'anniversary_date',
             'highest_qualification', 'total_experience_years', 'total_experience_months',
-            'probation_status', 'aadhar_card_number', 'pan_card_number', 'graduates_marksheet_count',
+            'probation_status', 'period_type', 'aadhar_card_number', 'pan_card_number', 'graduates_marksheet_count',
             'emergency_contact_name', 'emergency_contact_mobile', 'emergency_contact_email', 'emergency_contact_address', 'emergency_contact_relationship'
         ]
         widgets = {
@@ -60,6 +60,10 @@ class EmployeeForm(forms.ModelForm):
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter full name'
+            }),
+            'profile_picture': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
             }),
             'department': forms.Select(attrs={'class': 'form-select'}),
             'designation': forms.Select(attrs={'class': 'form-select'}),
@@ -129,6 +133,7 @@ class EmployeeForm(forms.ModelForm):
                 'style': 'text-transform: uppercase'
             }),
             'probation_status': forms.Select(choices=[('On Probation', 'On Probation'), ('Confirmed', 'Confirmed')], attrs={'class': 'form-select'}),
+            'period_type': forms.Select(attrs={'class': 'form-select'}),
             'graduates_marksheet_count': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': 0,
@@ -339,7 +344,7 @@ class UserProfileForm(forms.ModelForm):
 class LeaveTypeForm(forms.ModelForm):
     class Meta:
         model = LeaveType
-        fields = ['name', 'leave_type', 'max_days_per_year', 'is_paid', 'requires_document', 'description', 'is_active']
+        fields = ['name', 'leave_type', 'max_days_per_year', 'duration_type', 'is_paid', 'requires_document', 'description', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -426,7 +431,7 @@ class LeaveApplicationForm(forms.ModelForm):
 class PublicHolidayForm(forms.ModelForm):
     class Meta:
         model = PublicHoliday
-        fields = ['name', 'date', 'year', 'is_active']
+        fields = ['name', 'date', 'year', 'country', 'is_optional', 'description', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'modern-form-control',
@@ -441,6 +446,17 @@ class PublicHolidayForm(forms.ModelForm):
                 'min': 2020,
                 'max': 2030
             }),
+            'country': forms.Select(attrs={
+                'class': 'modern-form-control'
+            }),
+            'is_optional': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'modern-form-control',
+                'rows': 3,
+                'placeholder': 'Optional description'
+            }),
             'is_active': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             })
@@ -451,6 +467,9 @@ class PublicHolidayForm(forms.ModelForm):
         self.fields['name'].label = 'Holiday Name'
         self.fields['date'].label = 'Date'
         self.fields['year'].label = 'Year'
+        self.fields['country'].label = 'Country'
+        self.fields['is_optional'].label = 'Optional Holiday'
+        self.fields['description'].label = 'Description'
         self.fields['is_active'].label = 'Active'
         
         # Auto-populate day field based on date

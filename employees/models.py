@@ -14,9 +14,11 @@ from .models_job import JobDescription, JobApplication, InterviewSchedule
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
+        ('director', 'Director'),
         ('hr', 'HR'),
+        ('accountant', 'Accountant'),
         ('manager', 'Manager'),
-        ('it_admin', 'IT-Admin'),
+        ('it_admin', 'IT Admin'),
         ('employee', 'Employee'),
     ]
     
@@ -40,8 +42,16 @@ class UserProfile(models.Model):
         return self.role == 'admin'
     
     @property
+    def is_director(self):
+        return self.role == 'director'
+    
+    @property
     def is_hr(self):
         return self.role == 'hr'
+    
+    @property
+    def is_accountant(self):
+        return self.role == 'accountant'
     
     @property
     def is_manager(self):
@@ -57,15 +67,19 @@ class UserProfile(models.Model):
     
     @property
     def can_manage_employees(self):
-        return self.role in ['admin', 'hr', 'manager']
+        return self.role in ['admin', 'director', 'hr', 'manager']
     
     @property
     def can_view_all_employees(self):
-        return self.role in ['admin', 'hr']
+        return self.role in ['admin', 'director', 'hr']
     
     @property
     def can_manage_system(self):
         return self.role in ['admin', 'it_admin']
+    
+    @property
+    def can_manage_finance(self):
+        return self.role in ['admin', 'director', 'accountant']
 
 
 class Department(models.Model):
@@ -127,10 +141,19 @@ class Employee(models.Model):
         ('single', 'Single'),
         ('married', 'Married'),
     ]
+    
+    PERIOD_TYPE_CHOICES = [
+        ('trainee', 'Trainee (6 Months)'),
+        ('intern', 'Intern'),
+        ('probation', 'Probation (3 Months)'),
+        ('notice_period', 'Notice Period'),
+        ('confirmed', 'Confirmed'),
+    ]
 
     # Core Employee Details
     employee_code = models.CharField(max_length=20, unique=True, help_text="Unique employee code")
     full_name = models.CharField(max_length=100)
+    profile_picture = models.ImageField(upload_to='employee_profiles/%Y/%m/', null=True, blank=True)
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='employees')
     designation = models.ForeignKey(Designation, on_delete=models.PROTECT, related_name='employees')
     joining_date = models.DateField()
@@ -172,6 +195,7 @@ class Employee(models.Model):
     total_experience_years = models.PositiveIntegerField(default=0)
     total_experience_months = models.PositiveIntegerField(default=0)
     probation_status = models.CharField(max_length=20)
+    period_type = models.CharField(max_length=20, choices=PERIOD_TYPE_CHOICES, default='confirmed', help_text="Employee period type")
 
     # Identity & Compliance
     aadhar_card_number = models.CharField(
@@ -261,11 +285,11 @@ class Employee(models.Model):
         if years == 0 and months == 0:
             return "Fresher"
         elif years == 0:
-            return f"{months} month{'s' if months > 1 else ''}"
+            return f"{months} mo"
         elif months == 0:
-            return f"{years} year{'s' if years > 1 else ''}"
+            return f"{years} y"
         else:
-            return f"{years} year{'s' if years > 1 else ''} {months} month{'s' if months > 1 else ''}"
+            return f"{years} y {months} mo"
 
     @property
     def age(self):
@@ -396,10 +420,18 @@ class DeviceAllocation(models.Model):
 
 
 class PublicHoliday(models.Model):
+    COUNTRY_CHOICES = [
+        ('IN', 'India'),
+        ('AU', 'Australia'),
+    ]
+    
     name = models.CharField(max_length=100)
     date = models.DateField()
     day = models.CharField(max_length=20)  # Monday, Tuesday, etc.
     year = models.IntegerField()
+    country = models.CharField(max_length=2, choices=COUNTRY_CHOICES, default='IN')
+    is_optional = models.BooleanField(default=False, help_text="Optional holiday")
+    description = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -415,27 +447,26 @@ class PublicHoliday(models.Model):
 
 class LeaveType(models.Model):
     LEAVE_TYPE_CHOICES = [
-        ('casual', 'Casual Leave'),
-        ('sick', 'Sick Leave'),
-        ('earned', 'Earned Leave'),
-        ('maternity', 'Maternity Leave'),
-        ('paternity', 'Paternity Leave'),
-        ('bereavement', 'Bereavement Leave'),
-        ('marriage', 'Marriage Leave'),
-        ('unpaid', 'Unpaid Leave'),
-        ('comp_off', 'Compensatory Off'),
-        ('study', 'Study Leave'),
-        ('sabbatical', 'Sabbatical Leave'),
-        ('parental', 'Parental Leave'),
-        ('hospitalization', 'Hospitalization Leave'),
-        ('quarantine', 'Quarantine Leave'),
-        ('court', 'Court Leave'),
-        ('voting', 'Voting Leave'),
+        ('casual', 'Casual Leave (CL)'),
+        ('emergency', 'Emergency Leave (EL)'),
+        ('public_holiday', 'Public Holidays'),
+        ('birthday', 'Birthday Leave'),
+        ('marriage_anniversary', 'Marriage Anniversary Leave'),
+        ('weekend', 'Weekends'),
+        ('absence_marriage', 'Absence for Marriage'),
+        ('paternity', 'Paternity'),
+        ('maternity', 'Maternity'),
     ]
 
     name = models.CharField(max_length=100)
     leave_type = models.CharField(max_length=20, choices=LEAVE_TYPE_CHOICES, unique=True)
     max_days_per_year = models.IntegerField(default=12)
+    duration_type = models.CharField(max_length=10, choices=[
+        ('days', 'Days'),
+        ('weeks', 'Weeks'),
+        ('months', 'Months'),
+        ('years', 'Years'),
+    ], default='days')
     is_paid = models.BooleanField(default=True)
     requires_document = models.BooleanField(default=False)
     description = models.TextField(blank=True, null=True)

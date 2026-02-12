@@ -19,8 +19,13 @@
         width: 120px;
         height: 120px;
         border-radius: 50%;
+ 
         background: #e50880;
         color: #002855;
+=======
+        background: #00C9FF;
+        color: #332666;
+>>>>>>> 3db47c9 (all my code push in github)
         display: flex;
         align-items: center;
         justify-content: center;
@@ -61,7 +66,15 @@
 <!-- Profile Header -->
 <div class="profile-header-card">
     <div class="profile-avatar-large">
-        {{ employee.full_name|slice:":2"|upper }}
+        {% if employee.profile_picture %}
+            <img src="{{ employee.profile_picture.url }}" 
+                 alt="{{ employee.full_name }}" 
+                 class="profile-avatar-img"
+                 onerror="this.style.display='none'; this.parentElement.querySelector('.avatar-fallback').style.display='flex';">
+            <div class="avatar-fallback">{{ employee.full_name|slice:":2"|upper }}</div>
+        {% else %}
+            <div class="avatar-fallback">{{ employee.full_name|slice:":2"|upper }}</div>
+        {% endif %}
     </div>
     <h1 class="h2 mb-2">{{ employee.full_name }}</h1>
     <p class="mb-3 opacity-90">{{ employee.designation.name }}</p>
@@ -182,6 +195,14 @@
                         <span
                             class="status-badge {% if employee.probation_status == 'completed' %}success{% else %}warning{% endif %}">
                             {{ employee.probation_status|title }}
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Period Type</div>
+                    <div class="detail-value">
+                        <span class="status-badge info">
+                            {{ employee.get_period_type_display }}
                         </span>
                     </div>
                 </div>

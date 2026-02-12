@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Leave Type - HRMS Portal{% endblock %}
+
+{% block page_title %}Delete Leave Type{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 32px;
+    }
+
+    .delete-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        padding: 32px;
+        text-align: center;
+    }
+
+    .delete-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #dc3545 0%, #b91c1c 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+    }
+
+    .delete-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .leave-type-info {
+        background: #f8faff;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+    }
+
+    .leave-type-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+    }
+
+    .leave-type-details {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    .warning-text {
+        color: #dc3545;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-exclamation-triangle text-danger"></i>
+            Delete Leave Type
+        </h1>
+        <p class="page-subtitle">This action cannot be undone</p>
+    </div>
+    <a href="{% url 'employees:leave_types' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Leave Types
+    </a>
+</div>
+
+<div class="delete-container">
+    <div class="delete-card">
+        <div class="delete-icon">
+            <i class="bi bi-calendar-x"></i>
+        </div>
+
+        <div class="leave-type-info">
+            <h3 class="leave-type-name">{{ object.name }}</h3>
+            <div class="leave-type-details">
+                <p><strong>Leave Type:</strong> {{ object.get_leave_type_display }}</p>
+                <p><strong>Maximum Days per Year:</strong> {{ object.max_days_per_year }}</p>
+                <p><strong>Can Carry Forward:</strong> {% if object.can_carry_forward %}Yes{% else %}No{% endif %}</p>
+                <p><strong>Status:</strong> {% if object.is_active %}Active{% else %}Inactive{% endif %}</p>
+                {% if object.description %}
+                <p><strong>Description:</strong> {{ object.description|safe }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="warning-text">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Warning:</strong> This will permanently delete the leave type. If there are existing leave applications using this type, they may be affected.
+        </div>
+
+        <div class="d-flex gap-2 justify-content-center mt-4">
+            <a href="{% url 'employees:leave_types' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash me-2"></i>
+                    Yes, Delete Leave Type
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

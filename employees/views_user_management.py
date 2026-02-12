@@ -1,101 +1,63 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
-from django.views.generic import ListView, UpdateView, CreateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import UserProfile, Department
-from .forms import UserProfileForm
-from .decorators import admin_required, hr_required
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, UpdateView, CreateView, DeleteView
+from django.urls import reverse_lazy
+from django import forms
+from django.db.models import Q
+from .models import Employee, UserProfile, Department
+from .decorators import admin_required
 
 
-class UserListView(LoginRequiredMixin, ListView):
-    model = User
-    template_name = 'employees/user_list.html'
-    context_object_name = 'users'
-    paginate_by = 20
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['role', 'department', 'phone']
+        widgets = {
+            'role': forms.Select(attrs={'class': 'form-select'}),
+            'department': forms.Select(attrs={'class': 'form-select'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'}),
+        }
     
-    def get_queryset(self):
-        queryset = User.objects.select_related('profile', 'profile__department').all()
-        search_term = self.request.GET.get('search', '')
-        role_filter = self.request.GET.get('role', '')
-        
-        if search_term:
-            queryset = queryset.filter(
-                username__icontains=search_term
-            ) | queryset.filter(
-                first_name__icontains=search_term
-            ) | queryset.filter(
-                last_name__icontains=search_term
-            ) | queryset.filter(
-                email__icontains=search_term
-            )
-        
-        if role_filter:
-            queryset = queryset.filter(profile__role=role_filter)
-        
-        return queryset.order_by('-date_joined')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['department'].queryset = Department.objects.all()
+        self.fields['department'].empty_label = "Select Department"
+        self.fields['department'].required = False
+
+
+class UserSearchForm(forms.Form):
+    search = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Search users...'
+        })
+    )
+
+
+@login_required
+def my_profile(request):
+    """Display current user's profile"""
+    try:
+        profile = request.user.profile
+        employee = profile.employee if hasattr(profile, 'employee') else None
+    except UserProfile.DoesNotExist:
+        profile = None
+        employee = None
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['departments'] = Department.objects.all()
-        context['role_choices'] = UserProfile.ROLE_CHOICES
-        context['search_form'] = self.request.GET.get('search', '')
-        context['role_filter'] = self.request.GET.get('role', '')
-        return context
-
-
-class UserCreateView(LoginRequiredMixin, CreateView):
-    model = User
-    form_class = UserCreationForm
-    template_name = 'employees/user_create.html'
-    success_url = reverse_lazy('employees:user_list')
+    context = {
+        'profile': profile,
+        'employee': employee,
+        'user': request.user
+    }
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Create New User'
-        context['departments'] = Department.objects.all()
-        context['role_choices'] = UserProfile.ROLE_CHOICES
-        return context
-    
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        
-        # Create user profile with role and department
-        role = self.request.POST.get('role', 'employee')
-        department_id = self.request.POST.get('department')
-        phone = self.request.POST.get('phone', '')
-        
-        UserProfile.objects.create(
-            user=self.object,
-            role=role,
-            department_id=department_id if department_id else None,
-            phone=phone
-        )
-        
-        messages.success(self.request, f'User {self.object.username} created successfully!')
-        return response
+    return render(request, 'employees/my_profile.html', context)
 
 
-class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
-    model = UserProfile
-    form_class = UserProfileForm
-    template_name = 'employees/user_profile_edit.html'
-    success_url = reverse_lazy('employees:user_list')
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = f'Edit User Profile - {self.object.user.username}'
-        return context
-    
-    def form_valid(self, form):
-        messages.success(self.request, f'User profile for {self.object.user.username} updated successfully!')
-        return super().form_valid(form)
-
-
-@admin_required
 def create_user_profile(request, user_id):
     """Create or update user profile for existing users"""
     user = get_object_or_404(User, pk=user_id)
@@ -115,88 +77,136 @@ def create_user_profile(request, user_id):
     return redirect('employees:user_list')
 
 
-@hr_required
+class UserListView(LoginRequiredMixin, ListView):
+    model = User
+    template_name = 'employees/user_list.html'
+    context_object_name = 'users'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        queryset = User.objects.select_related('profile', 'profile__department').all()
+        search_term = self.request.GET.get('search', '')
+        role_filter = self.request.GET.get('role', '')
+        
+        if search_term:
+            queryset = queryset.filter(
+                Q(username__icontains=search_term) |
+                Q(email__icontains=search_term) |
+                Q(first_name__icontains=search_term) |
+                Q(last_name__icontains=search_term)
+            )
+        
+        if role_filter:
+            queryset = queryset.filter(profile__role=role_filter)
+        
+        return queryset.order_by('-date_joined')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_users'] = self.get_queryset().count()
+        context['active_users'] = self.get_queryset().filter(is_active=True).count()
+        return context
+
+
+class UserCreateView(LoginRequiredMixin, CreateView):
+    model = User
+    form_class = UserCreationForm
+    template_name = 'employees/user_create.html'
+    success_url = reverse_lazy('employees:user_list')
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'User {self.object.username} created successfully!')
+        return response
+
+
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserProfileForm
+    template_name = 'employees/user_edit.html'
+    success_url = reverse_lazy('employees:user_list')
+    
+    def get_object(self):
+        return get_object_or_404(User, pk=self.kwargs['pk'])
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'User {self.object.username} updated successfully!')
+        return response
+
+
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = UserProfile
+    form_class = UserProfileForm
+    template_name = 'employees/user_profile_edit.html'
+    success_url = reverse_lazy('employees:user_list')
+    
+    def get_object(self):
+        user = get_object_or_404(User, pk=self.kwargs['pk'])
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        return profile
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, f'Profile for {self.object.user.username} updated successfully!')
+        return response
+
+
+@login_required
 def assign_role(request, user_id):
-    """Assign role to user (HR and Admin only)"""
+    """Assign or update role for a user"""
     user = get_object_or_404(User, pk=user_id)
+    profile, created = UserProfile.objects.get_or_create(user=user)
     
     if request.method == 'POST':
         role = request.POST.get('role')
         department_id = request.POST.get('department')
-        phone = request.POST.get('phone', '')
         
-        profile, created = UserProfile.objects.get_or_create(user=user)
-        profile.role = role
-        profile.department_id = department_id if department_id else None
-        profile.phone = phone
+        if role:
+            profile.role = role
+        if department_id:
+            profile.department_id = department_id
+        
         profile.save()
-        
-        action = 'created' if created else 'updated'
-        messages.success(request, f'User role {action} for {user.username}')
+        messages.success(request, f'Role assigned to {user.username} successfully!')
+        return redirect('employees:user_list')
     
     return redirect('employees:user_list')
 
 
-@login_required
-def my_profile(request):
-    """View and edit own profile"""
-    try:
-        profile = request.user.profile
-    except UserProfile.DoesNotExist:
-        # Create profile if it doesn't exist
-        profile = UserProfile.objects.create(
-            user=request.user,
-            role='employee',
-            department=None,
-            phone=''
-        )
+from django.http import JsonResponse
+from django.views import View
+
+
+class UserCredentialsAPIView(LoginRequiredMixin, View):
+    """API view to get user credentials"""
+    def get(self, request):
+        users = User.objects.select_related('profile').all()
+        data = []
+        for user in users:
+            data.append({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'role': user.profile.role if hasattr(user, 'profile') else 'employee',
+                'is_active': user.is_active
+            })
+        return JsonResponse({'users': data})
+
+
+class UserCredentialsCollectionView(LoginRequiredMixin, ListView):
+    """View to display user credentials collection"""
+    model = User
+    template_name = 'employees/user_credentials.html'
+    context_object_name = 'users'
     
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your profile has been updated!')
-            return redirect('employees:my_profile')
-    else:
-        form = UserProfileForm(instance=profile)
-    
-    return render(request, 'employees/my_profile.html', {
-        'form': form,
-        'profile': profile,
-        'title': 'My Profile'
-    })
+    def get_queryset(self):
+        return User.objects.select_related('profile').all()
 
 
 class UserDeleteView(LoginRequiredMixin, DeleteView):
     model = User
     success_url = reverse_lazy('employees:user_list')
     
-    def dispatch(self, request, *args, **kwargs):
-        # Only allow superusers and admin role users to delete users
-        if not request.user.is_superuser:
-            try:
-                user_profile = request.user.profile
-                if user_profile.role not in ['admin', 'hr']:
-                    messages.error(request, 'You do not have permission to delete users.')
-                    return redirect('employees:user_list')
-            except UserProfile.DoesNotExist:
-                messages.error(request, 'You do not have permission to delete users.')
-                return redirect('employees:user_list')
-        
-        # Prevent users from deleting themselves
-        if request.user.pk == int(kwargs['pk']):
-            messages.error(request, 'You cannot delete your own account.')
-            return redirect('employees:user_list')
-        
-        return super().dispatch(request, *args, **kwargs)
-    
-    def delete(self, request, *args, **kwargs):
-        user = self.get_object()
-        username = user.username
-        success_message = f'User "{username}" has been deleted successfully!'
-        
-        # Delete the user
-        user.delete()
-        
-        messages.success(request, success_message)
-        return redirect(self.success_url)
+    def get_object(self):
+        return get_object_or_404(User, pk=self.kwargs['pk'])

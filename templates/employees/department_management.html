@@ -219,15 +219,15 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Department added successfully!');
+                showSuccess('Department added successfully!');
                 location.reload();
             } else {
-                alert('Error: ' + data.error);
+                showError('Error: ' + data.error);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error adding department');
+            showError('Error adding department');
         });
     });
 
@@ -246,25 +246,25 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Designation added successfully!');
+                showSuccess('Designation added successfully!');
                 location.reload();
             } else {
-                alert('Error: ' + data.error);
+                showError('Error: ' + data.error);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error adding designation');
+            showError('Error adding designation');
         });
     });
 });
 
 function editDepartment(deptId) {
-    alert('Edit functionality coming soon! Department ID: ' + deptId);
+    showInfo('Edit functionality coming soon! Department ID: ' + deptId, 'Feature Coming Soon');
 }
 
 function editDesignation(desigId) {
-    alert('Edit functionality coming soon! Designation ID: ' + desigId);
+    showInfo('Edit functionality coming soon! Designation ID: ' + desigId, 'Feature Coming Soon');
 }
 </script>
 {% endblock %}

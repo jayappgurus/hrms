@@ -19,10 +19,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include
+from django.conf.urls.i18n import i18n_patterns
 from employees.views_auth import CustomLoginView, custom_logout
 
 urlpatterns = [
+    path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
+    # path('admin/delete/', delete_confirmation_view, name='delete_confirmation'),
     path('accounts/login/', CustomLoginView.as_view(), name='login'),
     path('accounts/logout/', custom_logout, name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),

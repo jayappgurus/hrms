@@ -37,18 +37,32 @@ def admin_required(view_func):
     return role_required(['admin'])(view_func)
 
 
+def director_required(view_func):
+    """
+    Decorator to restrict access to Director users
+    """
+    return role_required(['admin', 'director'])(view_func)
+
+
 def hr_required(view_func):
     """
     Decorator to restrict access to HR users only
     """
-    return role_required(['admin', 'hr'])(view_func)
+    return role_required(['admin', 'director', 'hr'])(view_func)
+
+
+def accountant_required(view_func):
+    """
+    Decorator to restrict access to Accountant users
+    """
+    return role_required(['admin', 'director', 'accountant'])(view_func)
 
 
 def manager_required(view_func):
     """
     Decorator to restrict access to managers and above
     """
-    return role_required(['admin', 'hr', 'manager'])(view_func)
+    return role_required(['admin', 'director', 'hr', 'manager'])(view_func)
 
 
 def it_admin_required(view_func):

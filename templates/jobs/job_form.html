@@ -380,14 +380,14 @@
 
                 if (!title || !title.value.trim()) {
                     e.preventDefault();
-                    alert('Please enter a job title');
+                    showWarning('Please enter a job title', 'Validation Error');
                     title.focus();
                     return false;
                 }
 
                 if (!jobDescription || !jobDescription.value.trim()) {
                     e.preventDefault();
-                    alert('Please enter a job description');
+                    showWarning('Please enter a job description', 'Validation Error');
                     jobDescription.focus();
                     return false;
                 }

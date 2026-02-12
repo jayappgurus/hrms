@@ -13,7 +13,7 @@
     --primary-dark: #332666;
     --primary-light: #5a4299;
     --primary-gradient: linear-gradient(180deg, #433185 0%, #332666 100%);
-
+    --primary-rgb: 67, 49, 133;
     /* Accent Colors */
     --accent: #e50880;
     /* Pink accent for modern feel */
@@ -91,7 +91,9 @@ a {
 ul {
     list-style: none;
 }
-
+#rules-editor ul{
+    list-style: disc;
+}
 /* ========================================
    PRELOADER
    ======================================== */
@@ -202,7 +204,7 @@ ul {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #002855;
+    color: #332666;
     font-size: 20px;
     box-shadow: 0 0 15px rgba(229, 8, 128, 0.4);
     padding: 7px 6px;
@@ -369,7 +371,7 @@ ul {
     box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: end;
     padding: 0 40px;
     position: sticky;
     top: 0;
@@ -584,6 +586,7 @@ ul {
     display: flex;
     align-items: center;
     gap: 10px;
+    color: inherit;
 }
 
 .card-body {
@@ -764,6 +767,12 @@ ul {
     justify-content: center;
     width: 40px;
     height: 40px;
+    overflow: hidden;
+    img{
+        width:100%;
+        height: 100%;
+        object-fit: cover;
+    }
 }
 
 /* Laptop (1200px - 1399px) */
@@ -908,4 +917,31 @@ ul {
 /* Utilities */
 .border-dashed {
     border-style: dashed !important;
+}
+.leave-type-list .description-content ul{
+    list-style-type: disc;
+}
+.leave-type-list .description-content ul li:nth-child(n+3) {
+    display: none;
+}
+.leave-type-list .description-content ul li:nth-child(2)::after {
+    content: "...";
+    color: #6c757d;
+    font-style: italic;
+}
+.leave-type-list .modern-card-body{
+    padding: 70px 16px 16px;
+}
+.leave-type-list .leave-action-buttons{
+    top: 16px;
+    right: 16px;
+}
+.has-submenu .sub-submenu{
+    display: none;
+}
+.has-submenu .sub-submenu.show{
+    display: block;
+}
+.has-submenu.expanded .nav-arrow{
+    transform: rotate(180deg);
 }

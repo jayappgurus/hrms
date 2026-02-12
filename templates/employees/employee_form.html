@@ -78,7 +78,7 @@
     </a>
 </div>
 
-<form method="post" id="employeeForm" novalidate data-designations="{{ all_designations|safe }}">
+<form method="post" enctype="multipart/form-data" id="employeeForm" novalidate data-designations="{{ all_designations|safe }}">
     {% csrf_token %}
 
     <!-- Core Employee Details -->
@@ -91,6 +91,29 @@
         </div>
 
         <div class="row g-3">
+            <div class="col-md-12">
+                <div class="modern-form-group">
+                    <label class="modern-form-label">Profile Picture</label>
+                    <div class="d-flex align-items-start gap-3 align-items-center">
+                        <div class="profile-picture-preview">
+                            {% if form.instance.profile_picture %}
+                            <img src="{{ form.instance.profile_picture.url }}" alt="Profile Picture" id="profilePreview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0;">
+                            {% else %}
+                            <div id="profilePreview" style="width: 120px; height: 120px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid #e2e8f0;">
+                                <i class="bi bi-person" style="font-size: 48px; color: #94a3b8;"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            {{ form.profile_picture }}
+                            {% if form.profile_picture.errors %}
+                            <div class="text-danger small mt-1">{{ form.profile_picture.errors.0 }}</div>
+                            {% endif %}
+                            <small class="form-help-text d-block mt-2">Upload a profile picture (JPG, PNG, max 5MB)</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-4">
                 <div class="modern-form-group">
                     <label class="modern-form-label">{{ form.employee_code.label }}</label>
@@ -366,6 +389,16 @@
                     {% endif %}
                 </div>
             </div>
+
+            <div class="col-md-3">
+                <div class="modern-form-group">
+                    <label class="modern-form-label">{{ form.period_type.label }}</label>
+                    {{ form.period_type }}
+                    {% if form.period_type.errors %}
+                    <div class="text-danger small mt-1">{{ form.period_type.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
     </div>
@@ -497,6 +530,27 @@
 
         maritalStatusField.addEventListener('change', toggleAnniversary);
         toggleAnniversary(); // Run on load
+
+        // Profile picture preview
+        const profilePictureInput = document.getElementById('id_profile_picture');
+        const profilePreview = document.getElementById('profilePreview');
+
+        if (profilePictureInput) {
+            profilePictureInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (profilePreview.tagName === 'IMG') {
+                            profilePreview.src = e.target.result;
+                        } else {
+                            profilePreview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px;">`;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
     });
 </script>
 {% endblock %}

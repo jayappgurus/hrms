@@ -81,16 +81,28 @@
                         <ul
                             class="sub-menu {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name %}show{% endif %}">
                             {% if not user.profile.role == 'employee' %}
-                            <li><a href="{% url 'employees:leave_types' %}"
+                            <li class="mt-2"><a href="{% url 'employees:leave_types' %}"
                                     class="{% if request.resolver_match.url_name == 'leave_types' %}active{% endif %}">Leave
                                     Types</a></li>
                             {% endif %}
-                            <li><a href="{% url 'employees:leave_application_list' %}"
+                            <li class="mt-2"><a href="{% url 'employees:leave_application_list' %}"
                                     class="{% if request.resolver_match.url_name == 'leave_application_list' %}active{% endif %}">Leave
                                     Applications</a></li>
-                            <li><a href="{% url 'employees:public_holidays' %}"
-                                    class="{% if request.resolver_match.url_name == 'public_holidays' %}active{% endif %}">Public
-                                    Holidays</a></li>
+                            <li class="has-submenu mt-2">
+                                <a href="{% url 'employees:public_holidays' %}"
+                                    class="d-flex justify-content-between align-items-center {% if request.resolver_match.url_name == 'public_holidays' or request.resolver_match.url_name == 'public_holidays_by_country' %}active{% endif %}">
+                                    Public Holidays
+                                    <i class="bi bi-chevron-down nav-arrow"></i>
+                                </a>
+                                <ul class="sub-submenu mt-2">
+                                    <li><a href="{% url 'employees:public_holidays_by_country' 'indian' %}"
+                                            class="{% if request.resolver_match.kwargs.country == 'indian' %}active{% endif %}">Indian
+                                            Holidays</a></li>
+                                    <li class="mt-2"><a href="{% url 'employees:public_holidays_by_country' 'australian' %}"
+                                            class="{% if request.resolver_match.kwargs.country == 'australian' %}active{% endif %}">Australian
+                                            Holidays</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
 
@@ -124,7 +136,7 @@
 
             <!-- Top Header -->
             <header class="top-header">
-                <div class="header-left">
+                <!-- <div class="header-left">
                     <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
                         <i class="bi bi-list"></i>
                     </button>
@@ -132,7 +144,7 @@
                         <input type="text" class="form-control" placeholder="Search...">
                         <i class="bi bi-search"></i>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="header-right">
                     <!-- Notifications -->
@@ -196,9 +208,13 @@
                     <div class="dropdown">
                         <button class="user-profile-btn" type="button" data-bs-toggle="dropdown">
                             <div class="user-avatar">
-                                <div class="avatar-placeholder">
-                                    <i class="bi bi-person"></i>
-                                </div>
+                                {% if user.profile.employee.profile_picture %}
+                                    <img src="{{ user.profile.employee.profile_picture.url }}" alt="{{ user.get_full_name }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%;">
+                                {% else %}
+                                    <div class="avatar-placeholder">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="user-info">
                                 <span class="user-name">{{ user.get_full_name|default:user.username|title }}</span>
@@ -250,7 +266,7 @@
                 {% endif %}
 
                 <!-- Messages -->
-                {% if messages %}
+                <!-- {% if messages %}
                 <div class="messages-container">
                     {% for message in messages %}
                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -261,11 +277,33 @@
                     </div>
                     {% endfor %}
                 </div>
-                {% endif %}
+                {% endif %} -->
 
                 <!-- Content Block -->
                 {% block content %}{% endblock %}
             </main>
+        </div>
+    </div>
+
+    <!-- Modern Alert/Confirm Modal -->
+    <div class="modern-modal" id="modernAlertModal">
+        <div class="modern-modal-backdrop"></div>
+        <div class="modern-modal-dialog">
+            <div class="modern-modal-content">
+                <div class="modern-modal-header">
+                    <div class="modern-modal-icon" id="modalIcon">
+                        <i class="bi bi-info-circle"></i>
+                    </div>
+                    <h5 class="modern-modal-title" id="modalTitle">Confirm Action</h5>
+                </div>
+                <div class="modern-modal-body">
+                    <p id="modalMessage">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modern-modal-footer">
+                    <button type="button" class="btn btn-secondary modern-btn-secondary" id="modalCancel">Cancel</button>
+                    <button type="button" class="btn btn-primary modern-btn-primary" id="modalConfirm">Confirm</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -279,6 +317,148 @@
         window.addEventListener('load', function () {
             document.getElementById('preloader').style.display = 'none';
         });
+
+        // Modern Alert/Confirm System
+        class ModernAlert {
+            constructor() {
+                this.modal = document.getElementById('modernAlertModal');
+                this.title = document.getElementById('modalTitle');
+                this.message = document.getElementById('modalMessage');
+                this.icon = document.getElementById('modalIcon');
+                this.confirmBtn = document.getElementById('modalConfirm');
+                this.cancelBtn = document.getElementById('modalCancel');
+                this.currentResolve = null;
+                
+                this.initEventListeners();
+            }
+
+            initEventListeners() {
+                this.confirmBtn.addEventListener('click', () => this.handleConfirm());
+                this.cancelBtn.addEventListener('click', () => this.handleCancel());
+                
+                // Close on backdrop click
+                this.modal.querySelector('.modern-modal-backdrop').addEventListener('click', () => {
+                    this.handleCancel();
+                });
+                
+                // Close on Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.modal.classList.contains('show')) {
+                        this.handleCancel();
+                    }
+                });
+            }
+
+            show(options = {}) {
+                const {
+                    type = 'info',
+                    title = 'Confirm Action',
+                    message = 'Are you sure you want to proceed?',
+                    confirmText = 'Confirm',
+                    cancelText = 'Cancel',
+                    showCancel = true
+                } = options;
+
+                // Set content
+                this.title.textContent = title;
+                this.message.textContent = message;
+                this.confirmBtn.textContent = confirmText;
+                this.cancelBtn.textContent = cancelText;
+
+                // Set icon and colors based on type
+                this.setIcon(type);
+
+                // Show/hide cancel button
+                this.cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
+
+                // Show modal
+                this.modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+
+                // Return promise
+                return new Promise((resolve) => {
+                    this.currentResolve = resolve;
+                });
+            }
+
+            setIcon(type) {
+                const iconClasses = {
+                    info: 'bi-info-circle text-info',
+                    success: 'bi-check-circle text-success',
+                    warning: 'bi-exclamation-triangle text-warning',
+                    danger: 'bi-x-circle text-danger',
+                    question: 'bi-question-circle text-primary'
+                };
+
+                this.icon.className = 'modern-modal-icon';
+                this.icon.innerHTML = `<i class="bi ${iconClasses[type] || iconClasses.info}"></i>`;
+
+                // Update button colors
+                this.confirmBtn.className = `btn modern-btn-primary ${type === 'danger' ? 'btn-danger' : type === 'success' ? 'btn-success' : 'btn-primary'}`;
+            }
+
+            handleConfirm() {
+                this.hide();
+                if (this.currentResolve) {
+                    this.currentResolve(true);
+                }
+            }
+
+            handleCancel() {
+                this.hide();
+                if (this.currentResolve) {
+                    this.currentResolve(false);
+                }
+            }
+
+            hide() {
+                this.modal.classList.remove('show');
+                document.body.style.overflow = '';
+                this.currentResolve = null;
+            }
+        }
+
+        // Global alert functions
+        window.modernAlert = new ModernAlert();
+
+        // Replace native confirm
+        window.confirm = function(message, title = 'Confirm Action') {
+            return window.modernAlert.show({
+                type: 'question',
+                title: title,
+                message: message,
+                confirmText: 'Yes',
+                cancelText: 'No'
+            });
+        };
+
+        // Replace native alert
+        window.alert = function(message, title = 'Information', type = 'info') {
+            return window.modernAlert.show({
+                type: type,
+                title: title,
+                message: message,
+                confirmText: 'OK',
+                showCancel: false
+            });
+        };
+
+        // Convenience methods
+        window.showSuccess = function(message, title = 'Success') {
+            return window.alert(message, title, 'success');
+        };
+
+        window.showError = function(message, title = 'Error') {
+            return window.alert(message, title, 'danger');
+        };
+
+        window.showWarning = function(message, title = 'Warning') {
+            return window.alert(message, title, 'warning');
+        };
+
+        window.showInfo = function(message, title = 'Information') {
+            return window.alert(message, title, 'info');
+        };
 
         // Sidebar toggle functionality
         document.getElementById('sidebarToggle')?.addEventListener('click', function () {
@@ -310,6 +490,26 @@
             });
         });
 
+        // Sub-submenu toggle
+        document.querySelectorAll('.sub-menu .has-submenu > a').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const subSubmenu = this.nextElementSibling;
+                if (subSubmenu && subSubmenu.classList.contains('sub-submenu')) {
+                    // Toggle sub-submenu
+                    subSubmenu.classList.toggle('show');
+                    
+                    // Toggle expanded class on parent li
+                    const parentLi = this.closest('.has-submenu');
+                    if (parentLi) {
+                        parentLi.classList.toggle('expanded', subSubmenu.classList.contains('show'));
+                    }
+                }
+            });
+        });
+
         // Set initial active states based on current URL
         const currentPath = window.location.pathname;
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -321,6 +521,16 @@
                 links.forEach(subLink => {
                     if (subLink.getAttribute('href') === currentPath) {
                         hasActiveChild = true;
+                        
+                        // Check if it's in a sub-submenu
+                        const subSubmenu = subLink.closest('.sub-submenu');
+                        if (subSubmenu) {
+                            subSubmenu.classList.add('show');
+                            const parentLi = subSubmenu.closest('.has-submenu');
+                            if (parentLi) {
+                                parentLi.classList.add('expanded');
+                            }
+                        }
                     }
                 });
 

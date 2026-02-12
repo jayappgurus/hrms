@@ -142,6 +142,57 @@ class CalendarEventsView(LoginRequiredMixin, View):
                 }
             })
             
+        # 2. Anniversaries (Work Anniversaries)
+        employees = Employee.objects.filter(employment_status='active').exclude(joining_date__isnull=True)
+        for emp in employees:
+            # Create anniversary date for current year
+            current_year = start_date.year
+            try:
+                # Calculate years of service for current year
+                years = current_year - emp.anniversary_date.year
+                
+                # Only show anniversary if it's a meaningful anniversary (at least 1 year)
+                if years >= 1:
+                    anniversary = emp.anniversary_date.replace(year=current_year)
+                    
+                    if start_date <= anniversary <= end_date:
+                        events.append({
+                            'id': f'anniversary-{emp.id}',
+                            'title': f'🎉 {emp.full_name} ({years} years)',
+                            'start': anniversary.isoformat(),
+                            'allDay': True,
+                            'className': 'bg-info-subtle text-info border-info',
+                            'extendedProps': {
+                                'type': 'anniversary',
+                                'employee_id': emp.id,
+                                'years': years
+                            }
+                        })
+                    
+                    # Also check next year if range spans across years
+                    if end_date.year > start_date.year:
+                        next_year = end_date.year
+                        years_next = next_year - emp.anniversary_date.year
+                        
+                        if years_next >= 1:
+                            anniversary_next = emp.anniversary_date.replace(year=next_year)
+                            
+                            if start_date <= anniversary_next <= end_date:
+                                events.append({
+                                    'id': f'anniversary-next-{emp.id}',
+                                    'title': f'🎉 {emp.full_name} ({years_next} years)',
+                                    'start': anniversary_next.isoformat(),
+                                    'allDay': True,
+                                    'className': 'bg-info-subtle text-info border-info',
+                                    'extendedProps': {
+                                        'type': 'anniversary',
+                                        'employee_id': emp.id,
+                                        'years': years_next
+                                    }
+                                })
+            except Exception:
+                continue
+
         # 3. Leave Applications
         leaves = LeaveApplication.objects.filter(
             start_date__lte=end_date,
@@ -181,6 +232,8 @@ class CalendarEventsView(LoginRequiredMixin, View):
                 }
             })
             
+        print(f"Generated {len(events)} events")
+        print("Anniversary events:", [e for e in events if 'anniversary' in e.get('id', '')])
         return JsonResponse(events, safe=False)
 
 
@@ -719,13 +772,31 @@ class PublicHolidayListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = PublicHoliday.objects.filter(is_active=True)
         # Show holidays for previous, current and next years
-        return queryset.filter(year__in=[2024, 2025, 2026]).order_by('date')
+        queryset = queryset.filter(year__in=[2024, 2025, 2026]).order_by('date')
+        
+        # Filter by country if provided in URL
+        country = self.kwargs.get('country')
+        if country:
+            country_code = 'IN' if country.lower() == 'indian' else 'AU' if country.lower() == 'australian' else None
+            if country_code:
+                queryset = queryset.filter(country=country_code)
+        
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Get all unique years from the queryset for filtering
         context['available_years'] = PublicHoliday.objects.filter(is_active=True).values_list('year', flat=True).distinct().order_by('year')
         context['current_year'] = timezone.now().year
+        
+        # Get country filter from URL
+        country = self.kwargs.get('country')
+        context['selected_country'] = country
+        
+        # Separate holidays by country
+        context['indian_holidays'] = PublicHoliday.objects.filter(is_active=True, country='IN', year__in=[2024, 2025, 2026]).order_by('date')
+        context['australian_holidays'] = PublicHoliday.objects.filter(is_active=True, country='AU', year__in=[2024, 2025, 2026]).order_by('date')
+        
         return context
 
 
@@ -767,6 +838,7 @@ class PublicHolidayUpdateView(LoginRequiredMixin, UpdateView):
 
 class PublicHolidayDeleteView(LoginRequiredMixin, DeleteView):
     model = PublicHoliday
+    template_name = 'leave/public_holiday_confirm_delete.html'
     success_url = reverse_lazy('employees:public_holidays')
     
     def dispatch(self, request, *args, **kwargs):
@@ -779,6 +851,71 @@ class PublicHolidayDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, 'Holiday deleted successfully!')
         return super().delete(request, *args, **kwargs)
+
+
+@require_POST
+@login_required
+def bulk_delete_public_holidays(request):
+    """
+    Bulk delete public holidays
+    """
+    # Only allow superusers and staff to delete holidays
+    if not request.user.is_superuser and not request.user.is_staff:
+        return JsonResponse({
+            'success': False,
+            'error': 'You do not have permission to delete holidays.'
+        }, status=403)
+    
+    try:
+        # Parse JSON data
+        data = json.loads(request.body)
+        holiday_ids = data.get('holiday_ids', [])
+        
+        if not holiday_ids:
+            return JsonResponse({
+                'success': False,
+                'error': 'No holidays selected for deletion.'
+            }, status=400)
+        
+        # Convert to integers and validate
+        try:
+            holiday_ids = [int(id) for id in holiday_ids]
+        except (ValueError, TypeError):
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid holiday IDs provided.'
+            }, status=400)
+        
+        if not holiday_ids:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid holiday IDs provided.'
+            }, status=400)
+        
+        # Perform bulk delete
+        deleted_count, _ = PublicHoliday.objects.filter(id__in=holiday_ids).delete()
+        
+        if deleted_count > 0:
+            return JsonResponse({
+                'success': True,
+                'message': f'Successfully deleted {deleted_count} holiday(s).'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'No holidays were deleted. They may have already been deleted.'
+            }, status=404)
+            
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid request format.'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }, status=500)
 
 
 class LeaveTypeListView(LoginRequiredMixin, ListView):

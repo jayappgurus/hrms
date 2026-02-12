@@ -136,19 +136,43 @@
         color: white !important;
     }
 
-    .fc-day-today {
-        background-color: rgba(79, 70, 229, 0.03) !important;
-    }
-
     .calendar-card {
         border: none;
         border-radius: 16px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+    }
+
+    /* Highlight today's date */
+    .fc-day-today {
+        background-color: #433185 !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+    }
+
+    .fc-day-today .fc-daygrid-day-number {
+        color: white !important;
+        font-weight: 700 !important;
+    }
+
+    .fc-day-today.fc-day-other-month {
+        background-color: rgba(0, 55, 110, 0.3) !important;
+        color: #433185 !important;
     }
 
     .fc .fc-list-event:hover td {
         background-color: inherit !important;
         opacity: 0.3;
+    }
+    .bg-info-subtle {
+        background-color: #17a2b8 !important;
+        color: white !important;
+    }
+
+    .bg-success-subtle {
+        background-color: #059669 !important;
+        color: white !important;
     }
     .bg-danger-subtle{
         background-color: #dc3545 !important;
@@ -213,7 +237,7 @@
 
 <!-- Quick Actions -->
 <div class="row mb-4">
-    <div class="col-12">
+    <!-- <div class="col-12">
         <div class="card">
             <div class="card-header bg-transparent border-0 pb-0 pt-4 px-4">
                 <h5 class="fw-bold mb-0">Quick Actions</h5>
@@ -267,6 +291,57 @@
                                 </div>
                             </div>
                         </div>
+ 
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="quick-action-card">
+                            <div class="quick-action-header">
+                                <i class="bi bi-briefcase-fill text-warning"></i>
+                                <h6 class="mb-0">Job Management</h6>
+                            </div>
+                            <div class="quick-action-buttons">
+                                <div class="row">
+                                    <div class="col-12 col-md-6">
+                                        <a href="{% url 'employees:job_create' %}"
+                                            class="btn btn-warning w-100 mb-2">
+                                            <i class="bi bi-plus-circle me-2"></i>Job
+                                        </a>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <a href="{% url 'employees:job_list' %}"
+                                            class="btn btn-outline-warning w-100">
+                                            <i class="bi bi-list-ul me-2"></i>Jobs
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="quick-action-card">
+                            <div class="quick-action-header">
+                                <i class="bi bi-person-badge-fill text-success"></i>
+                                <h6 class="mb-0">Candidate Management</h6>
+                            </div>
+                            <div class="quick-action-buttons">
+                                <div class="row">
+                                    <div class="col-12 col-md-6">
+                                        <a href="{% url 'employees:add_job_application' %}"
+                                            class="btn btn-success w-100 mb-2">
+                                            <i class="bi bi-plus-circle me-2"></i>Candidate
+                                        </a>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <a href="{% url 'employees:candidate_list' %}"
+                                            class="btn btn-outline-success w-100">
+                                            <i class="bi bi-list-ul me-2"></i>Candidates
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+=======
                     </div>
                     <div class="col-md-3 col-sm-6">
                         <div class="quick-action-card">
@@ -319,7 +394,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Calendar Section -->
     <div class="row mb-4">
@@ -328,19 +403,20 @@
                 <div
                     class="card-header bg-transparent border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 class="fw-bold mb-0">Event Calendar</h5>
-                        <p class="text-muted small mb-0">Birthdays, Interviews,
-                            and Leaves</p>
+                        <h5 class="fw-bold mb-0">Your Calendar</h5>
                     </div>
                     <div class="d-flex gap-2">
                         <span
                             class="badge bg-primary-subtle text-primary border border-primary-subtle">🎂
                             Birthday</span>
                         <span
-                            class="badge bg-info-subtle text-info border border-info-subtle">🤝
+                            class="badge bg-info-subtle text-info border border-info-subtle">🎉
+                            Anniversary</span>
+                        <span
+                            class="badge bg-warning-subtle text-warning border border-warning-subtle">🤝
                             Interview</span>
                         <span
-                            class="badge bg-warning-subtle text-warning border border-warning-subtle">🌴
+                            class="badge bg-success-subtle text-success border border-success-subtle">🌴
                             Leave</span>
                         <span
                             class="badge bg-danger-subtle text-danger border border-danger-subtle">🚩
@@ -348,13 +424,11 @@
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <div id="calendar"></div>
-                </div>
+                    <div id="calendar"></div>  </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Joiners and Upcoming Holidays -->
     <div class="row">
         <!-- Recent Employees -->
         <div class="col-xl-8 mb-4">
@@ -389,9 +463,16 @@
                                     <td data-label="Employee">
                                         <div class="d-flex align-items-center">
                                             <div class="employee-avatar me-3">
-                                                {{
-                                                employee.full_name|slice:":2"|upper
-                                                }}
+                                                {% if employee.profile_picture %}
+                                                    <img src="{{ employee.profile_picture.url }}" 
+                                                         alt="{{ employee.full_name }}" 
+                                                         class="rounded-circle employee-profile-img" 
+                                                         onerror="this.style.display='none'; this.parentElement.querySelector('.avatar-fallback').style.display='flex';">
+                                                {% else %}
+                                                    <div class="avatar-fallback">
+                                                        {{ employee.full_name|slice:":2"|upper }}
+                                                    </div>
+                                                {% endif %}                              
                                             </div>
                                             <div>
                                                 <div class="fw-semibold">
@@ -462,18 +543,22 @@
                             <div
                                 class="holiday-date text-center me-3 px-2 border-end border-secondary border-opacity-25"
                                 style="min-width: 60px;">
-                                <div class="fw-bold text-danger">{{
-                                    holiday.date|date:"d" }}</div>
+ 
+                                <div class="fw-bold text-danger">
+                                    {{ holiday.date|date:"d" }}
+                                </div>
                                 <div class="text-muted small uppercase"
                                     style="font-size: 0.7rem;">
-                                    {{ holiday.date|date:"M" }}</div>
+                                    {{ holiday.date|date:"M" }}
+                                </div>
                             </div>
                             <div class="holiday-info">
-                                <div class="fw-semibold"
-                                    style="font-size: 0.9rem;">{{ holiday.name
-                                    }}</div>
-                                <div class="text-muted small">{{
-                                    holiday.date|date:"l" }}</div>
+                                <div class="fw-semibold" style="font-size: 0.9rem;">
+                                    {{ holiday.name }}
+                                </div>
+                                <div class="text-muted small">
+                                    {{ holiday.date|date:"l" }}
+                                </div>              
                             </div>
                         </div>
                         {% empty %}
@@ -498,9 +583,12 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 headerToolbar: {
-                    left: 'prev,next today',
+                    left: 'prev,next,today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,listMonth'
+                    right: ''
+                },
+                buttonText: {
+                    today: 'Today'
                 },
                 events: '{% url "employees:calendar_events" %}',
                 eventClick: function (info) {
