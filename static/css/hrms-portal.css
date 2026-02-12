@@ -149,7 +149,6 @@ ul {
     z-index: 1000;
     transition: var(--transition);
     box-shadow: 10px 0 40px rgba(67, 49, 133, 0.15);
-    position: relative;
     overflow: hidden;
 }
 
@@ -353,6 +352,7 @@ ul {
     transition: var(--transition);
     display: flex;
     flex-direction: column;
+    margin-left: auto;
 }
 
 .top-header {

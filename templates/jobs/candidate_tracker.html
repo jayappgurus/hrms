@@ -24,6 +24,7 @@
         text-decoration: none;
         color: inherit;
         display: block;
+        position: relative;
     }
 
     .designation-card:hover {
@@ -312,7 +313,7 @@
         <div class="designation-grid">
             {% for designation in designations %}
             <a href="?designation={{ designation.id }}" class="designation-card">
-                <div style="position: relative;">
+                <div>
                     <div class="designation-icon">
                         <i class="bi bi-person-badge"></i>
                     </div>
