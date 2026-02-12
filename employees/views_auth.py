@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
+from django import forms
 from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect
@@ -14,6 +15,31 @@ from django.utils import timezone
 from .models import Employee, UserProfile
 from .forms import EmployeeRegistrationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    """Custom authentication form that accepts both username and email"""
+    
+    username = forms.CharField(
+        label="Username or Email",
+        widget=forms.TextInput(attrs={
+            'autofocus': True,
+            'class': 'form-control',
+            'placeholder': 'Enter username or email'
+        })
+    )
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        # Check if the input is an email address
+        if '@' in username:
+            try:
+                user = User.objects.get(email=username)
+                return user.username
+            except User.DoesNotExist:
+                raise ValidationError("No user found with this email address.")
+        return username
 
 
 @method_decorator(csrf_protect, name='dispatch')
@@ -22,11 +48,11 @@ class CustomLoginView(View):
         if request.user.is_authenticated:
             return self.redirect_based_on_role(request.user)
         
-        form = AuthenticationForm()
+        form = CustomAuthenticationForm()
         return render(request, 'registration/login.html', {'form': form})
     
     def post(self, request):
-        form = AuthenticationForm(request, data=request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)
         
         if form.is_valid():
             username = form.cleaned_data.get('username')
@@ -36,10 +62,10 @@ class CustomLoginView(View):
             
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
+                messages.success(request, f'Trilokn Infotech Pvt. Ltd., {user.get_full_name() or user.username}!')
                 return self.redirect_based_on_role(user)
             else:
-                messages.error(request, 'Invalid username or password.')
+                messages.error(request, 'Invalid username/email or password.')
         else:
             messages.error(request, 'Please correct the errors below.')
         
@@ -51,21 +77,21 @@ class CustomLoginView(View):
             profile = user.profile
             role = profile.role
             
-            # Role-based redirects
+            # Role-based redirects - all users go to dashboard
             if role == 'admin':
-                return HttpResponseRedirect('/admin/')
+                return HttpResponseRedirect(reverse('employees:dashboard'))
             elif role == 'hr':
-                return HttpResponseRedirect(reverse('employees:user_list'))
+                return HttpResponseRedirect(reverse('employees:dashboard'))
             elif role == 'manager':
-                return HttpResponseRedirect(reverse('employees:employee_list'))
+                return HttpResponseRedirect(reverse('employees:dashboard'))
             elif role == 'it_admin':
-                return HttpResponseRedirect('/admin/')
+                return HttpResponseRedirect(reverse('employees:dashboard'))
             else:  # employee
-                return HttpResponseRedirect(reverse('employees:employee_list'))
+                return HttpResponseRedirect(reverse('employees:dashboard'))
                 
         except AttributeError:
-            # If user has no profile, redirect to employee list
-            return HttpResponseRedirect(reverse('employees:employee_list'))
+            # If user has no profile, redirect to dashboard
+            return HttpResponseRedirect(reverse('employees:dashboard'))
 
 
 def custom_logout(request):

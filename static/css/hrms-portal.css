@@ -380,7 +380,6 @@ ul {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 24px;
 }
 
 .header-btn {
@@ -805,10 +804,6 @@ ul {
 @media (max-width: 767px) {
     .main-content {
         padding: 20px;
-    }
-
-    .header-right {
-        gap: 16px;
     }
 
     .user-name,
