@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block title %}Leave Application Details - HRMS Portal{% endblock %}
+
+{% block page_title %}Leave Application Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-calendar-check text-primary"></i>
+                Leave Application Details
+            </h1>
+            <p class="text-muted mb-0">View complete leave application information</p>
+        </div>
+        <a href="{% url 'employees:leave_application_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Main Details Card -->
+        <div class="col-lg-8">
+            <div class="card" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 55, 110, 0.1);">
+                <div class="card-header" style="background: #332666; color: white; border-radius: 20px 20px 0 0;">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Leave Information
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Status Badge -->
+                    <div class="mb-4">
+                        {% if leave.status == 'pending' %}
+                        <span class="badge bg-warning text-dark px-3 py-2" style="font-size: 1rem;">
+                            <i class="bi bi-clock me-1"></i> Pending Approval
+                        </span>
+                        {% elif leave.status == 'approved' %}
+                        <span class="badge bg-success px-3 py-2" style="font-size: 1rem;">
+                            <i class="bi bi-check-circle me-1"></i> Approved
+                        </span>
+                        {% elif leave.status == 'rejected' %}
+                        <span class="badge bg-danger px-3 py-2" style="font-size: 1rem;">
+                            <i class="bi bi-x-circle me-1"></i> Rejected
+                        </span>
+                        {% else %}
+                        <span class="badge bg-secondary px-3 py-2" style="font-size: 1rem;">
+                            <i class="bi bi-dash-circle me-1"></i> Cancelled
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Leave Details -->
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small mb-1">Leave Type</label>
+                                <div class="fw-semibold">{{ leave.leave_type.name }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small mb-1">Total Days</label>
+                                <div class="fw-semibold text-primary" style="font-size: 1.2rem;">
+                                    {{ leave.total_days }} day{{ leave.total_days|pluralize }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small mb-1">Start Date</label>
+                                <div class="fw-semibold">
+                                    <i class="bi bi-calendar-event text-primary me-1"></i>
+                                    {{ leave.start_date|date:"l, F d, Y" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small mb-1">End Date</label>
+                                <div class="fw-semibold">
+                                    <i class="bi bi-calendar-event text-primary me-1"></i>
+                                    {{ leave.end_date|date:"l, F d, Y" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if leave.actual_working_days %}
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small mb-1">Actual Working Days</label>
+                                <div class="fw-semibold">{{ leave.actual_working_days }} day{{ leave.actual_working_days|pluralize }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if leave.is_sandwich_leave %}
+                        <div class="col-md-6">
+                            <div class="detail-item">
+                                <label class="text-muted small mb-1">Sandwich Leave</label>
+                                <div>
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Includes non-working days
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if leave.is_half_day %}
+                        <div class="col-md-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-clock me-2"></i>
+                                <strong>Half-Day Leave</strong>
+                                {% if leave.scheduled_hours %}
+                                - Scheduled Hours: {{ leave.scheduled_hours }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="col-md-12">
+                            <div class="detail-item">
+                                <label class="text-muted small mb-1">Reason</label>
+                                <div class="p-3 bg-light rounded">
+                                    {{ leave.reason }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if leave.rejection_reason %}
+                        <div class="col-md-12">
+                            <div class="alert alert-danger mb-0">
+                                <strong><i class="bi bi-exclamation-triangle me-2"></i>Rejection Reason:</strong>
+                                <div class="mt-2">{{ leave.rejection_reason }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee & Timeline Card -->
+        <div class="col-lg-4">
+            <!-- Employee Info -->
+            <div class="card mb-3" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 55, 110, 0.1);">
+                <div class="card-header" style="background: #332666; color: white; border-radius: 20px 20px 0 0;">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person me-2"></i>
+                        Employee Details
+                    </h5>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <div class="mb-3">
+                        {% if leave.employee.profile_picture %}
+                        <img src="{{ leave.employee.profile_picture.url }}" alt="{{ leave.employee.full_name }}"
+                            class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                        {% else %}
+                        <div class="employee-avatar mx-auto" style="width: 80px; height: 80px; font-size: 2rem;">
+                            {{ leave.employee.full_name|slice:":2"|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <h5 class="mb-1">{{ leave.employee.full_name }}</h5>
+                    <p class="text-muted mb-2">{{ leave.employee.employee_code }}</p>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-building me-1"></i>{{ leave.employee.department.name }}
+                    </p>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-briefcase me-1"></i>{{ leave.employee.designation.title }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 55, 110, 0.1);">
+                <div class="card-header" style="background: #332666; color: white; border-radius: 20px 20px 0 0;">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Timeline
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">Applied on</small>
+                                <div class="fw-semibold">{{ leave.created_at|date:"M d, Y" }}</div>
+                                <small class="text-muted">{{ leave.created_at|time:"h:i A" }}</small>
+                            </div>
+                        </div>
+                        {% if leave.status == 'approved' or leave.status == 'rejected' %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker {% if leave.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}"></div>
+                            <div class="timeline-content">
+                                <small class="text-muted">{{ leave.status|title }} on</small>
+                                <div class="fw-semibold">{{ leave.updated_at|date:"M d, Y" }}</div>
+                                <small class="text-muted">{{ leave.updated_at|time:"h:i A" }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions (for superuser) -->
+            {% if leave.status == 'pending' and request.user.is_superuser %}
+            <div class="card mt-3" style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 55, 110, 0.1);">
+                <div class="card-body p-4">
+                    <h6 class="mb-3">Actions</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'employees:approve_leave' leave.pk %}" class="btn btn-success">
+                            <i class="bi bi-check-circle me-2"></i>Approve Leave
+                        </a>
+                        <a href="{% url 'employees:reject_leave' leave.pk %}" class="btn btn-danger">
+                            <i class="bi bi-x-circle me-2"></i>Reject Leave
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.detail-item {
+    padding: 10px 0;
+}
+
+.employee-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border-radius: 50%;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -26px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeline-content {
+    padding-left: 10px;
+}
+</style>
+{% endblock %}

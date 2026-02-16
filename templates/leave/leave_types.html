@@ -14,51 +14,87 @@
         </h1>
         <p class="page-subtitle">Manage different types of leaves available for employees</p>
     </div>
+    {% if not user.profile.role == 'employee' %}
     <a href="{% url 'employees:leave_type_add' %}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-2"></i>Add Leave Type
     </a>
+    {% endif %}
 </div>
 
-<!-- Leave Types Grid -->
+<!-- Leave Types List -->
 {% if leave_types %}
-<div class="row leave-type-list">
-    {% for leave_type in leave_types %}
-    <div class="col-lg-4 col-md-6 mb-4">
-        <div class="modern-card h-100">
-            <div class="modern-card-body position-relative">
-                <div class="d-flex align-items-start justify-content-between mb-3">
-                    <div class="info-text">
-                        <h5 class="fw-bold mb-2">{{ leave_type.name }}</h5>
-                        <p class="text-muted small mb-3">{{ leave_type.get_leave_type_display }}</p>
-                    </div>
-                    <div class="d-flex gap-1 flex-wrap justify-content-end">
-                        <span class="status-badge {% if leave_type.is_active %}success{% else %}danger{% endif %}">
+<div class="modern-card">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr style="border-bottom: 2px solid #e9ecef;">
+                    <th class="text-uppercase text-muted fw-normal" style="font-size: 11px; letter-spacing: 0.5px; padding: 16px 20px;">Leave Type</th>
+                    <th class="text-uppercase text-muted fw-normal" style="font-size: 11px; letter-spacing: 0.5px; padding: 16px 20px;">Category</th>
+                    <th class="text-uppercase text-muted fw-normal" style="font-size: 11px; letter-spacing: 0.5px; padding: 16px 20px;">Allocation</th>
+                    <th class="text-uppercase text-muted fw-normal" style="font-size: 11px; letter-spacing: 0.5px; padding: 16px 20px;">Status</th>
+                    <th class="text-uppercase text-muted fw-normal" style="font-size: 11px; letter-spacing: 0.5px; padding: 16px 20px;">Rules</th>
+                    <th class="text-uppercase text-muted fw-normal text-end" style="font-size: 11px; letter-spacing: 0.5px; padding: 16px 20px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for leave_type in leave_types %}
+                <tr style="{% cycle 'background-color: #ffffff;' 'background-color: #f8f9fa;' %}">
+                    <td style="padding: 20px;">
+                        <div class="fw-semibold text-dark">{{ leave_type.name }}</div>
+                    </td>
+                    <td style="padding: 20px;">
+                        <span class="text-muted">{{ leave_type.get_leave_type_display }}</span>
+                    </td>
+                    <td style="padding: 20px;">
+                        <span class="badge rounded-pill" style="background-color: #e3f2fd; color: #1976d2; padding: 6px 14px; font-weight: 500;">
+                            {{ leave_type.max_days_per_year }} {{ leave_type.duration_type }}/year
+                        </span>
+                    </td>
+                    <td style="padding: 20px;">
+                        <span class="badge rounded-pill" style="{% if leave_type.is_active %}background-color: #e8f5e9; color: #2e7d32;{% else %}background-color: #ffebee; color: #c62828;{% endif %} padding: 6px 14px; font-weight: 500;">
                             {% if leave_type.is_active %}Active{% else %}Inactive{% endif %}
                         </span>
-                        <div class="detail-label mb-0 w-100 text-end">{{ leave_type.max_days_per_year }} {{ leave_type.duration_type }}/year</div>
-                    </div>
-                </div>
-
-                {% if leave_type.description %}
-                <div class="description-content mb-3">
-                    {{ leave_type.description|safe }}
-                </div>
-                {% endif %}
-
-                <div class="leave-action-buttons d-flex gap-2 position-absolute">
-                    <a href="{% url 'employees:leave_type_edit' leave_type.pk %}"
-                        class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-pencil"></i> Edit
-                    </a>
-                    <a href="{% url 'employees:leave_type_delete' leave_type.pk %}"
-                        class="btn btn-sm btn-outline-danger">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
+                    </td>
+                    <td style="padding: 20px;">
+                        {% if leave_type.description %}
+                        <div class="text-muted" style="max-width: 350px; font-size: 14px; line-height: 1.5;">
+                            {{ leave_type.description|truncatewords:12|striptags }}
+                        </div>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end" style="padding: 20px;">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'employees:leave_type_detail' leave_type.pk %}"
+                               class="btn btn-sm" 
+                               style="border: 1px solid #d1e7dd; background: white; color: #198754; padding: 6px 12px;"
+                               title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if not user.profile.role == 'employee' %}
+                            <a href="{% url 'employees:leave_type_edit' leave_type.pk %}"
+                               class="btn btn-sm" 
+                               style="border: 1px solid #dee2e6; background: white; color: #6c757d; padding: 6px 12px;"
+                               title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% endif %}
+                            {% if not user.profile.role == 'employee' %}
+                            <a href="{% url 'employees:leave_type_delete' leave_type.pk %}"
+                               class="btn btn-sm" 
+                               style="border: 1px solid #f8d7da; background: white; color: #dc3545; padding: 6px 12px;"
+                               title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-    {% endfor %}
 </div>
 
 <!-- Pagination -->

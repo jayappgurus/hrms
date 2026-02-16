@@ -6,6 +6,7 @@ from . import views
 from . import views_auth
 from . import views_job_application as views_job_app
 from . import views_csv
+from . import views_notifications
 
 app_name = 'employees'
 
@@ -32,7 +33,7 @@ urlpatterns = [
     path('employee/<int:pk>/toggle-status/', views.toggle_employee_status, name='toggle_employee_status'),
     path('employee/<int:employee_pk>/document/<str:document_type>/update/', 
          views.update_document_status, name='update_document_status'),
-    path('update-document-status/<int:document_id>', 
+    path('update-document-status/<int:document_id>/', 
          views.update_document_status_by_id, name='update_document_status_by_id'),
     
     # Employee CSV Import/Export
@@ -64,10 +65,12 @@ urlpatterns = [
     
     path('leave-types/', views.LeaveTypeListView.as_view(), name='leave_types'),
     path('leave-types/add/', views.LeaveTypeCreateView.as_view(), name='leave_type_add'),
+    path('leave-types/<int:pk>/', views.LeaveTypeDetailView.as_view(), name='leave_type_detail'),
     path('leave-types/<int:pk>/edit/', views.LeaveTypeUpdateView.as_view(), name='leave_type_edit'),
     path('leave-types/<int:pk>/delete/', views.LeaveTypeDeleteView.as_view(), name='leave_type_delete'),
     path('leave-applications/', views.LeaveApplicationListView.as_view(), name='leave_application_list'),
     path('leave-application/add/', views.LeaveApplicationCreateView.as_view(), name='leave_application_add'),
+    path('leave-application/<int:pk>/', views.LeaveApplicationDetailView.as_view(), name='leave_application_detail'),
     path('leave-application/<int:pk>/approve/', views.approve_leave, name='approve_leave'),
     path('leave-application/<int:pk>/reject/', views.reject_leave, name='reject_leave'),
     
@@ -107,4 +110,8 @@ urlpatterns = [
     
     path('candidates/interview/', views_job.InterviewScheduleView.as_view(), name='interview_schedule'),
     path('openings/', views_job.CurrentOpeningsView.as_view(), name='current_openings'),
+    
+    # Notifications & Messages
+    path('notifications/create/', views_notifications.create_notification, name='create_notification'),
+    path('messages/create/', views_notifications.create_message, name='create_message'),
 ]

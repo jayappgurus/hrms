@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 from django.utils.html import format_html
-from .models import Department, Designation, EmergencyContact, Employee, EmployeeDocument, UserProfile, PublicHoliday
+from .models import Department, Designation, EmergencyContact, Employee, EmployeeDocument, UserProfile, PublicHoliday, Notification, Message
 from .decorators import role_required
 
 
@@ -795,12 +795,12 @@ class EmployeeDocumentInline(admin.TabularInline):
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = ['employee_code', 'full_name', 'department', 'designation', 
-                   'employment_status_badge', 'probation_status_badge', 'period_type_badge', 'joining_date', 'mobile_number']
-    list_filter = ['department', 'designation', 'employment_status', 'probation_status', 'period_type', 'joining_date']
+                   'employment_status_badge', 'period_type_badge', 'joining_date', 'mobile_number']
+    list_filter = ['department', 'designation', 'employment_status', 'period_type', 'joining_date']
     search_fields = ['employee_code', 'full_name', 'mobile_number', 'official_email']
     ordering = ['-created_at']
     inlines = [EmployeeDocumentInline]
-    readonly_fields = ['probation_status', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at']
     
     fieldsets = (
         ('Core Employee Details', {
@@ -819,7 +819,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         }),
         ('Professional Information', {
             'fields': ('highest_qualification', 'total_experience_years', 
-                      'total_experience_months', 'probation_status', 'period_type')
+                      'total_experience_months', 'period_type')
         }),
         ('Identity & Compliance', {
             'fields': ('aadhar_card_number', 'pan_card_number')
@@ -839,16 +839,6 @@ class EmployeeAdmin(admin.ModelAdmin):
         )
     employment_status_badge.short_description = 'Status'
     employment_status_badge.admin_order_field = 'employment_status'
-    
-    def probation_status_badge(self, obj):
-        color = 'orange' if 'Probation' in obj.probation_status else 'blue'
-        return format_html(
-            '<span style="color: {}; font-weight: bold;">{}</span>',
-            color,
-            obj.probation_status
-        )
-    probation_status_badge.short_description = 'Probation'
-    probation_status_badge.admin_order_field = 'probation_status'
     
     def period_type_badge(self, obj):
         color_map = {
@@ -957,3 +947,21 @@ class PublicHolidayAdmin(admin.ModelAdmin):
             'fields': ('is_active',)
         }),
     )
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('title', 'notification_type', 'created_by', 'created_at', 'is_active', 'target_all')
+    list_filter = ('notification_type', 'is_active', 'target_all', 'created_at')
+    search_fields = ('title', 'message')
+    filter_horizontal = ('target_users',)
+    readonly_fields = ('created_at',)
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'sender', 'created_at', 'target_all')
+    list_filter = ('target_all', 'created_at')
+    search_fields = ('subject', 'body')
+    filter_horizontal = ('target_users',)
+    readonly_fields = ('created_at',)

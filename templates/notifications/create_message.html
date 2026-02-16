@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Send Message - HRMS Portal{% endblock %}
+
+{% block page_title %}Send Message{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'employees:dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Send Message</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-envelope me-2"></i>New Message</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.subject.id_for_label }}" class="form-label">{{ form.subject.label }}</label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                            <div class="text-danger">{{ form.subject.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.body.id_for_label }}" class="form-label">{{ form.body.label }}</label>
+                        {{ form.body }}
+                        {% if form.body.errors %}
+                            <div class="text-danger">{{ form.body.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.target_all }}
+                            <label class="form-check-label" for="{{ form.target_all.id_for_label }}">
+                                {{ form.target_all.label }}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="targetUsersDiv">
+                        <label for="{{ form.target_users.id_for_label }}" class="form-label">{{ form.target_users.label }}</label>
+                        {{ form.target_users }}
+                        <small class="text-muted">Hold Ctrl/Cmd to select multiple users</small>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-2"></i>Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Recent Messages</h6>
+            </div>
+            <div class="card-body">
+                {% if recent_messages %}
+                    <div class="list-group list-group-flush">
+                        {% for message in recent_messages %}
+                        <div class="list-group-item px-0">
+                            <h6 class="mb-1">{{ message.subject }}</h6>
+                            <p class="mb-1 small text-muted">{{ message.body|truncatewords:10 }}</p>
+                            <small class="text-muted">{{ message.created_at|timesince }} ago</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No messages yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const targetAllCheckbox = document.getElementById('{{ form.target_all.id_for_label }}');
+    const targetUsersDiv = document.getElementById('targetUsersDiv');
+    
+    function toggleTargetUsers() {
+        if (targetAllCheckbox.checked) {
+            targetUsersDiv.style.display = 'none';
+        } else {
+            targetUsersDiv.style.display = 'block';
+        }
+    }
+    
+    targetAllCheckbox.addEventListener('change', toggleTargetUsers);
+    toggleTargetUsers(); // Initial state
+});
+</script>
+{% endblock %}

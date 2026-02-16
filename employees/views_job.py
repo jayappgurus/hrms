@@ -18,7 +18,7 @@ class JobDescriptionListView(LoginRequiredMixin, ListView):
     model = JobDescription
     template_name = 'jobs/job_list.html'
     context_object_name = 'jobs'
-    paginate_by = 12
+    paginate_by = 9
 
     def get_queryset(self):
         queryset = JobDescription.objects.select_related('designation', 'department', 'posted_by').all()
@@ -28,9 +28,8 @@ class JobDescriptionListView(LoginRequiredMixin, ListView):
         if search:
             queryset = queryset.filter(
                 Q(title__icontains=search) |
-                Q(job_description__icontains=search) |
-                Q(requirements__icontains=search) |
-                Q(responsibilities__icontains=search)
+                Q(required_qualifications__icontains=search) |
+                Q(skills_requirements__icontains=search)
             )
         
         # Filter by department
@@ -338,7 +337,7 @@ class CurrentOpeningsView(LoginRequiredMixin, ListView):
     model = JobDescription
     template_name = 'jobs/current_openings.html'
     context_object_name = 'jobs'
-    paginate_by = 10
+    paginate_by = 9
 
     def get_queryset(self):
         return JobDescription.objects.filter(
@@ -348,13 +347,11 @@ class CurrentOpeningsView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_openings'] = self.get_queryset().count()
-        context['urgent_openings'] = self.get_queryset().filter(is_urgent=True).count()
-        context['featured_openings'] = self.get_queryset().filter(is_featured=True).count()
         return context
 
 
 
-# ==================== INTERVIEW MANAGEMENT VIEWS ====================
+#     ====== INTERVIEW MANAGEMENT VIEWS     ======
 
 @login_required
 def add_interview(request, application_id):

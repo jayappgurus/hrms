@@ -55,10 +55,8 @@ class JobDescription(models.Model):
     experience_level = models.CharField(max_length=20, choices=EXPERIENCE_LEVEL_CHOICES, default='fresher')
     
     # Job Details
-    job_description = models.TextField(help_text="Detailed job description")
-    responsibilities = models.TextField(help_text="Key responsibilities and duties")
-    requirements = models.TextField(help_text="Required skills and qualifications")
-    experience_criteria = models.TextField(help_text="Specific experience requirements")
+    required_qualifications = models.TextField(default='', blank=True, help_text="Required qualifications for the role")
+    skills_requirements = models.TextField(default='', blank=True, help_text="Required skills and competencies")
     
     # Compensation and Benefits
     min_salary = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Minimum salary")
@@ -68,23 +66,13 @@ class JobDescription(models.Model):
     # Location and Work Details
     location = models.CharField(max_length=200, help_text="Job location")
     work_mode = models.CharField(max_length=50, help_text="Work mode (Remote, Hybrid, Office)")
-    travel_required = models.BooleanField(default=False, help_text="Travel required for this role")
     
     # Application Details
     number_of_vacancies = models.PositiveIntegerField(default=1, help_text="Number of positions available")
     application_deadline = models.DateField(null=True, blank=True, help_text="Last date to apply")
     
-    # Company and Process Details
-    company_description = models.TextField(blank=True, null=True, help_text="Company description for this role")
-    interview_process = models.TextField(blank=True, null=True, help_text="Interview process details")
-    
     # Status and Metadata
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
-    is_featured = models.BooleanField(default=False, help_text="Feature this job on homepage")
-    is_urgent = models.BooleanField(default=False, help_text="Mark as urgent opening")
-    
-    # JD Document
-    jd_document = models.FileField(upload_to='job_descriptions/%Y/%m/', null=True, blank=True, help_text="Job description document")
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

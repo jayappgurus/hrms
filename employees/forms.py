@@ -49,7 +49,7 @@ class EmployeeForm(forms.ModelForm):
             'employment_status', 'mobile_number', 'official_email', 'personal_email', 'local_address',
             'permanent_address', 'date_of_birth', 'marital_status', 'anniversary_date',
             'highest_qualification', 'total_experience_years', 'total_experience_months',
-            'probation_status', 'period_type', 'aadhar_card_number', 'pan_card_number', 'graduates_marksheet_count',
+            'period_type', 'aadhar_card_number', 'pan_card_number', 'graduates_marksheet_count',
             'emergency_contact_name', 'emergency_contact_mobile', 'emergency_contact_email', 'emergency_contact_address', 'emergency_contact_relationship'
         ]
         widgets = {
@@ -132,7 +132,6 @@ class EmployeeForm(forms.ModelForm):
                 'placeholder': 'PAN number (e.g., ABCDE1234F)',
                 'style': 'text-transform: uppercase'
             }),
-            'probation_status': forms.Select(choices=[('On Probation', 'On Probation'), ('Confirmed', 'Confirmed')], attrs={'class': 'form-select'}),
             'period_type': forms.Select(attrs={'class': 'form-select'}),
             'graduates_marksheet_count': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -145,7 +144,6 @@ class EmployeeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['department'].queryset = Department.objects.all()
         self.fields['employee_code'].required = False
-        self.fields['probation_status'].required = False
         self.fields['graduates_marksheet_count'].required = False
 
         if self.instance and self.instance.pk and self.instance.emergency_contact:
@@ -394,38 +392,97 @@ class LeaveTypeForm(forms.ModelForm):
 class LeaveApplicationForm(forms.ModelForm):
     class Meta:
         model = LeaveApplication
-        fields = ['leave_type', 'start_date', 'end_date', 'total_days', 'reason']
+        fields = [
+            'leave_type', 'start_date', 'end_date', 'reason',
+            'is_half_day', 'scheduled_hours', 'is_wfh', 'is_office',
+            'is_first_child'
+        ]
         widgets = {
             'leave_type': forms.Select(attrs={
                 'class': 'form-control',
+                'id': 'id_leave_type'
             }),
             'start_date': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
+                'type': 'date',
+                'id': 'id_start_date'
             }),
             'end_date': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
-            }),
-            'total_days': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '1',
-                'readonly': True
+                'type': 'date',
+                'id': 'id_end_date'
             }),
             'reason': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Enter reason for leave application'
+                'placeholder': 'Enter reason for leave application',
+                'id': 'id_reason'
+            }),
+            'is_half_day': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_is_half_day'
+            }),
+            'scheduled_hours': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'max': '24',
+                'step': '0.5',
+                'placeholder': 'e.g., 8.0',
+                'id': 'id_scheduled_hours'
+            }),
+            'is_wfh': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_is_wfh'
+            }),
+            'is_office': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_is_office'
+            }),
+            'is_first_child': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'id': 'id_is_first_child'
             }),
         }
     
     def __init__(self, *args, **kwargs):
+        self.employee = kwargs.pop('employee', None)
         super().__init__(*args, **kwargs)
         self.fields['leave_type'].label = 'Leave Type'
         self.fields['start_date'].label = 'Start Date'
         self.fields['end_date'].label = 'End Date'
-        self.fields['total_days'].label = 'Total Days'
         self.fields['reason'].label = 'Reason'
+        self.fields['is_half_day'].label = 'Half Day Leave'
+        self.fields['scheduled_hours'].label = 'Scheduled Working Hours'
+        self.fields['is_wfh'].label = 'Work From Home'
+        self.fields['is_office'].label = 'Work From Office'
+        self.fields['is_first_child'].label = 'Is this for your first child?'
+        
+        # Make fields optional initially
+        self.fields['scheduled_hours'].required = False
+        self.fields['is_first_child'].required = False
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        is_half_day = cleaned_data.get('is_half_day')
+        scheduled_hours = cleaned_data.get('scheduled_hours')
+        leave_type = cleaned_data.get('leave_type')
+        
+        # Validate dates
+        if start_date and end_date and start_date > end_date:
+            raise forms.ValidationError("End date must be after or equal to start date")
+        
+        # Validate half-day requirements
+        if is_half_day and not scheduled_hours:
+            raise forms.ValidationError("Scheduled hours are required for half-day leave")
+        
+        # Validate first child requirement for paternity/maternity
+        if leave_type and leave_type.leave_type in ['paternity', 'maternity']:
+            if 'is_first_child' not in cleaned_data or cleaned_data.get('is_first_child') is None:
+                self.fields['is_first_child'].required = True
+        
+        return cleaned_data
 
 
 class PublicHolidayForm(forms.ModelForm):

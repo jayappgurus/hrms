@@ -1,363 +1,523 @@
 {% extends 'base.html' %}
 
 {% block extra_css %}
-<!-- Flatpickr CSS for modern date picker -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 <style>
-    /* Custom calendar styling */
-    .flatpickr-calendar {
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e2e8f0;
-        font-family: 'Inter', sans-serif;
-    }
     
-    .flatpickr-day {
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-    
-    .flatpickr-day:hover {
-        background: #f8fafc;
-        transform: scale(1.05);
-    }
-    
-    .flatpickr-day.selected {
-        background: linear-gradient(135deg, #433185 0%, #332666 100%);
-        border-color: #433185;
+    .leave-balance-card {
+        background: linear-gradient(174deg, var(--primary) 0%, var(--primary-light) 100%);
+        border-radius: 15px;
+        padding: 25px;
         color: white;
-        font-weight: 600;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
     }
     
-    .flatpickr-day.today {
-        border-color: #433185;
-        background: #f0f7ff;
-        color: #433185;
-        font-weight: 600;
+    .balance-item {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
     }
     
-    .flatpickr-months {
-        border-bottom: 2px solid #f1f5f9;
-        padding-bottom: 10px;
+    .balance-item:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-5px);
     }
     
-    .flatpickr-current-month {
-        font-weight: 600;
-        color: #433185;
+    .balance-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
     }
     
-    .flatpickr-weekday {
-        color: #64748b;
-        font-weight: 600;
-        font-size: 12px;
-        text-transform: uppercase;
+    .balance-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
     }
     
-    /* Input field styling */
-    input[type="date"].flatpickr-input {
+    .form-section {
         background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
         border: 2px solid #e2e8f0;
         border-radius: 10px;
         padding: 12px 16px;
-        font-size: 15px;
         transition: all 0.3s ease;
-        cursor: pointer;
     }
     
-    input[type="date"].flatpickr-input:focus {
-        border-color: #433185;
- 
-        box-shadow: 0 0 0 3px rgba(67, 49, 133, 0.1);
-=======
-        box-shadow: 0 0 0 3px rgba(0, 55, 110, 0.1);
->>>>>>> 3db47c9 (all my code push in github)
-        outline: none;
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
     
-    input[type="date"].flatpickr-input:hover {
-        border-color: #cbd5e1;
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #cbd5e1;
+        border-radius: 5px;
     }
     
-    /* Calendar icon */
-    .date-input-wrapper {
-        position: relative;
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
     }
     
-    .date-input-wrapper::after {
-        content: '\f1d5';
-        font-family: 'bootstrap-icons';
-        position: absolute;
-        right: 16px;
-        top: 50%;
-        transform: translateY(-50%);
+    .form-check-label {
+        margin-left: 10px;
+        font-weight: 500;
+        color: #4a5568;
+    }
+    
+    .half-day-section, .paid-absence-section {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 15px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .info-badge {
+        display: inline-block;
+        background: #e0e7ff;
+        color: #5145cd;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .warning-badge {
+        display: inline-block;
+        background: #fef3c7;
+        color: #d97706;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 12px 40px;
+        border-radius: 10px;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .employee-type-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .employee-type-regular {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .employee-type-restricted {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .help-text {
+        font-size: 0.85rem;
         color: #64748b;
-        pointer-events: none;
-        font-size: 18px;
+        margin-top: 5px;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #ef4444;
     }
 </style>
 {% endblock %}
 
-{% block title %}{% if form.instance.pk %}Edit Leave Application{% else %}Apply for Leave{% endif %} - HRMS Portal{% endblock %}
-
-{% block page_title %}{% if form.instance.pk %}Edit Leave Application{% else %}Apply for Leave{% endif %}{% endblock %}
+{% block title %}Apply for Leave - HRMS Portal{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<div class="page-header">
-    <div>
-        <h1 class="page-title">
-            <i class="bi bi-calendar-plus text-primary"></i>
-            {% if form.instance.pk %}Edit Leave Application{% else %}Apply for Leave{% endif %}
-        </h1>
-        <p class="page-subtitle">Submit your leave request for approval</p>
+<div class="leave-form-container">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-calendar-plus text-primary"></i>
+                Apply for Leave
+            </h1>
+            <p class="text-muted mb-0">Submit your leave request for approval</p>
+        </div>
+        <a href="{% url 'employees:leave_application_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back
+        </a>
     </div>
-    <a href="{% url 'employees:leave_application_list' %}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-2"></i>Back to Applications
-    </a>
-</div>
 
-<!-- Leave Balance Info -->
-{% if leave_balance %}
-<div class="row mb-4">
-    <div class="col-md-4 mb-3">
-        <div class="stats-card">
-            <div class="stats-icon text-success" style="background: rgba(16, 185, 129, 0.1);">
-                <i class="bi bi-cup"></i>
-            </div>
-            <div class="stats-content ms-3">
-                <h3 class="mb-0">{{ leave_balance.casual_leave|default:"0" }}</h3>
-                <p class="text-muted text-sm mb-0">Casual Leave Balance</p>
-            </div>
-        </div>
+    <!-- Employee Type Badge -->
+    {% if employee_type %}
+    <div class="mb-3">
+        <span class="employee-type-badge {% if employee_type == 'regular' %}employee-type-regular{% else %}employee-type-restricted{% endif %}">
+            {% if employee_type == 'regular' %}
+                <i class="bi bi-check-circle me-1"></i>Regular Employee
+            {% else %}
+                <i class="bi bi-info-circle me-1"></i>Trainee/Intern/Probation/Notice Period
+            {% endif %}
+        </span>
     </div>
-    <div class="col-md-4 mb-3">
-        <div class="stats-card">
-            <div class="stats-icon text-info" style="background: rgba(6, 182, 212, 0.1);">
-                <i class="bi bi-heart-pulse"></i>
-            </div>
-            <div class="stats-content ms-3">
-                <h3 class="mb-0">{{ leave_balance.sick_leave|default:"0" }}</h3>
-                <p class="text-muted text-sm mb-0">Sick Leave Balance</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-3">
-        <div class="stats-card">
-            <div class="stats-icon text-warning" style="background: rgba(245, 158, 11, 0.1);">
-                <i class="bi bi-star"></i>
-            </div>
-            <div class="stats-content ms-3">
-                <h3 class="mb-0">{{ leave_balance.earned_leave|default:"0" }}</h3>
-                <p class="text-muted text-sm mb-0">Earned Leave Balance</p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
+    {% endif %}
 
-<!-- Leave Application Form -->
-<div class="modern-card">
-    <div class="modern-card-body">
-        <form method="post" id="leaveForm">
-            {% csrf_token %}
+    <!-- Leave Balance Card -->
+    {% if leave_balances %}
+    <div class="leave-balance-card">
+        <h5 class="mb-3 text-white"><i class="bi bi-wallet2 me-2"></i>Your Leave Balance</h5>
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="balance-item">
+                    <div class="balance-number">{{ leave_balances.casual|default:"0" }}</div>
+                    <div class="balance-label">Casual Leave</div>
+                    {% if casual_leave_info %}
+                    <small class="text-white-50" style="font-size: 0.75rem;">
+                        Accrued: {{ casual_leave_info.accrued }} | Used: {{ casual_leave_info.used }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="balance-item">
+                    <div class="balance-number">{{ leave_balances.emergency|default:"0" }}</div>
+                    <div class="balance-label">Emergency Leave</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="balance-item">
+                    <div class="balance-number">{{ leave_balances.birthday|default:"0" }}</div>
+                    <div class="balance-label">Birthday Leave</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="balance-item">
+                    <div class="balance-number">{{ leave_balances.marriage_anniversary|default:"0" }}</div>
+                    <div class="balance-label">Anniversary Leave</div>
+                </div>
+            </div>
+        </div>
+        {% if casual_leave_info %}
+        <div class="mt-3 p-3" style="background: rgba(255, 255, 255, 0.1); border-radius: 10px;">
+            <small class="text-white">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Casual Leave Accrual:</strong> You earn 1 casual leave per month. 
+                You have worked {{ casual_leave_info.months_worked }} month{{ casual_leave_info.months_worked|pluralize }} this year 
+                and accrued {{ casual_leave_info.accrued }} casual leave{{ casual_leave_info.accrued|pluralize }}.
+            </small>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Note:</strong> Leave balance information is not available. Please ensure your employee profile is properly set up.
+    </div>
+    {% endif %}
+
+    <!-- Leave Application Form -->
+    <form method="post" id="leaveApplicationForm">
+        {% csrf_token %}
+
+        <!-- Basic Information Section -->
+        <div class="form-section">
+            <h5 class="section-title">
+                <i class="bi bi-info-circle me-2"></i>Leave Details
+            </h5>
 
             <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.leave_type.label }}</label>
-                        {{ form.leave_type }}
-                        {% if form.leave_type.errors %}
-                        <div class="text-danger small mt-1">{{ form.leave_type.errors.0 }}</div>
-                        {% endif %}
-                    </div>
+                <div class="col-md-12">
+                    <label class="form-label required-field">{{ form.leave_type.label }}</label>
+                    {{ form.leave_type }}
+                    {% if form.leave_type.errors %}
+                    <div class="text-danger small mt-1">{{ form.leave_type.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">Select the type of leave you want to apply for</div>
                 </div>
 
                 <div class="col-md-6">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.start_date.label }}</label>
-                        <div class="date-input-wrapper">
-                            {{ form.start_date }}
+                    <label class="form-label required-field">{{ form.start_date.label }}</label>
+                    {{ form.start_date }}
+                    {% if form.start_date.errors %}
+                    <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label required-field">{{ form.end_date.label }}</label>
+                    {{ form.end_date }}
+                    {% if form.end_date.errors %}
+                    <div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-12">
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Important:</strong> Leave can only be applied for working days (Monday to Friday). Weekends (Saturday & Sunday) and public holidays are non-working days and cannot be included in leave applications.
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label required-field">{{ form.reason.label }}</label>
+                    {{ form.reason }}
+                    {% if form.reason.errors %}
+                    <div class="text-danger small mt-1">{{ form.reason.errors.0 }}</div>
+                    {% endif %}
+                    <div class="help-text">Provide a detailed reason for your leave request</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Half-Day Leave Section -->
+        <div class="form-section">
+            <h5 class="section-title">
+                <i class="bi bi-clock me-2"></i>Half-Day Leave Options
+                <span class="info-badge">Optional</span>
+            </h5>
+
+            <div class="form-check mb-3">
+                {{ form.is_half_day }}
+                <label class="form-check-label" for="{{ form.is_half_day.id_for_label }}">
+                    {{ form.is_half_day.label }}
+                </label>
+            </div>
+
+            <div class="half-day-section" id="halfDaySection" style="display: none;">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">{{ form.scheduled_hours.label }}</label>
+                        {{ form.scheduled_hours }}
+                        {% if form.scheduled_hours.errors %}
+                        <div class="text-danger small mt-1">{{ form.scheduled_hours.errors.0 }}</div>
+                        {% endif %}
+                        <div class="help-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            If scheduled hours ≥ 5: Deduct 0.5 day | If < 5 hours: Deduct 1 full day
                         </div>
-                        {% if form.start_date.errors %}
-                        <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
-                        {% endif %}
                     </div>
-                </div>
 
-                <div class="col-md-6">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.end_date.label }}</label>
-                        <div class="date-input-wrapper">
-                            {{ form.end_date }}
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            {{ form.is_wfh }}
+                            <label class="form-check-label" for="{{ form.is_wfh.id_for_label }}">
+                                {{ form.is_wfh.label }}
+                            </label>
                         </div>
-                        {% if form.end_date.errors %}
-                        <div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>
-                        {% endif %}
                     </div>
-                </div>
 
-                <div class="col-md-6">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label">Total Days</label>
-                        <input type="text" id="totalDays" class="modern-form-control" readonly value="0">
-                        <small class="form-help-text">Calculated automatically</small>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            {{ form.is_office }}
+                            <label class="form-check-label" for="{{ form.is_office.id_for_label }}">
+                                {{ form.is_office.label }}
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Hidden field for form submission -->
-                <input type="hidden" name="total_days" id="totalDaysHidden" value="0">
-
-                <div class="col-12">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.reason.label }}</label>
-                        {{ form.reason }}
-                        {% if form.reason.errors %}
-                        <div class="text-danger small mt-1">{{ form.reason.errors.0 }}</div>
-                        {% endif %}
-                        <small class="form-help-text">Provide a detailed reason for your leave request</small>
+                    <div class="col-md-12">
+                        <div class="alert alert-warning mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Note:</strong> You cannot combine half-day WFH and half-day office on the same day
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <a href="{% url 'employees:leave_application_list' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-circle me-2"></i>Cancel
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle me-2"></i>
-                    {% if form.instance.pk %}Update Application{% else %}Submit Application{% endif %}
-                </button>
+        <!-- Paid Absence Section (for Paternity/Maternity) -->
+        <div class="form-section" id="paidAbsenceSection" style="display: none;">
+            <h5 class="section-title">
+                <i class="bi bi-heart me-2"></i>Paid Absence Information
+                <span class="warning-badge">Required for Paternity/Maternity</span>
+            </h5>
+
+            <div class="paid-absence-section">
+                <div class="form-check">
+                    {{ form.is_first_child }}
+                    <label class="form-check-label" for="{{ form.is_first_child.id_for_label }}">
+                        {{ form.is_first_child.label }}
+                    </label>
+                </div>
+                {% if form.is_first_child.errors %}
+                <div class="text-danger small mt-2">{{ form.is_first_child.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text mt-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Paternity and Maternity leaves are only available for the first child
+                </div>
             </div>
-        </form>
-    </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'employees:leave_application_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-submit">
+                <i class="bi bi-check-circle me-2"></i>Submit Application
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Flatpickr JS for modern date picker -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const formInputs = document.querySelectorAll('#leaveForm input, #leaveForm select, #leaveForm textarea');
-        formInputs.forEach(input => {
-            input.classList.add('modern-form-control');
-            if (input.tagName === 'SELECT') {
-                input.classList.add('modern-form-select');
+document.addEventListener('DOMContentLoaded', function() {
+    const leaveTypeSelect = document.getElementById('{{ form.leave_type.id_for_label }}');
+    const isHalfDayCheckbox = document.getElementById('{{ form.is_half_day.id_for_label }}');
+    const halfDaySection = document.getElementById('halfDaySection');
+    const paidAbsenceSection = document.getElementById('paidAbsenceSection');
+    const isWfhCheckbox = document.getElementById('{{ form.is_wfh.id_for_label }}');
+    const isOfficeCheckbox = document.getElementById('{{ form.is_office.id_for_label }}');
+    const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+
+    // Show/hide half-day section
+    isHalfDayCheckbox.addEventListener('change', function() {
+        halfDaySection.style.display = this.checked ? 'block' : 'none';
+        
+        // If half-day is unchecked, clear the values
+        if (!this.checked) {
+            document.getElementById('{{ form.scheduled_hours.id_for_label }}').value = '';
+            isWfhCheckbox.checked = false;
+            isOfficeCheckbox.checked = false;
+        }
+    });
+
+    // Show/hide paid absence section based on leave type
+    leaveTypeSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const leaveTypeValue = selectedOption.value;
+        
+        // Get the leave type text to check if it's paternity or maternity
+        const leaveTypeText = selectedOption.text.toLowerCase();
+        
+        if (leaveTypeText.includes('paternity') || leaveTypeText.includes('maternity')) {
+            paidAbsenceSection.style.display = 'block';
+        } else {
+            paidAbsenceSection.style.display = 'none';
+            document.getElementById('{{ form.is_first_child.id_for_label }}').checked = false;
+        }
+    });
+
+    // Prevent selecting both WFH and Office for same day
+    isWfhCheckbox.addEventListener('change', function() {
+        if (this.checked && isOfficeCheckbox.checked) {
+            const isSameDay = startDateInput.value === endDateInput.value;
+            if (isSameDay) {
+                alert('Cannot combine half-day WFH and half-day office on the same day');
+                this.checked = false;
             }
-            if (input.tagName === 'TEXTAREA') {
-                input.classList.add('modern-form-textarea');
+        }
+    });
+
+    isOfficeCheckbox.addEventListener('change', function() {
+        if (this.checked && isWfhCheckbox.checked) {
+            const isSameDay = startDateInput.value === endDateInput.value;
+            if (isSameDay) {
+                alert('Cannot combine half-day WFH and half-day office on the same day');
+                this.checked = false;
             }
-        });
+        }
+    });
 
-        // Initialize Flatpickr for all date inputs
-        const dateInputs = document.querySelectorAll('input[type="date"]');
-        dateInputs.forEach(input => {
-            flatpickr(input, {
-                dateFormat: "Y-m-d",
-                minDate: "today",
-                maxDate: new Date().fp_incr(365), // 1 year from today
-                disable: [
-                    function(date) {
-                        // Disable weekends (Saturday = 6, Sunday = 0)
-                        return date.getDay() === 0 || date.getDay() === 6;
-                    }
-                ],
-                locale: {
-                    firstDayOfWeek: 1, // Monday
-                    weekdays: {
-                        shorthand: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                        longhand: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                    },
-                    months: {
-                        shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        longhand: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                    },
-                },
-                animate: true,
-                position: 'auto center',
-                showMonths: 1,
-                static: true,
-                monthSelectorType: 'static',
-                yearRange: "2020:2030",
-                defaultDate: new Date(),
-                onReady: function(selectedDates, dateStr, instance) {
-                    // Add custom styling to the input
-                    instance.input.classList.add('flatpickr-input');
-                }
-            });
-        });
+    // Form validation
+    document.getElementById('leaveApplicationForm').addEventListener('submit', function(e) {
+        const leaveType = leaveTypeSelect.value;
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+        const reason = document.getElementById('{{ form.reason.id_for_label }}').value;
+        const isHalfDay = isHalfDayCheckbox.checked;
+        const scheduledHours = document.getElementById('{{ form.scheduled_hours.id_for_label }}').value;
 
-        // Calculate total days
-        const startDate = document.querySelector('[name="start_date"]');
-        const endDate = document.querySelector('[name="end_date"]');
-        const totalDays = document.getElementById('totalDays');
-        const totalDaysHidden = document.getElementById('totalDaysHidden');
+        // Basic validation
+        if (!leaveType) {
+            alert('Please select a leave type');
+            e.preventDefault();
+            return false;
+        }
 
-        function calculateDays() {
-            if (startDate.value && endDate.value) {
-                const start = new Date(startDate.value);
-                const end = new Date(endDate.value);
-                const diffTime = Math.abs(end - start);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                const days = diffDays > 0 ? diffDays : 0;
-                totalDays.value = days;
-                totalDaysHidden.value = days;
-            } else {
-                totalDays.value = 0;
-                totalDaysHidden.value = 0;
+        if (!startDate || !endDate) {
+            alert('Please select start and end dates');
+            e.preventDefault();
+            return false;
+        }
+
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('End date must be after or equal to start date');
+            e.preventDefault();
+            return false;
+        }
+
+        if (!reason || reason.trim().length < 10) {
+            alert('Please provide a detailed reason (at least 10 characters)');
+            e.preventDefault();
+            return false;
+        }
+
+        // Half-day validation
+        if (isHalfDay && !scheduledHours) {
+            alert('Please enter scheduled working hours for half-day leave');
+            e.preventDefault();
+            return false;
+        }
+
+        // Paid absence validation
+        const leaveTypeText = leaveTypeSelect.options[leaveTypeSelect.selectedIndex].text.toLowerCase();
+        if (leaveTypeText.includes('paternity') || leaveTypeText.includes('maternity')) {
+            const isFirstChild = document.getElementById('{{ form.is_first_child.id_for_label }}').checked;
+            if (!isFirstChild) {
+                alert('Please confirm this is for your first child');
+                e.preventDefault();
+                return false;
             }
         }
 
-        startDate.addEventListener('change', calculateDays);
-        endDate.addEventListener('change', calculateDays);
-        calculateDays();
-
-        // Form validation and submission
-        const form = document.getElementById('leaveForm');
-        
-        form.addEventListener('submit', function(e) {
-            // Ensure total_days is updated before submission
-            calculateDays();
-            
-            // Basic validation
-            const leaveType = document.querySelector('[name="leave_type"]');
-            const reason = document.querySelector('[name="reason"]');
-            
-            if (!leaveType.value) {
-                alert('Please select a leave type');
-                e.preventDefault();
-                return false;
-            }
-            
-            if (!startDate.value) {
-                alert('Please select a start date');
-                e.preventDefault();
-                return false;
-            }
-            
-            if (!endDate.value) {
-                alert('Please select an end date');
-                e.preventDefault();
-                return false;
-            }
-            
-            if (!reason.value || reason.value.trim().length < 5) {
-                alert('Please provide a detailed reason for your leave request');
-                e.preventDefault();
-                return false;
-            }
-            
-            if (totalDaysHidden.value === '0' || totalDaysHidden.value < 1) {
-                alert('Invalid date range. Please check your dates.');
-                e.preventDefault();
-                return false;
-            }
-            
-            // Form is valid, allow submission
-            console.log('Form submitting with total days:', totalDaysHidden.value);
-        });
+        return true;
     });
+
+    // Initialize on page load
+    if (leaveTypeSelect.value) {
+        leaveTypeSelect.dispatchEvent(new Event('change'));
+    }
+});
 </script>
 {% endblock %}

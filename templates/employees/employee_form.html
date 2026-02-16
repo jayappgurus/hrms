@@ -28,7 +28,7 @@
         width: 40px;
         height: 40px;
         border-radius: 10px;
-        background: linear-gradient(135deg, #433185 0%, #332666 100%);
+        background: linear-gradient(135deg, #332666 0%, #332666 100%);
         color: white;
         display: flex;
         align-items: center;
@@ -376,16 +376,6 @@
                     {{ form.total_experience_months }}
                     {% if form.total_experience_months.errors %}
                     <div class="text-danger small mt-1">{{ form.total_experience_months.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="modern-form-group">
-                    <label class="modern-form-label">{{ form.probation_status.label }}</label>
-                    {{ form.probation_status }}
-                    {% if form.probation_status.errors %}
-                    <div class="text-danger small mt-1">{{ form.probation_status.errors.0 }}</div>
                     {% endif %}
                 </div>
             </div>

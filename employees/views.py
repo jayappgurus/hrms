@@ -309,13 +309,17 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
         for category, docs in document_categories.items():
             for doc in docs:
                 if doc['type'] in documents_dict:
+                    existing_doc = documents_dict[doc['type']]
                     doc.update({
-                        'is_submitted': documents_dict[doc['type']].is_submitted,
-                        'submitted_date': documents_dict[doc['type']].submitted_date,
-                        'remarks': documents_dict[doc['type']].remarks,
+                        'id': existing_doc.id,
+                        'is_submitted': existing_doc.is_submitted,
+                        'submitted_date': existing_doc.submitted_date,
+                        'remarks': existing_doc.remarks,
                     })
                 else:
+                    # Document doesn't exist yet - will be created on first toggle
                     doc.update({
+                        'id': None,
                         'is_submitted': False,
                         'submitted_date': None,
                         'remarks': None,
@@ -959,13 +963,47 @@ class LeaveApplicationListView(LoginRequiredMixin, ListView):
                 return LeaveApplication.objects.none()
 
 
+class LeaveApplicationDetailView(LoginRequiredMixin, DetailView):
+    model = LeaveApplication
+    template_name = 'leave/leave_application_detail.html'
+    context_object_name = 'leave'
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return LeaveApplication.objects.all()
+        else:
+            # Check if user has an employee profile
+            try:
+                user_profile = self.request.user.profile
+                if user_profile.employee:
+                    return LeaveApplication.objects.filter(employee=user_profile.employee)
+                else:
+                    return LeaveApplication.objects.none()
+            except AttributeError:
+                return LeaveApplication.objects.none()
+
 class LeaveApplicationCreateView(LoginRequiredMixin, CreateView):
     model = LeaveApplication
+    form_class = LeaveApplicationForm
     template_name = 'leave/leave_application_form.html'
-    fields = ['leave_type', 'start_date', 'end_date', 'total_days', 'reason']
     success_url = reverse_lazy('employees:leave_application_list')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Pass employee to form
+        try:
+            user_profile = self.request.user.profile
+            if user_profile.employee:
+                kwargs['employee'] = user_profile.employee
+        except AttributeError:
+            pass
+        return kwargs
+
     def form_valid(self, form):
+        from .leave_service import LeaveManagementService, PaidAbsenceService
+        from decimal import Decimal
+        from datetime import timedelta
+        
         # Check if user has an employee profile and employee record
         try:
             user_profile = self.request.user.profile
@@ -985,13 +1023,185 @@ class LeaveApplicationCreateView(LoginRequiredMixin, CreateView):
             # User doesn't have employee profile or employee record, show error message
             messages.error(self.request, 'You need to have an employee profile to apply for leave.')
             return self.form_invalid(form)
+        
+        employee = form.instance.employee
+        leave_type = form.cleaned_data['leave_type']
+        start_date = form.cleaned_data['start_date']
+        end_date = form.cleaned_data['end_date']
+        
+        # Check if any date in the leave period falls on a weekend (Saturday or Sunday)
+        current_date = start_date
+        weekend_dates = []
+        
+        while current_date <= end_date:
+            if current_date.weekday() in [5, 6]:  # 5=Saturday, 6=Sunday
+                day_name = 'Saturday' if current_date.weekday() == 5 else 'Sunday'
+                weekend_dates.append(f"{day_name} ({current_date.strftime('%d %b %Y')})")
+            current_date += timedelta(days=1)
+        
+        if weekend_dates:
+            # Weekend dates found in the leave period
+            weekend_list = ", ".join(weekend_dates)
+            messages.error(
+                self.request,
+                f'❌ Leave request rejected: Cannot apply leave on weekend(s): {weekend_list}. Weekends are non-working days. Please select only working days (Monday to Friday).'
+            )
+            return self.form_invalid(form)
+        
+        # Check if there's already a rejected leave application for overlapping dates
+        rejected_leaves = LeaveApplication.objects.filter(
+            employee=employee,
+            status='rejected',
+            start_date__lte=end_date,
+            end_date__gte=start_date
+        )
+        
+        if rejected_leaves.exists():
+            # Found rejected leave(s) for overlapping dates
+            rejected_leave = rejected_leaves.first()
+            messages.error(
+                self.request,
+                f'❌ Cannot apply leave for these dates. You have a rejected leave application from {rejected_leave.start_date.strftime("%d %b %Y")} to {rejected_leave.end_date.strftime("%d %b %Y")}. Please contact HR or select different dates.'
+            )
+            return self.form_invalid(form)
+        
+        # Check if any date in the leave period is a public holiday
+        # Get all public holidays in the date range
+        public_holidays = PublicHoliday.objects.filter(
+            date__gte=start_date,
+            date__lte=end_date
+        )
+        
+        if public_holidays.exists():
+            # Public holidays found in the leave period
+            holiday_list = ", ".join([
+                f"{holiday.name} ({holiday.date.strftime('%d %b %Y')})" 
+                for holiday in public_holidays
+            ])
+            messages.error(
+                self.request, 
+                f'Cannot apply leave on public holiday(s): {holiday_list}. Please select different dates or exclude the holiday(s) from your leave period.'
+            )
+            return self.form_invalid(form)
+        
+        # Prepare leave request data
+        leave_request = {
+            'leave_type_code': leave_type.leave_type,
+            'start_date': start_date,
+            'end_date': end_date,
+            'is_half_day': form.cleaned_data.get('is_half_day', False),
+            'scheduled_hours': form.cleaned_data.get('scheduled_hours', Decimal('8.0')),
+            'is_wfh': form.cleaned_data.get('is_wfh', False),
+            'is_office': form.cleaned_data.get('is_office', False),
+            'reason': form.cleaned_data['reason'],
+        }
+        
+        # Check if this is a paid absence type
+        paid_absence_types = [
+            PaidAbsenceService.MARRIAGE_LEAVE,
+            PaidAbsenceService.PATERNITY_LEAVE,
+            PaidAbsenceService.MATERNITY_LEAVE
+        ]
+        
+        if leave_type.leave_type in paid_absence_types:
+            # Process as paid absence - get is_first_child from form
+            is_first_child = form.cleaned_data.get('is_first_child', True)
+            result = PaidAbsenceService.process_paid_absence_request(
+                employee, leave_type.leave_type, is_first_child
+            )
         else:
-            messages.success(self.request, 'Leave application submitted successfully!')
-            return super().form_valid(form)
+            # Process as regular leave
+            result = LeaveManagementService.process_leave_request(employee, leave_request)
+        
+        if not result.is_valid:
+            # Validation failed
+            messages.error(self.request, result.message)
+            return self.form_invalid(form)
+        
+        # Validation passed - save the leave application
+        form.instance.total_days = result.deduction_days
+        
+        # Set sandwich leave flag and actual working days from result
+        if hasattr(result, 'is_sandwich'):
+            form.instance.is_sandwich_leave = result.is_sandwich
+        if hasattr(result, 'actual_working_days') and result.actual_working_days > 0:
+            form.instance.actual_working_days = result.actual_working_days
+        
+        messages.success(
+            self.request,
+            f'✓ Leave application submitted successfully! {result.message} Days to be deducted: {result.deduction_days}'
+        )
+        return super().form_valid(form)
+        # Validation passed - save the leave application
+        form.instance.total_days = result.deduction_days
+        
+        # Calculate sandwich rule if applicable
+        if not leave_request['is_half_day']:
+            is_sandwich, total_days = LeaveManagementService.check_sandwich_rule(
+                leave_request['start_date'],
+                leave_request['end_date']
+            )
+            form.instance.is_sandwich_leave = is_sandwich
+            form.instance.actual_working_days = LeaveManagementService.count_working_days(
+                leave_request['start_date'],
+                leave_request['end_date']
+            )
+        
+        messages.success(
+            self.request,
+            f'Leave application submitted successfully! {result.message}. Days to be deducted: {result.deduction_days}'
+        )
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['leave_types'] = LeaveType.objects.filter(is_active=True)
+        
+        # Get employee leave balances
+        try:
+            user_profile = self.request.user.profile
+            if user_profile.employee:
+                from .leave_service import LeaveManagementService
+                employee = user_profile.employee
+                
+                context['leave_balances'] = {
+                    'casual': LeaveManagementService.get_leave_balance(employee, 'casual'),
+                    'emergency': LeaveManagementService.get_leave_balance(employee, 'emergency'),
+                    'birthday': LeaveManagementService.get_leave_balance(employee, 'birthday'),
+                    'marriage_anniversary': LeaveManagementService.get_leave_balance(employee, 'marriage_anniversary'),
+                }
+                
+                # Get casual leave accrual details
+                context['casual_leave_info'] = LeaveManagementService.get_casual_leave_accrual_info(employee)
+                
+                context['employee_type'] = LeaveManagementService.identify_employee_type(employee)
+            else:
+                # Try to find employee by matching email
+                from employees.models import Employee
+                employee = Employee.objects.filter(official_email=self.request.user.email).first()
+                if employee:
+                    # Link the employee to the user profile
+                    user_profile.employee = employee
+                    user_profile.save()
+                    
+                    from .leave_service import LeaveManagementService
+                    context['leave_balances'] = {
+                        'casual': LeaveManagementService.get_leave_balance(employee, 'casual'),
+                        'emergency': LeaveManagementService.get_leave_balance(employee, 'emergency'),
+                        'birthday': LeaveManagementService.get_leave_balance(employee, 'birthday'),
+                        'marriage_anniversary': LeaveManagementService.get_leave_balance(employee, 'marriage_anniversary'),
+                    }
+                    
+                    # Get casual leave accrual details
+                    context['casual_leave_info'] = LeaveManagementService.get_casual_leave_accrual_info(employee)
+                    
+                    context['employee_type'] = LeaveManagementService.identify_employee_type(employee)
+        except AttributeError as e:
+            # User doesn't have employee profile
+            context['leave_balances'] = None
+            context['casual_leave_info'] = None
+            context['employee_type'] = None
+        
         return context
 
 
@@ -1004,7 +1214,29 @@ def approve_leave(request, pk):
         leave.approved_date = timezone.now()
         leave.save()
         
-        messages.success(request, f'Leave application for {leave.employee.full_name} approved successfully!')
+        # Show success message
+        messages.success(
+            request, 
+            f'✓ Leave application for {leave.employee.full_name} has been approved! '
+            f'({leave.start_date.strftime("%d %b %Y")} to {leave.end_date.strftime("%d %b %Y")})'
+        )
+        
+        # Create notification for the employee
+        try:
+            from .models import Notification
+            employee_user = leave.employee.user_profile.user
+            notification = Notification.objects.create(
+                title='Leave Approved ✓',
+                message=f'Your leave application from {leave.start_date.strftime("%d %b %Y")} to {leave.end_date.strftime("%d %b %Y")} has been approved by {request.user.get_full_name() or request.user.username}.',
+                notification_type='success',
+                icon='bi-check-circle',
+                created_by=request.user,
+                target_all=False
+            )
+            notification.target_users.add(employee_user)
+        except Exception as e:
+            pass  # If notification fails, don't break the approval
+        
         return redirect('employees:leave_application_list')
     
     return render(request, 'leave/approve_leave.html', {'leave': leave})
@@ -1014,11 +1246,34 @@ def reject_leave(request, pk):
     leave = get_object_or_404(LeaveApplication, pk=pk)
     
     if request.method == 'POST':
+        rejection_reason = request.POST.get('rejection_reason', 'No reason provided')
         leave.status = 'rejected'
-        leave.rejection_reason = request.POST.get('rejection_reason', '')
+        leave.rejection_reason = rejection_reason
         leave.save()
         
-        messages.success(request, f'Leave application for {leave.employee.full_name} rejected!')
+        # Show warning/error message for rejection
+        messages.warning(
+            request, 
+            f'✗ Leave application for {leave.employee.full_name} has been rejected. '
+            f'({leave.start_date.strftime("%d %b %Y")} to {leave.end_date.strftime("%d %b %Y")})'
+        )
+        
+        # Create notification for the employee
+        try:
+            from .models import Notification
+            employee_user = leave.employee.user_profile.user
+            notification = Notification.objects.create(
+                title='Leave Rejected ✗',
+                message=f'Your leave application from {leave.start_date.strftime("%d %b %Y")} to {leave.end_date.strftime("%d %b %Y")} has been rejected. Reason: {rejection_reason}',
+                notification_type='danger',
+                icon='bi-x-circle',
+                created_by=request.user,
+                target_all=False
+            )
+            notification.target_users.add(employee_user)
+        except Exception as e:
+            pass  # If notification fails, don't break the rejection
+        
         return redirect('employees:leave_application_list')
     
     return render(request, 'leave/reject_leave.html', {'leave': leave})
@@ -1077,6 +1332,12 @@ class LeaveTypeDeleteView(LoginRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Leave type deleted successfully!')
         return super().delete(request, *args, **kwargs)
+
+
+class LeaveTypeDetailView(LoginRequiredMixin, DetailView):
+    model = LeaveType
+    template_name = 'leave/leave_type_detail.html'
+    context_object_name = 'leave_type'
 
 
 @method_decorator(csrf_exempt, name='dispatch')

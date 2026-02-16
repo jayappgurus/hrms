@@ -14,9 +14,12 @@
         </h1>
         <p class="page-subtitle">Manage all company devices and their allocation status</p>
     </div>
+    {% if request.user.is_superuser or request.user.is_staff %}
     <a href="{% url 'employees:device_add' %}" class="btn btn-primary">
         <i class="bi bi-plus-circle me-2"></i>Add New Device
     </a>
+    {% endif %}
+    
 </div>
 
 <!-- Search Bar -->
@@ -75,7 +78,9 @@
                         <th>Serial Number</th>
                         <th>Status</th>
                         <th>Allocated To</th>
-                        <th class="text-end">Actions</th>
+                        {% if request.user.is_superuser or request.user.is_staff %}
+                            <th class="text-end">Actions</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -113,6 +118,7 @@
                             </span>
                             {% endif %}
                         </td>
+                        {% if request.user.is_superuser or request.user.is_staff %}
                         <td data-label="Allocated To">
                             {% if device.allocated_to %}
                             <div class="d-flex align-items-center gap-2">
@@ -125,6 +131,7 @@
                             <span class="text-muted">—</span>
                             {% endif %}
                         </td>
+                        {% endif %}
                         <td data-label="Actions" class="text-end">
                             <div class="table-actions justify-content-end">
                                 <a href="{% url 'employees:device_edit' device.pk %}" class="action-icon-btn"

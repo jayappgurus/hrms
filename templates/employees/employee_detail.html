@@ -7,7 +7,7 @@
 {% block extra_css %}
 <style>
     .profile-header-card {
-        background: linear-gradient(135deg, #433185 0%, #332666 100%);
+        background: linear-gradient(135deg, #332666 0%, #332666 100%);
         color: white;
         border-radius: 16px;
         padding: 40px;
@@ -19,13 +19,11 @@
         width: 120px;
         height: 120px;
         border-radius: 50%;
- 
         background: #e50880;
         color: #002855;
-=======
-        background: linear-gradient(135deg, #00C9FF 0%, #433185 100%);
+
+        background: linear-gradient(135deg, #332666 0%, #332666 100%);
         color: white;
->>>>>>> 3db47c9 (all my code push in github)
         display: flex;
         align-items: center;
         justify-content: center;
@@ -34,7 +32,6 @@
         margin: 0 auto 24px;
  
         box-shadow: 0 12px 32px rgba(229, 8, 128, 0.4);
-=======
         box-shadow: 0 12px 32px rgba(0, 201, 255, 0.4);
         position: relative;
         overflow: hidden;
@@ -55,13 +52,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #00C9FF 0%, #433185 100%);
+        background: linear-gradient(135deg, #332666 0%, #332666 100%);
         color: white;
         font-size: 48px;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 1px;
->>>>>>> 3db47c9 (all my code push in github)
     }
 
     .profile-name {
@@ -298,15 +294,6 @@
             {% endif %}
             <div class="detail-row">
                 <div class="detail-item">
-                    <div class="detail-label">Probation Status</div>
-                    <div class="detail-value">
-                        <span
-                            class="status-badge {% if employee.probation_status == 'completed' %}success{% else %}warning{% endif %}">
-                            {{ employee.probation_status|title }}
-                        </span>
-                    </div>
-                </div>
-                <div class="detail-item">
                     <div class="detail-label">Period Type</div>
                     <div class="detail-value">
                         <span class="status-badge info">
@@ -317,44 +304,12 @@
             </div>
             <div class="detail-row">
                 <div class="detail-item">
-                    <div class="detail-label">Employment Type</div>
-                    <div class="detail-value">{{ employee.get_employment_type_display }}</div>
+                    <div class="detail-label">Employment Status</div>
+                    <div class="detail-value">{{ employee.get_employment_status_display }}</div>
                 </div>
             </div>
         </div>
-
-        <!-- Bank Details -->
-        <!-- <div class="detail-section">
-            <h5 class="detail-section-title d-flex gap-3">
-                <i class="bi bi-bank text-warning"></i>
-                Bank Details
-            </h5>
-            {% if employee.bank_details %}
-            <div class="detail-row">
-                <div class="detail-item">
-                    <div class="detail-label">Bank Name</div>
-                    <div class="detail-value">{{ employee.bank_details.bank_name }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Account Number</div>
-                    <div class="detail-value">{{ employee.bank_details.account_number }}</div>
-                </div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-item">
-                    <div class="detail-label">IFSC Code</div>
-                    <div class="detail-value">{{ employee.bank_details.ifsc_code }}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Branch</div>
-                    <div class="detail-value">{{ employee.bank_details.branch_name }}</div>
-                </div>
-            </div>
-            {% else %}
-            <p class="text-muted">No bank details available.</p>
-            {% endif %}
-        </div> -->
-
+        {% if request.user.is_superuser or request.user.is_staff %}
         <div class="detail-section">
             <h5 class="detail-section-title d-flex gap-3">
                 <i class="bi bi-file-earmark-text text-primary"></i>
@@ -371,8 +326,10 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <!-- Document Submission Tracker -->
+        {% if request.user.is_superuser or request.user.is_staff %}
         <div class="detail-section">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="detail-section-title mb-0 d-flex gap-3">
@@ -382,7 +339,6 @@
                 <div class="d-flex gap-2 align-items-center">
                 </div>
             </div>
-
             <div class="document-tracker">
                 {% for category_key, category in document_categories.items %}
                 <div class="mb-4">
@@ -412,8 +368,21 @@
                                 </div>
                             </div>
                             <div class="form-check form-switch">
-                                <input class="form-check-input document-toggle" type="checkbox" id="documentToggle_{{ doc.id }}" data-document-id="{{ doc.id }}" {% if doc.is_submitted %}checked{% endif %}>
-                                <label class="form-check-label visually-hidden" for="documentToggle_{{ doc.id }}">Toggle document submission status</label>
+                                {% if doc.id %}
+                                <input class="form-check-input document-toggle" type="checkbox" 
+                                       id="documentToggle_{{ doc.id }}" 
+                                       data-document-id="{{ doc.id }}" 
+                                       {% if doc.is_submitted %}checked{% endif %}
+                                       {% if not request.user.is_staff and not request.user.is_superuser %}disabled{% endif %}>
+                                {% else %}
+                                <input class="form-check-input document-toggle-new" type="checkbox" 
+                                       id="documentToggle_{{ doc.type }}" 
+                                       data-document-type="{{ doc.type }}"
+                                       data-employee-id="{{ employee.id }}"
+                                       {% if doc.is_submitted %}checked{% endif %}
+                                       {% if not request.user.is_staff and not request.user.is_superuser %}disabled{% endif %}>
+                                {% endif %}
+                                <label class="form-check-label visually-hidden" for="documentToggle_{{ doc.id|default:doc.type }}">Toggle document submission status</label>
                             </div>
                         </div>
                         {% endfor %}
@@ -422,12 +391,13 @@
                 {% endfor %}
 
                 <div
-                    class="list-group-item d-flex justify-content-between align-items-center py-3 border rounded-3 bg-light">
+                    class="list-group-item d-flex justify-content-between align-items-center p-3 border rounded-3 bg-light">
                     <div class="fw-medium text-dark">Number of Graduation / Post-Graduation Marksheets</div>
                     <span class="badge bg-primary px-3 py-2 fs-6">{{ employee.graduates_marksheet_count }}</span>
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <!-- Login Credentials -->
         {% if request.user.is_superuser or request.user.is_staff %}
@@ -498,7 +468,7 @@
                 }
                 
                 // Send AJAX request to update the database
-                const url = `/employees/update-document-status/${documentId}/`;
+                const url = `/update-document-status/${documentId}/`;
                 console.log('Sending request to:', url);
                 console.log('Full URL should be:', window.location.origin + url);
                 
@@ -607,6 +577,78 @@
                 toastElement.remove();
             });
         }
+        
+        // Handle document toggle for new documents (that don't exist in DB yet)
+        const newToggleElements = document.querySelectorAll('.document-toggle-new');
+        
+        newToggleElements.forEach(function(toggle) {
+            toggle.addEventListener('change', function() {
+                const documentType = this.getAttribute('data-document-type');
+                const employeeId = this.getAttribute('data-employee-id');
+                const isSubmitted = this.checked;
+                
+                console.log('New document toggle changed:', { documentType, employeeId, isSubmitted });
+                
+                // Update the status icon immediately for better UX
+                const listItem = this.closest('.list-group-item');
+                const statusIcon = listItem.querySelector('.document-status-icon');
+                const iconElement = statusIcon.querySelector('i');
+                
+                if (isSubmitted) {
+                    statusIcon.classList.remove('warning');
+                    statusIcon.classList.add('success');
+                    iconElement.classList.remove('bi-dash');
+                    iconElement.classList.add('bi-check-lg');
+                } else {
+                    statusIcon.classList.remove('success');
+                    statusIcon.classList.add('warning');
+                    iconElement.classList.remove('bi-check-lg');
+                    iconElement.classList.add('bi-dash');
+                }
+                
+                // Send AJAX request to create/update the document
+                const url = `/employee/${employeeId}/document/${documentType}/update/`;
+                console.log('Sending request to:', url);
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `is_submitted=${isSubmitted ? 'on' : ''}`
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        // Show success message
+                        showToast(`Document status updated to ${isSubmitted ? 'Submitted' : 'Pending'}`, 'success');
+                        
+                        // Reload page to get the document ID for future updates
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        // Revert toggle on error
+                        this.checked = !isSubmitted;
+                        showToast('Failed to update document status', 'error');
+                    }
+                })
+                .catch(error => {
+                    // Revert toggle on error
+                    this.checked = !isSubmitted;
+                    console.error('Error:', error);
+                    showToast('Failed to update document status: ' + error.message, 'error');
+                });
+            });
+        });
     });
 </script>
 {% endblock %}

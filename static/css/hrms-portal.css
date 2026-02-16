@@ -1,18 +1,18 @@
-/* ========================================
+/*           =====
    HRMS Portal - Modern 'Dark Executive' Design
-   Primary Color: #433185
+   Primary Color: #332666
    Accent Color: #e50880
    Aesthetics: Bold, Clean, Professional
-   ======================================== */
+             ===== */
 
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
     /* Primary Brand Colors */
-    --primary: #433185;
+    --primary: #332666;
     --primary-dark: #332666;
     --primary-light: #5a4299;
-    --primary-gradient: linear-gradient(180deg, #433185 0%, #332666 100%);
+    --primary-gradient: linear-gradient(180deg, #332666 0%, #332666 100%);
     --primary-rgb: 67, 49, 133;
     /* Accent Colors */
     --accent: #e50880;
@@ -28,7 +28,7 @@
     /* Backgrounds & Surfaces */
     --bg-body: #f3f4f6;
     --bg-card: #ffffff;
-    --bg-sidebar: #433185;
+    --bg-sidebar: #332666;
 
     /* Typography */
     --text-white: #ffffff;
@@ -51,9 +51,9 @@
     --transition: cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
 }
 
-/* ========================================
+/*           =====
    GLOBAL RESETS & TYPOGRAPHY
-   ======================================== */
+             ===== */
 * {
     margin: 0;
     padding: 0;
@@ -94,9 +94,9 @@ ul {
 #rules-editor ul{
     list-style: disc;
 }
-/* ========================================
+/*           =====
    PRELOADER
-   ======================================== */
+             ===== */
 #preloader {
     position: fixed;
     inset: 0;
@@ -126,17 +126,17 @@ ul {
     }
 }
 
-/* ========================================
+/*           =====
    LAYOUT STRUCTURE
-   ======================================== */
+             ===== */
 .main-wrapper {
     display: flex;
     min-height: 100vh;
 }
 
-/* ========================================
+/*           =====
    SIDEBAR (Creative Glass & Gradient)
-   ======================================== */
+             ===== */
 .sidebar {
     width: var(--sidebar-width);
     height: 100vh;
@@ -144,7 +144,7 @@ ul {
     left: 0;
     top: 0;
     /* Deep Rich Gradient Background */
-    background: linear-gradient(160deg, #433185 0%, #332666 100%);
+    background: linear-gradient(160deg, #332666 0%, #332666 100%);
     color: var(--text-white);
     display: flex;
     flex-direction: column;
@@ -347,15 +347,15 @@ ul {
 .sub-menu li a.active {
     color: #fff;
     font-weight: 600;
-    background: linear-gradient(45deg, #433185 0%, #433185 100%);
+    background: linear-gradient(45deg, #332666 0%, #332666 100%);
     /* mini gradient */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     padding-left: 16px;
 }
 
-/* ========================================
+/*           =====
    TOP HEADER (Floaty & Clean)
-   ======================================== */
+             ===== */
 .page-wrapper {
     width: calc(100% - var(--sidebar-width));
     transition: var(--transition);
@@ -477,7 +477,7 @@ ul {
 .user-avatar {
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: 50%;
     background: var(--primary);
     color: white;
     display: flex;
@@ -507,9 +507,9 @@ ul {
     line-height: 1.2;
 }
 
-/* ========================================
+/*           =====
    MAIN CONTENT
-   ======================================== */
+             ===== */
 .main-content {
     padding: 40px;
     flex: 1;
@@ -539,9 +539,9 @@ ul {
     font-weight: 600;
 }
 
-/* ========================================
+/*           =====
    CARDS & CONTAINERS
-   ======================================== */
+             ===== */
 .card {
     background: var(--bg-card);
     border: none;
@@ -639,9 +639,9 @@ ul {
     margin: 0;
 }
 
-/* ========================================
+/*           =====
    TABLES (Clean & Spacious)
-   ======================================== */
+             ===== */
 .table-responsive {
     border-radius: var(--border-radius-lg);
 }
@@ -678,9 +678,9 @@ ul {
     color: var(--primary);
 }
 
-/* ========================================
+/*           =====
    FORMS & INPUTS
-   ======================================== */
+             ===== */
 .form-label {
     font-weight: 600;
     color: var(--text-main);
@@ -705,9 +705,9 @@ ul {
     box-shadow: 0 0 0 3px rgba(67, 49, 133, 0.1);
 }
 
-/* ========================================
+/*           =====
    BUTTONS (Pill Shaped & Sharp)
-   ======================================== */
+             ===== */
 .btn {
     padding: 10px 24px;
     border-radius: 8px;
@@ -744,9 +744,9 @@ ul {
     background: white;
 }
 
-/* ========================================
+/*           =====
    RESPONSIVE DESIGN (Adaptive Dark Theme)
-   ======================================== */
+             ===== */
 
 .mobile-sidebar-toggle {
     display: none;

@@ -15,7 +15,7 @@ from .models import Employee, Department, Designation, PublicHoliday
 from .models_job import JobDescription
 
 
-# ==================== EMPLOYEE CSV EXPORT/IMPORT ====================
+#     ====== EMPLOYEE CSV EXPORT/IMPORT     ======
 
 @login_required
 def export_employees_csv(request):
@@ -61,7 +61,7 @@ def export_employees_csv(request):
             emp.highest_qualification,
             emp.total_experience_years,
             emp.total_experience_months,
-            emp.probation_status,
+            emp.period_type,
             emp.aadhar_card_number,
             emp.pan_card_number,
             emp.emergency_contact_name or '',
@@ -187,7 +187,7 @@ def import_employees_csv(request):
                                 'highest_qualification': row.get('Highest Qualification', '').strip(),
                                 'total_experience_years': int(row.get('Total Experience Years', 0) or 0),
                                 'total_experience_months': int(row.get('Total Experience Months', 0) or 0),
-                                'probation_status': row.get('Probation Status', 'On Probation').strip(),
+                                'period_type': row.get('Period Type', 'confirmed').strip(),
                                 'aadhar_card_number': row.get('Aadhar Card Number', '').strip(),
                                 'pan_card_number': row.get('PAN Card Number', '').strip().upper(),
                                 'emergency_contact_name': row.get('Emergency Contact Name', '').strip(),
@@ -222,7 +222,7 @@ def import_employees_csv(request):
     return render(request, 'employees/import_csv.html', {'model_name': 'Employee'})
 
 
-# ==================== PUBLIC HOLIDAY CSV EXPORT/IMPORT ====================
+#     ====== PUBLIC HOLIDAY CSV EXPORT/IMPORT     ======
 
 @login_required
 def export_public_holidays_csv(request):
@@ -341,7 +341,7 @@ def import_public_holidays_csv(request):
     return render(request, 'employees/import_csv.html', {'model_name': 'Public Holiday'})
 
 
-# ==================== JOB DESCRIPTION CSV EXPORT/IMPORT ====================
+#     ====== JOB DESCRIPTION CSV EXPORT/IMPORT     ======
 
 @login_required
 def export_job_descriptions_csv(request):
@@ -354,10 +354,9 @@ def export_job_descriptions_csv(request):
     # Write header
     writer.writerow([
         'Title', 'Department', 'Designation', 'Employment Type', 'Experience Level',
-        'Job Description', 'Responsibilities', 'Requirements', 'Experience Criteria',
+        'Required Qualifications', 'Skills & Requirements',
         'Min Salary', 'Max Salary', 'Currency', 'Location', 'Work Mode',
-        'Travel Required', 'Number of Vacancies', 'Application Deadline',
-        'Status', 'Is Featured', 'Is Urgent'
+        'Number of Vacancies', 'Application Deadline', 'Status'
     ])
     
     # Write data
@@ -369,21 +368,16 @@ def export_job_descriptions_csv(request):
             job.designation.name,
             job.employment_type,
             job.experience_level,
-            job.job_description,
-            job.responsibilities,
-            job.requirements,
-            job.experience_criteria,
+            job.required_qualifications,
+            job.skills_requirements,
             str(job.min_salary) if job.min_salary else '',
             str(job.max_salary) if job.max_salary else '',
             job.currency,
             job.location,
             job.work_mode,
-            'Yes' if job.travel_required else 'No',
             job.number_of_vacancies,
             job.application_deadline.strftime('%Y-%m-%d') if job.application_deadline else '',
-            job.status,
-            'Yes' if job.is_featured else 'No',
-            'Yes' if job.is_urgent else 'No'
+            job.status
         ])
     
     return response
@@ -400,10 +394,9 @@ def download_job_description_sample_csv(request):
     # Write header
     writer.writerow([
         'Title', 'Department', 'Designation', 'Employment Type', 'Experience Level',
-        'Job Description', 'Responsibilities', 'Requirements', 'Experience Criteria',
+        'Required Qualifications', 'Skills & Requirements',
         'Min Salary', 'Max Salary', 'Currency', 'Location', 'Work Mode',
-        'Travel Required', 'Number of Vacancies', 'Application Deadline',
-        'Status', 'Is Featured', 'Is Urgent'
+        'Number of Vacancies', 'Application Deadline', 'Status'
     ])
     
     # Write sample data
@@ -413,21 +406,16 @@ def download_job_description_sample_csv(request):
         'Software Engineer',
         'full_time',
         'senior',
-        'We are looking for an experienced software engineer to join our team.',
-        'Design and develop software applications; Collaborate with team members; Code reviews',
-        'Bachelor degree in CS; 5+ years experience; Python, Django, React',
-        'Minimum 5 years in web development with Python and Django',
+        'Bachelor degree in Computer Science; 5+ years experience in software development',
+        'Python, Django, React, PostgreSQL, REST APIs, Git',
         '800000',
         '1200000',
         'INR',
         'Bangalore',
         'Hybrid',
-        'No',
         '2',
         '2026-03-31',
-        'active',
-        'Yes',
-        'No'
+        'active'
     ])
     
     return response
@@ -483,9 +471,6 @@ def import_job_descriptions_csv(request):
                             application_deadline = datetime.strptime(deadline_str, '%Y-%m-%d').date()
                         
                         # Parse boolean fields
-                        travel_required = row.get('Travel Required', 'No').strip().lower() in ['yes', 'true', '1']
-                        is_featured = row.get('Is Featured', 'No').strip().lower() in ['yes', 'true', '1']
-                        is_urgent = row.get('Is Urgent', 'No').strip().lower() in ['yes', 'true', '1']
                         
                         # Parse salary
                         min_salary = None
@@ -502,21 +487,16 @@ def import_job_descriptions_csv(request):
                             designation=designation,
                             employment_type=row.get('Employment Type', 'full_time').strip(),
                             experience_level=row.get('Experience Level', 'fresher').strip(),
-                            job_description=row.get('Job Description', '').strip(),
-                            responsibilities=row.get('Responsibilities', '').strip(),
-                            requirements=row.get('Requirements', '').strip(),
-                            experience_criteria=row.get('Experience Criteria', '').strip(),
+                            required_qualifications=row.get('Required Qualifications', '').strip(),
+                            skills_requirements=row.get('Skills & Requirements', '').strip(),
                             min_salary=min_salary,
                             max_salary=max_salary,
                             currency=row.get('Currency', 'INR').strip(),
                             location=row.get('Location', '').strip(),
                             work_mode=row.get('Work Mode', 'Office').strip(),
-                            travel_required=travel_required,
                             number_of_vacancies=int(row.get('Number of Vacancies', 1) or 1),
                             application_deadline=application_deadline,
                             status=row.get('Status', 'draft').strip(),
-                            is_featured=is_featured,
-                            is_urgent=is_urgent,
                             posted_by=request.user
                         )
                         

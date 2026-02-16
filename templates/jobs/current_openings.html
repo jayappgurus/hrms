@@ -31,7 +31,7 @@
 
     .job-card-header {
         padding: 24px;
-        background: linear-gradient(135deg, #433185 0%, #332666 100%);
+        background: linear-gradient(135deg, #332666 0%, #332666 100%);
         color: white;
     }
 
@@ -170,28 +170,6 @@
         </div>
         <div class="col-lg-3 col-sm-6 mb-3">
             <div class="stats-card">
-                <div class="stats-icon success">
-                    <i class="bi bi-star"></i>
-                </div>
-                <div class="stats-content">
-                    <div class="stats-value">{{ urgent_openings }}</div>
-                    <div class="stats-label">Urgent Openings</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-sm-6 mb-3">
-            <div class="stats-card">
-                <div class="stats-icon info">
-                    <i class="bi bi-award"></i>
-                </div>
-                <div class="stats-content">
-                    <div class="stats-value">{{ featured_openings }}</div>
-                    <div class="stats-label">Featured Openings</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-sm-6 mb-3">
-            <div class="stats-card">
                 <div class="stats-icon warning">
                     <i class="bi bi-building"></i>
                 </div>
@@ -222,7 +200,7 @@
                             <select name="department" class="form-control">
                                 <option value>All Departments</option>
                                 {% for department in departments %}
-                                <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:"s" %}selected{% endif %}>
+                                <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:'s' %}selected{% endif %}>
                                     {{ department.name }}
                                 </option>
                                 {% endfor %}
@@ -367,53 +345,25 @@
 
         <!-- Pagination -->
         {% if is_paginated %}
-        <div class="pagination-wrapper">
-            <nav aria-label="Openings pagination">
-                <ul class="pagination">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link"
-                            href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
-                            <i class="bi bi-chevron-double-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link"
-                            href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
+        <div class="d-flex justify-content-center mt-4">
+            <ul class="modern-pagination">
+                {% if page_obj.has_previous %}
+                <li><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i
+                            class="bi bi-chevron-left"></i></a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li><span class="page-link active">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li><a class="page-link"
+                        href="?page={{ num }}">{{ num }}</a></li>
                     {% endif %}
-
-                    {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                    <li class="page-item active">
-                        <span class="page-link">{{ num }}</span>
-                    </li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item">
-                        <a class="page-link"
-                            href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">{{
-                            num }}</a>
-                        </li>
-                        {% endif %}
-                        {% endfor %}
-
-                        {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link"
-                                href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link"
-                                href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.experience_level %}&experience_level={{ request.GET.experience_level }}{% endif %}">
-                                <i class="bi bi-chevron-double-right"></i>
-                            </a>
-                        </li>
-                        {% endif %}
-                </ul>
-            </nav>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i
+                                class="bi bi-chevron-right"></i></a></li>
+                    {% endif %}
+            </ul>
         </div>
         {% endif %}
 

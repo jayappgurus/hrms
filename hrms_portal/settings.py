@@ -158,6 +158,8 @@ TEMPLATES = [
 
                 'django.contrib.messages.context_processors.messages',
 
+                'employees.context_processors.notifications_and_messages',
+
             ],
 
         },

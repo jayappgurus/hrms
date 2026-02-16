@@ -67,11 +67,7 @@
                                 <div class="detail-item">
                                     <label class="detail-label">Experience Level</label>
                                     <div class="detail-value">
-                                        {% if job.experience_level == 'entry' %}Entry Level{% endif %}
-                                        {% if job.experience_level == 'mid' %}Mid Level{% endif %}
-                                        {% if job.experience_level == 'senior' %}Senior Level{% endif %}
-                                        {% if job.experience_level == 'lead' %}Lead{% endif %}
-                                        {% if job.experience_level == 'manager' %}Manager{% endif %}
+                                        {{ job.get_experience_level_display }}
                                     </div>
                                 </div>
                             </div>
@@ -91,27 +87,18 @@
                     </div>
 
                     <div class="mb-4">
-                        <h6 class="text-primary mb-3">Job Description</h6>
+                        <h6 class="text-primary mb-3">Required Qualifications</h6>
                         <div class="description-content">
-                            {{ job.description|safe }}
+                            {{ job.required_qualifications|linebreaks }}
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <h6 class="text-primary mb-3">Requirements</h6>
+                        <h6 class="text-primary mb-3">Skills & Requirements</h6>
                         <div class="requirements-content">
-                            {{ job.requirements|safe }}
+                            {{ job.skills_requirements|linebreaks }}
                         </div>
                     </div>
-
-                    {% if job.benefits %}
-                    <div class="mb-4">
-                        <h6 class="text-primary mb-3">Benefits</h6>
-                        <div class="benefits-content">
-                            {{ job.benefits|safe }}
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
 

@@ -10,10 +10,10 @@ class JobDescriptionForm(forms.ModelForm):
         model = JobDescription
         fields = [
             'title', 'designation', 'department', 'employment_type', 'experience_level',
-            'job_description', 'responsibilities', 'requirements', 'experience_criteria',
+            'required_qualifications', 'skills_requirements',
             'min_salary', 'max_salary', 'currency', 'location', 'work_mode',
-            'travel_required', 'number_of_vacancies', 'application_deadline',
-            'company_description', 'interview_process', 'status', 'is_featured', 'is_urgent', 'jd_document'
+            'number_of_vacancies', 'application_deadline',
+            'status'
         ]
         widgets = {
             'title': forms.TextInput(attrs={
@@ -32,25 +32,15 @@ class JobDescriptionForm(forms.ModelForm):
             'experience_level': forms.Select(attrs={
                 'class': 'form-control',
             }),
-            'job_description': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 6,
-                'placeholder': 'Detailed job description...'
-            }),
-            'responsibilities': forms.Textarea(attrs={
+            'required_qualifications': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Key responsibilities and duties...'
+                'placeholder': 'Required qualifications for the role...'
             }),
-            'requirements': forms.Textarea(attrs={
+            'skills_requirements': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
-                'placeholder': 'Required skills and qualifications...'
-            }),
-            'experience_criteria': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Specific experience requirements...'
+                'placeholder': 'Required skills and competencies...'
             }),
             'min_salary': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -82,22 +72,8 @@ class JobDescriptionForm(forms.ModelForm):
                 'class': 'form-control',
                 'type': 'date'
             }),
-            'company_description': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Company description for this role...'
-            }),
-            'interview_process': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Interview process details...'
-            }),
             'status': forms.Select(attrs={
                 'class': 'form-control',
-            }),
-            'jd_document': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': '.pdf,.doc,.docx'
             }),
         }
     
@@ -108,29 +84,16 @@ class JobDescriptionForm(forms.ModelForm):
         self.fields['department'].label = 'Department'
         self.fields['employment_type'].label = 'Employment Type'
         self.fields['experience_level'].label = 'Experience Level'
-        self.fields['job_description'].label = 'Job Description'
-        self.fields['responsibilities'].label = 'Key Responsibilities'
-        self.fields['requirements'].label = 'Requirements'
-        self.fields['experience_criteria'].label = 'Experience Criteria'
+        self.fields['required_qualifications'].label = 'Required Qualifications'
+        self.fields['skills_requirements'].label = 'Skills & Requirements'
         self.fields['min_salary'].label = 'Minimum Salary'
         self.fields['max_salary'].label = 'Maximum Salary'
         self.fields['currency'].label = 'Currency'
         self.fields['location'].label = 'Location'
         self.fields['work_mode'].label = 'Work Mode'
-        self.fields['travel_required'].label = 'Travel Required'
         self.fields['number_of_vacancies'].label = 'Number of Vacancies'
         self.fields['application_deadline'].label = 'Application Deadline'
-        self.fields['company_description'].label = 'Company Description'
-        self.fields['interview_process'].label = 'Interview Process'
         self.fields['status'].label = 'Status'
-        self.fields['is_featured'].label = 'Featured Job'
-        self.fields['is_urgent'].label = 'Urgent Opening'
-        self.fields['jd_document'].label = 'Job Description Document'
-        
-        # Add Bootstrap classes to checkboxes
-        self.fields['travel_required'].widget.attrs['class'] = 'form-check-input'
-        self.fields['is_featured'].widget.attrs['class'] = 'form-check-input'
-        self.fields['is_urgent'].widget.attrs['class'] = 'form-check-input'
 
         # Set currency choices
         self.fields['currency'].widget.choices = [

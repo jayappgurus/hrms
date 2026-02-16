@@ -49,7 +49,7 @@
         width: 48px;
         height: 48px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #433185 0%, #332666 100%);
+        background: linear-gradient(135deg, #332666 0%, #332666 100%);
         color: white;
         display: flex;
         align-items: center;
@@ -94,7 +94,7 @@
     }
 
     .table-header-custom {
-        background: linear-gradient(135deg, #433185 0%, #332666 100%);
+        background: linear-gradient(135deg, #332666 0%, #332666 100%);
         color: white;
         padding: 20px 24px;
         display: flex;
@@ -225,9 +225,11 @@
         </h1>
         <p class="page-subtitle">Track candidates by designation through the recruitment pipeline</p>
     </div>
+    {% if not user.profile.role == 'employee' %}
     <a href="{% url 'employees:add_job_application' %}" class="btn btn-primary">
         <i class="bi bi-person-plus me-2"></i>Add Candidate
     </a>
+    {% endif %}
 </div>
 
 <!-- Statistics -->
@@ -330,9 +332,11 @@
         <div class="text-center py-5">
             <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
             <p class="text-muted mt-3">No active candidates found</p>
+            {% if not user.profile.role == 'employee' %}
             <a href="{% url 'employees:add_job_application' %}" class="btn btn-primary mt-2">
                 <i class="bi bi-person-plus me-2"></i>Add First Candidate
             </a>
+            {% endif %}
         </div>
         {% endif %}
     </div>

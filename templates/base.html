@@ -80,11 +80,9 @@
                         </a>
                         <ul
                             class="sub-menu {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name %}show{% endif %}">
-                            {% if not user.profile.role == 'employee' %}
                             <li class="mt-2"><a href="{% url 'employees:leave_types' %}"
                                     class="{% if request.resolver_match.url_name == 'leave_types' %}active{% endif %}">Leave
                                     Types</a></li>
-                            {% endif %}
                             <li class="mt-2"><a href="{% url 'employees:leave_application_list' %}"
                                     class="{% if request.resolver_match.url_name == 'leave_application_list' %}active{% endif %}">Leave
                                     Applications</a></li>
@@ -116,17 +114,35 @@
                         </a>
                         <ul
                             class="sub-menu {% if 'job' in request.resolver_match.url_name or 'candidate' in request.resolver_match.url_name %}show{% endif %}">
-                            <li><a href="{% url 'employees:job_list' %}"
+                            <li class="mt-2"><a href="{% url 'employees:job_list' %}"
                                     class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">Job
                                     Descriptions</a></li>
-                            <li><a href="{% url 'employees:candidate_tracker' %}"
+                            <li class="mt-2"><a href="{% url 'employees:candidate_tracker' %}"
                                     class="{% if request.resolver_match.url_name == 'candidate_tracker' %}active{% endif %}">Candidate
                                     Tracker</a></li>
-                            <li><a href="{% url 'employees:current_openings' %}"
+                            <li class="mt-2"><a href="{% url 'employees:current_openings' %}"
                                     class="{% if request.resolver_match.url_name == 'current_openings' %}active{% endif %}">Current
                                     Openings</a></li>
                         </ul>
                     </li>
+
+                    {% if user.is_staff or user.is_superuser %}
+                    <li class="nav-label">Communications</li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'create_notification' %}active{% endif %}"
+                            href="{% url 'employees:create_notification' %}">
+                            <i class="bi bi-bell"></i>
+                            <span>Send Notification</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'create_message' %}active{% endif %}"
+                            href="{% url 'employees:create_message' %}">
+                            <i class="bi bi-envelope"></i>
+                            <span>Send Message</span>
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -151,28 +167,27 @@
                     <div class="dropdown">
                         <button class="header-btn" type="button" data-bs-toggle="dropdown">
                             <i class="bi bi-bell"></i>
-                            <span class="badge bg-danger">3</span>
+                            {% if unread_notifications_count > 0 %}
+                            <span class="badge bg-danger">{{ unread_notifications_count }}</span>
+                            {% endif %}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
                             <li class="dropdown-header">Notifications</li>
-                            <li><a class="dropdown-item" href="#">
-                                    <div class="notification-item">
-                                        <i class="bi bi-person-plus text-primary"></i>
-                                        <div class="notification-content">
-                                            <p>New employee registered</p>
-                                            <small>2 minutes ago</small>
+                            {% if unread_notifications %}
+                                {% for notification in unread_notifications %}
+                                <li><a class="dropdown-item" href="#">
+                                        <div class="notification-item">
+                                            <i class="bi {{ notification.icon }} text-{{ notification.notification_type }}"></i>
+                                            <div class="notification-content">
+                                                <p>{{ notification.title }}</p>
+                                                <small>{{ notification.created_at|timesince }} ago</small>
+                                            </div>
                                         </div>
-                                    </div>
-                                </a></li>
-                            <li><a class="dropdown-item" href="#">
-                                    <div class="notification-item">
-                                        <i class="bi bi-calendar-check text-success"></i>
-                                        <div class="notification-content">
-                                            <p>Leave request approved</p>
-                                            <small>1 hour ago</small>
-                                        </div>
-                                    </div>
-                                </a></li>
+                                    </a></li>
+                                {% endfor %}
+                            {% else %}
+                                <li><a class="dropdown-item text-center text-muted">No new notifications</a></li>
+                            {% endif %}
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -184,19 +199,27 @@
                     <div class="dropdown">
                         <button class="header-btn" type="button" data-bs-toggle="dropdown">
                             <i class="bi bi-envelope"></i>
-                            <span class="badge bg-danger">5</span>
+                            {% if unread_messages_count > 0 %}
+                            <span class="badge bg-danger">{{ unread_messages_count }}</span>
+                            {% endif %}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end message-dropdown">
                             <li class="dropdown-header">Messages</li>
-                            <li><a class="dropdown-item" href="#">
-                                    <div class="message-item">
-                                        <div class="message-avatar">JD</div>
-                                        <div class="message-content">
-                                            <p>John Doe</p>
-                                            <small>Meeting tomorrow at 10 AM</small>
+                            {% if unread_messages %}
+                                {% for message in unread_messages %}
+                                <li><a class="dropdown-item" href="#">
+                                        <div class="message-item">
+                                            <div class="message-avatar">{{ message.sender.get_full_name|slice:":2"|upper|default:message.sender.username|slice:":2"|upper }}</div>
+                                            <div class="message-content">
+                                                <p>{{ message.sender.get_full_name|default:message.sender.username }}</p>
+                                                <small>{{ message.subject|truncatewords:5 }}</small>
+                                            </div>
                                         </div>
-                                    </div>
-                                </a></li>
+                                    </a></li>
+                                {% endfor %}
+                            {% else %}
+                                <li><a class="dropdown-item text-center text-muted">No new messages</a></li>
+                            {% endif %}
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -229,12 +252,11 @@
                             <i class="bi bi-chevron-down"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'employees:my_profile' %}">
                                     <i class="bi bi-person me-2"></i>Profile
-                                </a></li>
-                            <li><a class="dropdown-item" href="#">
-                                    <i class="bi bi-gear me-2"></i>Settings
-                                </a></li>
+                                </a>
+                            </li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -253,33 +275,17 @@
                 <div class="page-header">
                     <div class="page-title w-100 justify-content-between">
                         <h2>{% block page_title %}Dashboard{% endblock %}</h2>
-                        <nav aria-label="breadcrumb">
+                        <!-- <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{% url 'employees:dashboard' %}">Home</a></li>
                                 {% block breadcrumb %}{% endblock %}
                             </ol>
-                        </nav>
+                        </nav> -->
                     </div>
 
                     {% block page_actions %}{% endblock %}
                 </div>
                 {% endif %}
-
-                <!-- Messages -->
-                <!-- {% if messages %}
-                <div class="messages-container">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        <i
-                            class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}x-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %} -->
-
-                <!-- Content Block -->
                 {% block content %}{% endblock %}
             </main>
         </div>

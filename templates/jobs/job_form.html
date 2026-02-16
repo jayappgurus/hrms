@@ -94,7 +94,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <div class="modern-form-group">
                         <label class="modern-form-label">{{ form.location.label }}</label>
                         {{ form.location }}
@@ -133,44 +133,6 @@
                         {% endif %}
                     </div>
                 </div>
-
-                <div class="col-md-3 d-flex align-items-end">
-                    <div class="form-check mb-3">
-                        {{ form.travel_required }}
-                        <label class="form-check-label" for="{{ form.travel_required.id_for_label }}">
-                            {{ form.travel_required.label }}
-                        </label>
-                    </div>
-                </div>
-
-                <div class="col-md-3 d-flex align-items-end">
-                    <div class="form-check mb-3">
-                        {{ form.is_featured }}
-                        <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
-                            {{ form.is_featured.label }}
-                        </label>
-                    </div>
-                </div>
-
-                <div class="col-md-3 d-flex align-items-end">
-                    <div class="form-check mb-3">
-                        {{ form.is_urgent }}
-                        <label class="form-check-label" for="{{ form.is_urgent.id_for_label }}">
-                            {{ form.is_urgent.label }}
-                        </label>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.jd_document.label }}</label>
-                        {{ form.jd_document }}
-                        {% if form.jd_document.errors %}
-                        <div class="text-danger small mt-1">{{ form.jd_document.errors.0 }}</div>
-                        {% endif %}
-                        <small class="form-help-text">Upload detailed Job Description (PDF, DOC, DOCX)</small>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -187,64 +149,23 @@
             <div class="row g-3">
                 <div class="col-12">
                     <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.job_description.label }}</label>
-                        {{ form.job_description }}
-                        {% if form.job_description.errors %}
-                        <div class="text-danger small mt-1">{{ form.job_description.errors.0 }}</div>
+                        <label class="modern-form-label required">{{ form.required_qualifications.label }}</label>
+                        {{ form.required_qualifications }}
+                        {% if form.required_qualifications.errors %}
+                        <div class="text-danger small mt-1">{{ form.required_qualifications.errors.0 }}</div>
                         {% endif %}
+                        <small class="form-help-text">List required qualifications for the role</small>
                     </div>
                 </div>
 
                 <div class="col-12">
                     <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.requirements.label }}</label>
-                        {{ form.requirements }}
-                        {% if form.requirements.errors %}
-                        <div class="text-danger small mt-1">{{ form.requirements.errors.0 }}</div>
+                        <label class="modern-form-label required">{{ form.skills_requirements.label }}</label>
+                        {{ form.skills_requirements }}
+                        {% if form.skills_requirements.errors %}
+                        <div class="text-danger small mt-1">{{ form.skills_requirements.errors.0 }}</div>
                         {% endif %}
-                        <small class="form-help-text">List each requirement on a new line</small>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.responsibilities.label }}</label>
-                        {{ form.responsibilities }}
-                        {% if form.responsibilities.errors %}
-                        <div class="text-danger small mt-1">{{ form.responsibilities.errors.0 }}</div>
-                        {% endif %}
-                        <small class="form-help-text">List each responsibility on a new line</small>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.experience_criteria.label }}</label>
-                        {{ form.experience_criteria }}
-                        {% if form.experience_criteria.errors %}
-                        <div class="text-danger small mt-1">{{ form.experience_criteria.errors.0 }}</div>
-                        {% endif %}
-                        <small class="form-help-text">Specific experience or eligibility criteria</small>
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.company_description.label }}</label>
-                        {{ form.company_description }}
-                        {% if form.company_description.errors %}
-                        <div class="text-danger small mt-1">{{ form.company_description.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="col-12">
-                    <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.interview_process.label }}</label>
-                        {{ form.interview_process }}
-                        {% if form.interview_process.errors %}
-                        <div class="text-danger small mt-1">{{ form.interview_process.errors.0 }}</div>
-                        {% endif %}
+                        <small class="form-help-text">List required skills and competencies</small>
                     </div>
                 </div>
             </div>

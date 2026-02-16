@@ -194,7 +194,6 @@ class Employee(models.Model):
     highest_qualification = models.CharField(max_length=100)
     total_experience_years = models.PositiveIntegerField(default=0)
     total_experience_months = models.PositiveIntegerField(default=0)
-    probation_status = models.CharField(max_length=20)
     period_type = models.CharField(max_length=20, choices=PERIOD_TYPE_CHOICES, default='confirmed', help_text="Employee period type")
 
     # Identity & Compliance
@@ -262,10 +261,7 @@ class Employee(models.Model):
             
             probation_end_date = date(year, month, day)
             
-            if timezone.now().date() <= probation_end_date:
-                self.probation_status = "On Probation"
-            else:
-                self.probation_status = "Confirmed"
+            # Note: probation_status field removed - use period_type instead
         
         super().save(*args, **kwargs)
 
@@ -494,12 +490,28 @@ class LeaveApplication(models.Model):
     leave_type = models.ForeignKey(LeaveType, on_delete=models.CASCADE, related_name='applications')
     start_date = models.DateField()
     end_date = models.DateField()
-    total_days = models.PositiveIntegerField()
+    total_days = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # Changed to support 0.5 days
     reason = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    # Half-day leave fields
+    is_half_day = models.BooleanField(default=False)
+    scheduled_hours = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, help_text="Scheduled working hours for half-day calculation")
+    is_wfh = models.BooleanField(default=False, help_text="Work from home")
+    is_office = models.BooleanField(default=False, help_text="Work from office")
+    
+    # Sandwich rule tracking
+    is_sandwich_leave = models.BooleanField(default=False, help_text="Leave includes non-working days due to sandwich rule")
+    actual_working_days = models.IntegerField(null=True, blank=True, help_text="Actual working days in leave period")
+    
+    # Approval/Rejection
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_leaves')
     approved_date = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True, null=True)
+    
+    # Paid absence specific fields
+    is_first_child = models.BooleanField(default=False, null=True, blank=True, help_text="For paternity/maternity leave")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -514,10 +526,90 @@ class LeaveApplication(models.Model):
     def save(self, *args, **kwargs):
         # Auto-calculate total days if not provided
         if not self.total_days and self.start_date and self.end_date:
-            self.total_days = (self.end_date - self.start_date).days + 1
+            if self.is_half_day:
+                # Will be calculated by the service
+                self.total_days = 0.5
+            else:
+                self.total_days = (self.end_date - self.start_date).days + 1
         
         # Set approved date when status changes to approved
         if self.status == 'approved' and not self.approved_date:
             self.approved_date = timezone.now()
         
         super().save(*args, **kwargs)
+
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('info', 'Information'),
+        ('success', 'Success'),
+        ('warning', 'Warning'),
+        ('danger', 'Danger'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='info')
+    icon = models.CharField(max_length=50, default='bi-info-circle')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_notifications')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    
+    # For targeting specific users or all
+    target_all = models.BooleanField(default=True)
+    target_users = models.ManyToManyField(User, related_name='targeted_notifications', blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Notification"
+        verbose_name_plural = "Notifications"
+    
+    def __str__(self):
+        return f"{self.title} - {self.created_at.strftime('%Y-%m-%d')}"
+
+
+class NotificationRead(models.Model):
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name='reads')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notification_reads')
+    read_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('notification', 'user')
+        verbose_name = "Notification Read"
+        verbose_name_plural = "Notification Reads"
+    
+    def __str__(self):
+        return f"{self.user.username} read {self.notification.title}"
+
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    subject = models.CharField(max_length=200)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # For targeting specific users or all
+    target_all = models.BooleanField(default=True)
+    target_users = models.ManyToManyField(User, related_name='received_messages', blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Message"
+        verbose_name_plural = "Messages"
+    
+    def __str__(self):
+        return f"{self.subject} - from {self.sender.username}"
+
+
+class MessageRead(models.Model):
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='reads')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='message_reads')
+    read_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('message', 'user')
+        verbose_name = "Message Read"
+        verbose_name_plural = "Message Reads"
+    
+    def __str__(self):
+        return f"{self.user.username} read {self.message.subject}"
