@@ -4,10 +4,8 @@ from django.contrib import messages
 from .models import Notification, Message
 from .forms_notifications import NotificationForm, MessageForm
 
-
 def is_staff_or_superuser(user):
     return user.is_staff or user.is_superuser
-
 
 @login_required
 @user_passes_test(is_staff_or_superuser)
@@ -24,18 +22,17 @@ def create_notification(request):
             return redirect('employees:create_notification')
     else:
         form = NotificationForm()
-    
+
     # Get recent notifications
     recent_notifications = Notification.objects.filter(
         created_by=request.user
     ).order_by('-created_at')[:10]
-    
+
     context = {
         'form': form,
         'recent_notifications': recent_notifications,
     }
     return render(request, 'notifications/create_notification.html', context)
-
 
 @login_required
 @user_passes_test(is_staff_or_superuser)
@@ -52,12 +49,12 @@ def create_message(request):
             return redirect('employees:create_message')
     else:
         form = MessageForm()
-    
+
     # Get recent messages
     recent_messages = Message.objects.filter(
         sender=request.user
     ).order_by('-created_at')[:10]
-    
+
     context = {
         'form': form,
         'recent_messages': recent_messages,

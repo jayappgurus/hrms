@@ -363,10 +363,10 @@
         <div class="d-flex gap-2">
             <form method="get" class="d-flex gap-2">
                 <input type="hidden" name="designation" value="{{ selected_designation_id }}">
-                <input type="text" 
-                       name="search" 
-                       class="form-control" 
-                       placeholder="Search candidates..." 
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Search candidates..."
                        value="{{ request.GET.search }}"
                        style="min-width: 250px;">
                 <button type="submit" class="btn btn-light">
@@ -502,14 +502,14 @@
                     <td>
                         <div class="d-flex gap-1" style="min-width: 80px;">
                             {% if application.resume %}
-                            <a href="{{ application.resume.url }}" 
-                               class="btn-icon" 
+                            <a href="{{ application.resume.url }}"
+                               class="btn-icon"
                                title="Download CV"
                                download>
                                 <i class="bi bi-download"></i>
                             </a>
                             {% endif %}
-                            <a href="{% url 'employees:candidate_detail' application.pk %}" 
+                            <a href="{% url 'employees:candidate_detail' application.pk %}"
                                class="btn-icon"
                                title="View Details">
                                 <i class="bi bi-eye"></i>

@@ -13,7 +13,6 @@ from .models_job import JobDescription, JobApplication, InterviewSchedule
 from .models import Department, Designation, Employee
 from .forms_job import JobDescriptionForm, JobApplicationForm, InterviewScheduleForm, JobSearchForm, CandidateSearchForm
 
-
 class JobDescriptionListView(LoginRequiredMixin, ListView):
     model = JobDescription
     template_name = 'jobs/job_list.html'
@@ -22,7 +21,7 @@ class JobDescriptionListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = JobDescription.objects.select_related('designation', 'department', 'posted_by').all()
-        
+
         # Search functionality
         search = self.request.GET.get('search', '')
         if search:
@@ -31,27 +30,27 @@ class JobDescriptionListView(LoginRequiredMixin, ListView):
                 Q(required_qualifications__icontains=search) |
                 Q(skills_requirements__icontains=search)
             )
-        
+
         # Filter by department
         department_id = self.request.GET.get('department')
         if department_id:
             queryset = queryset.filter(department_id=department_id)
-        
+
         # Filter by employment type
         employment_type = self.request.GET.get('employment_type')
         if employment_type:
             queryset = queryset.filter(employment_type=employment_type)
-        
+
         # Filter by experience level
         experience_level = self.request.GET.get('experience_level')
         if experience_level:
             queryset = queryset.filter(experience_level=experience_level)
-        
+
         # Filter by status
         status = self.request.GET.get('status')
         if status:
             queryset = queryset.filter(status=status)
-        
+
         return queryset.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
@@ -62,7 +61,6 @@ class JobDescriptionListView(LoginRequiredMixin, ListView):
         context['active_jobs'] = self.get_queryset().filter(status='active').count()
         context['job_form'] = JobDescriptionForm()
         return context
-
 
 class JobDescriptionDetailView(LoginRequiredMixin, DetailView):
     model = JobDescription
@@ -77,7 +75,6 @@ class JobDescriptionDetailView(LoginRequiredMixin, DetailView):
             status='active'
         ).exclude(pk=self.object.pk)[:3]
         return context
-
 
 class JobDescriptionCreateView(LoginRequiredMixin, CreateView):
     model = JobDescription
@@ -98,7 +95,6 @@ class JobDescriptionCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'Job description created successfully!')
         return super().form_valid(form)
 
-
 class JobDescriptionUpdateView(LoginRequiredMixin, UpdateView):
     model = JobDescription
     form_class = JobDescriptionForm
@@ -117,12 +113,11 @@ class JobDescriptionUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, 'Job description updated successfully!')
         return super().form_valid(form)
 
-
 class JobDescriptionDeleteView(LoginRequiredMixin, DeleteView):
     model = JobDescription
     template_name = 'jobs/job_confirm_delete.html'
     success_url = reverse_lazy('employees:job_list')
-    
+
     def dispatch(self, request, *args, **kwargs):
         # Only allow superusers and staff to delete jobs
         if not request.user.is_superuser and not request.user.is_staff:
@@ -134,7 +129,6 @@ class JobDescriptionDeleteView(LoginRequiredMixin, DeleteView):
         messages.success(request, 'Job description deleted successfully!')
         return super().delete(request, *args, **kwargs)
 
-
 class JobApplicationListView(LoginRequiredMixin, ListView):
     model = JobApplication
     template_name = 'jobs/candidate_list.html'
@@ -143,7 +137,7 @@ class JobApplicationListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = JobApplication.objects.select_related('job', 'job__designation', 'job__department', 'referred_by').all()
-        
+
         # Search functionality
         search = self.request.GET.get('search', '')
         if search:
@@ -152,17 +146,17 @@ class JobApplicationListView(LoginRequiredMixin, ListView):
                 Q(email__icontains=search) |
                 Q(current_organization__icontains=search)
             )
-        
+
         # Filter by status
         status = self.request.GET.get('status')
         if status:
             queryset = queryset.filter(status=status)
-        
+
         # Filter by source
         source = self.request.GET.get('source')
         if source:
             queryset = queryset.filter(source=source)
-        
+
         return queryset.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
@@ -173,7 +167,6 @@ class JobApplicationListView(LoginRequiredMixin, ListView):
             status__in=['received', 'under_review', 'shortlisted', 'interview_scheduled']
         ).count()
         return context
-
 
 class JobApplicationDetailView(LoginRequiredMixin, DetailView):
     model = JobApplication
@@ -186,7 +179,6 @@ class JobApplicationDetailView(LoginRequiredMixin, DetailView):
             application=self.object
         ).order_by('scheduled_date')
         return context
-
 
 class InterviewScheduleView(LoginRequiredMixin, CreateView):
     model = InterviewSchedule
@@ -204,21 +196,20 @@ class InterviewScheduleView(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'Interview scheduled successfully!')
         return super().form_valid(form)
 
-
 def update_application_status(request, pk):
     """Update application status via AJAX"""
     application = get_object_or_404(JobApplication, pk=pk)
-    
+
     if request.method == 'POST':
         new_status = request.POST.get('status')
         notes = request.POST.get('notes', '')
-        
+
         if new_status in [choice[0] for choice in JobApplication.STATUS_CHOICES]:
             application.status = new_status
             if notes:
                 application.interview_notes = notes
             application.save()
-            
+
             return JsonResponse({
                 'success': True,
                 'message': f'Application status updated to {application.get_status_display()}'
@@ -228,33 +219,30 @@ def update_application_status(request, pk):
                 'success': False,
                 'message': 'Invalid status'
             })
-    
-    return JsonResponse({'success': False, 'message': 'Method not allowed'})
 
+    return JsonResponse({'success': False, 'message': 'Method not allowed'})
 
 def download_resume(request, pk):
     """Download candidate resume"""
     application = get_object_or_404(JobApplication, pk=pk)
-    
+
     if application.resume:
         response = HttpResponse(application.resume.read(), content_type='application/octet-stream')
         response['Content-Disposition'] = f'attachment; filename="{application.candidate_name}_resume.pdf"'
         return response
-    
-    return JsonResponse({'success': False, 'message': 'Resume not found'})
 
+    return JsonResponse({'success': False, 'message': 'Resume not found'})
 
 def download_jd_document(request, pk):
     """Download job description document"""
     job = get_object_or_404(JobDescription, pk=pk)
-    
+
     if job.jd_document:
         response = HttpResponse(job.jd_document.read(), content_type='application/octet-stream')
         response['Content-Disposition'] = f'attachment; filename="{job.title}_JD.pdf"'
         return response
-    
-    return JsonResponse({'success': False, 'message': 'JD document not found'})
 
+    return JsonResponse({'success': False, 'message': 'JD document not found'})
 
 class CandidateTrackerView(LoginRequiredMixin, ListView):
     """Designation-wise candidate tracking"""
@@ -265,19 +253,19 @@ class CandidateTrackerView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = JobApplication.objects.select_related(
-            'job', 
-            'job__designation', 
+            'job',
+            'job__designation',
             'job__department',
             'referred_by'
         ).filter(
             status__in=['received', 'under_review', 'shortlisted', 'interview_scheduled', 'interviewed', 'offer_extended']
         )
-        
+
         # Filter by designation
         designation_id = self.request.GET.get('designation')
         if designation_id:
             queryset = queryset.filter(job__designation_id=designation_id)
-        
+
         # Search functionality
         search = self.request.GET.get('search')
         if search:
@@ -287,40 +275,40 @@ class CandidateTrackerView(LoginRequiredMixin, ListView):
                 Q(phone_number__icontains=search) |
                 Q(current_organization__icontains=search)
             )
-        
+
         return queryset.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         # Get all designations with active job applications count
         designations = Designation.objects.annotate(
             active_applications_count=Count(
                 'job_descriptions__applications',
                 filter=Q(
                     job_descriptions__applications__status__in=[
-                        'received', 'under_review', 'shortlisted', 
+                        'received', 'under_review', 'shortlisted',
                         'interview_scheduled', 'interviewed', 'offer_extended'
                     ]
                 )
             )
         ).filter(active_applications_count__gt=0).order_by('name')
-        
+
         context['designations'] = designations
         context['selected_designation_id'] = self.request.GET.get('designation', '')
-        
+
         # Get selected designation details
         if context['selected_designation_id']:
             try:
                 context['selected_designation'] = Designation.objects.get(id=context['selected_designation_id'])
             except Designation.DoesNotExist:
                 context['selected_designation'] = None
-        
+
         # Statistics
         context['total_candidates'] = JobApplication.objects.filter(
             status__in=['received', 'under_review', 'shortlisted', 'interview_scheduled', 'interviewed', 'offer_extended']
         ).count()
-        
+
         context['received_count'] = JobApplication.objects.filter(status='received').count()
         context['under_review_count'] = JobApplication.objects.filter(status='under_review').count()
         context['shortlisted_count'] = JobApplication.objects.filter(status='shortlisted').count()
@@ -328,9 +316,8 @@ class CandidateTrackerView(LoginRequiredMixin, ListView):
             status__in=['interview_scheduled', 'interviewed']
         ).count()
         context['offered_count'] = JobApplication.objects.filter(status='offer_extended').count()
-        
-        return context
 
+        return context
 
 class CurrentOpeningsView(LoginRequiredMixin, ListView):
     """Active job openings listing"""
@@ -349,8 +336,6 @@ class CurrentOpeningsView(LoginRequiredMixin, ListView):
         context['total_openings'] = self.get_queryset().count()
         return context
 
-
-
 #     ====== INTERVIEW MANAGEMENT VIEWS     ======
 
 @login_required
@@ -360,9 +345,9 @@ def add_interview(request, application_id):
     if not request.user.is_superuser and not request.user.is_staff:
         messages.error(request, 'You do not have permission to add interviews.')
         return redirect('employees:candidate_tracker')
-    
+
     application = get_object_or_404(JobApplication, pk=application_id)
-    
+
     if request.method == 'POST':
         form = InterviewScheduleForm(request.POST)
         if form.is_valid():
@@ -373,14 +358,13 @@ def add_interview(request, application_id):
             return redirect('employees:candidate_detail', pk=application_id)
     else:
         form = InterviewScheduleForm(initial={'application': application})
-    
+
     context = {
         'form': form,
         'application': application,
         'page_title': 'Add Interview Round'
     }
     return render(request, 'jobs/interview_form.html', context)
-
 
 @login_required
 def edit_interview(request, interview_id):
@@ -389,9 +373,9 @@ def edit_interview(request, interview_id):
     if not request.user.is_superuser and not request.user.is_staff:
         messages.error(request, 'You do not have permission to edit interviews.')
         return redirect('employees:candidate_tracker')
-    
+
     interview = get_object_or_404(InterviewSchedule, pk=interview_id)
-    
+
     if request.method == 'POST':
         form = InterviewScheduleForm(request.POST, instance=interview)
         if form.is_valid():
@@ -400,7 +384,7 @@ def edit_interview(request, interview_id):
             return redirect('employees:candidate_detail', pk=interview.application.pk)
     else:
         form = InterviewScheduleForm(instance=interview)
-    
+
     context = {
         'form': form,
         'interview': interview,
@@ -409,7 +393,6 @@ def edit_interview(request, interview_id):
     }
     return render(request, 'jobs/interview_form.html', context)
 
-
 @login_required
 def delete_interview(request, interview_id):
     """Delete interview round"""
@@ -417,15 +400,15 @@ def delete_interview(request, interview_id):
     if not request.user.is_superuser and not request.user.is_staff:
         messages.error(request, 'You do not have permission to delete interviews.')
         return redirect('employees:candidate_tracker')
-    
+
     interview = get_object_or_404(InterviewSchedule, pk=interview_id)
     application_id = interview.application.pk
-    
+
     if request.method == 'POST':
         interview.delete()
         messages.success(request, 'Interview round deleted successfully.')
         return redirect('employees:candidate_detail', pk=application_id)
-    
+
     context = {
         'interview': interview,
         'application': interview.application

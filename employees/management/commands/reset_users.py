@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from employees.models import UserProfile, Department
 
-
 class Command(BaseCommand):
     help = 'Reset users - remove old users and create new ones'
 
@@ -21,7 +20,7 @@ class Command(BaseCommand):
             self.stdout.write('Current users:')
             for user in User.objects.all():
                 self.stdout.write(f'  - {user.username} ({user.email})')
-            
+
             self.stdout.write('\n' + '='*60)
             self.stdout.write('To proceed, run:')
             self.stdout.write(self.style.SUCCESS(
@@ -95,7 +94,7 @@ class Command(BaseCommand):
         ]
 
         self.stdout.write('\nCreating new users...\n')
-        
+
         created_users = []
         for user_data in new_users:
             # Create user
@@ -106,27 +105,27 @@ class Command(BaseCommand):
                 last_name=user_data['last_name'],
                 password=user_data['password']
             )
-            
+
             # Set staff status for admin
             if user_data['role'] == 'admin':
                 user.is_staff = True
                 user.is_superuser = True
                 user.save()
-            
+
             # Create user profile
             profile = UserProfile.objects.create(
                 user=user,
                 role=user_data['role'],
                 department=user_data['department']
             )
-            
+
             created_users.append({
                 'username': user.username,
                 'email': user.email,
                 'role': profile.get_role_display(),
                 'password': user_data['password']
             })
-            
+
             self.stdout.write(self.style.SUCCESS(
                 f"✓ Created: {user.username} ({profile.get_role_display()})"
             ))
@@ -137,7 +136,7 @@ class Command(BaseCommand):
         self.stdout.write('='*80)
         self.stdout.write('\nLogin Credentials:\n')
         self.stdout.write('-'*80)
-        
+
         for user in created_users:
             self.stdout.write(
                 f"Username: {user['username']:<20} "
@@ -145,7 +144,7 @@ class Command(BaseCommand):
                 f"Role: {user['role']:<12}"
             )
             self.stdout.write(f"Password: {user['password']}\n")
-        
+
         self.stdout.write('='*80)
         self.stdout.write('\n⚠️  IMPORTANT: Save these credentials securely!')
         self.stdout.write('Users should change their passwords after first login.\n')

@@ -11,7 +11,7 @@
         text-align: center;
         padding: 80px 20px;
     }
-    
+
     .success-card {
         background: white;
         border-radius: 16px;
@@ -21,7 +21,7 @@
         margin: 0 auto;
         border: 1px solid var(--border-color);
     }
-    
+
     .success-icon {
         width: 80px;
         height: 80px;
@@ -32,19 +32,19 @@
         justify-content: center;
         margin: 0 auto 24px;
     }
-    
+
     .success-icon i {
         font-size: 2.5rem;
         color: white;
     }
-    
+
     .success-title {
         font-size: 24px;
         font-weight: 700;
         color: var(--text-main);
         margin-bottom: 16px;
     }
-    
+
     .success-message {
         font-size: 16px;
         color: var(--text-muted);
@@ -60,17 +60,17 @@
         <div class="success-icon">
             <i class="bi bi-check-lg"></i>
         </div>
-        
+
         <h2 class="success-title">Application Submitted!</h2>
-        
+
         <p class="success-message">
             Thank you for your interest in this position. Your application has been successfully submitted and will be reviewed by our hiring team.
         </p>
-        
+
         <p class="success-message">
             We will contact you via email if your profile matches our requirements.
         </p>
-        
+
         <a href="{% url 'employees:job_list' %}" class="btn btn-primary">
             <i class="bi bi-arrow-left me-2"></i>
             Back to Jobs

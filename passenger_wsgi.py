@@ -16,10 +16,6 @@
 
 # # Get the WSGI application
 # application = get_wsgi_application()
-import pymysql
-pymysql.install_as_MySQLdb()
-
-
 import os
 import sys
 

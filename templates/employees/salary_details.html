@@ -1,0 +1,589 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4 page-content">
+    <!-- Breadcrumb & Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb premium-breadcrumb p-0">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'employees:dashboard' %}">
+                            <i class="bi bi-house-door me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'employees:employee_detail' employee.pk %}">
+                            {{ employee.full_name }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Salary Profile</li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <h1 class="h2 page-heading mb-0">Financial Portfolio</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Dashboard Summary Column -->
+        <div class="col-xl-4 col-lg-5">
+            <!-- Main Salary Card -->
+            <div class="salary-master-card mb-4 position-relative overflow-hidden">
+                <div class="card-glass-effect"></div>
+                <div class="p-4 position-relative z-1 text-white">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="text-white-50 small text-uppercase fw-bold tracking-wider">Annual CTC</span>
+                        <div class="card-icon-blob">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                    </div>
+                    <div class="ctc-amount-display mb-2">
+                        <span class="currency">₹</span>
+                        <span class="amount counter-value">{{ employee.current_ctc }}</span>
+                    </div>
+                    <div class="effective-badge mt-3">
+                        <i class="bi bi-calendar-check me-2"></i>Joined: {{ employee.joining_date|date:"d M, Y" }}
+                    </div>
+                </div>
+
+                <div class="summary-details-pane p-4 bg-white">
+                    <div class="summary-item d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="dot bg-primary me-2"></div>
+                            <span class="text-muted">Monthly Gross</span>
+                        </div>
+                        <span class="fw-bold text-dark">₹{{ salary_components.gross_salary }}</span>
+                    </div>
+                    <div class="summary-item d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="dot bg-danger me-2"></div>
+                            <span class="text-muted">Deductions</span>
+                        </div>
+                        <span class="fw-bold text-danger">₹{{ salary_components.total_deductions }}</span>
+                    </div>
+                    <div class="net-pay-highlight mt-4 p-3 rounded-4 bg-light border-start border-success border-4">
+                        <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                                <p class="text-muted small mb-1">Monthly In-Hand</p>
+                                <h3 class="fw-bold mb-0 text-success">₹{{ salary_components.net_salary }}</h3>
+                            </div>
+                            <div class="net-percent-badge">
+                                <span class="small text-success fw-bold">~{{ salary_components.net_salary|default:0 }}%
+                                    of CTC</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PaySlip Action -->
+            {% if payslip_eligible %}
+            <div class="glass-card modern-payslip-card p-4">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="icon-square bg-primary-subtle text-primary me-3">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Statement Center</h5>
+                </div>
+
+                <form action="{% url 'employees:generate_payslip' employee.pk %}" method="post" class="modern-form"
+                    id="payslipForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label-custom">Fiscal Year</label>
+                        {{ payslip_form.year }}
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label-custom">Pay Period</label>
+                        {{ payslip_form.month }}
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" name="action" value="email"
+                            class="btn btn-primary flex-grow-1 py-3 shadow-sm hover-up" style="border-radius: 12px;">
+                            <i class="bi bi-send-fill me-2"></i> Email
+                        </button>
+                        <button type="submit" name="action" value="download"
+                            class="btn btn-outline-primary py-3 shadow-sm hover-up d-none"
+                            style="border-radius: 12px; min-width: 60px;">
+                            <i class="bi bi-download"></i>
+                        </button>
+                    </div>
+                </form>
+                <script>
+                    document.getElementById('payslipForm').onsubmit = function (e) {
+                        const btn = e.submitter;
+                        if (btn && btn.value === 'email') {
+                            const original = btn.innerHTML;
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Sending...';
+                            btn.classList.add('disabled');
+                            setTimeout(() => { if (btn) btn.innerHTML = original; btn.classList.remove('disabled'); }, 10000);
+                        }
+                    };
+                </script>
+                <div class="mt-4 p-3 rounded-3 bg-primary-subtle border border-primary-subtle text-center">
+                    <small class="text-primary-emphasis fw-medium">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Payslips are sent to official ID:
+                        <strong>
+                            {{ employee.official_email }}
+                        </strong>
+                    </small>
+                </div>
+            </div>
+            {% else %}
+            <div class="glass-card text-center p-5">
+                <i class="bi bi-lock text-muted opacity-25 mb-3" style="font-size: 4rem; display: block;"></i>
+                <h5 class="fw-bold text-muted">Statements Locked</h5>
+                <p class="small text-muted mb-0">Payslips are available only for <strong>Confirmed employees</strong>.
+                    Your current status is: {{ employee.get_period_type_display }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Breakdown Details Column -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="glass-card p-0 shadow-sm border-0">
+                <div class="p-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-stack me-2 text-primary"></i>Salary Components</h5>
+                    <a href="{% url 'employees:increment_details' employee.pk %}"
+                        class="btn btn-link-premium text-decoration-none">
+                        Growth History <i class="bi bi-arrow-right-short"></i>
+                    </a>
+                </div>
+
+                <div class="p-4">
+                    <div class="row g-4">
+                        <!-- Earnings Grid -->
+                        <div class="col-md-6">
+                            <div class="component-group">
+                                <div class="group-header text-primary mb-4 d-flex align-items-center">
+                                    <span class="line bg-primary me-2"></span>
+                                    <span class="text-uppercase fw-bold tracking-widest small">Monthly Earnings</span>
+                                </div>
+
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon earnings me-3"><i class="bi bi-buildings"></i></div>
+                                        <div>
+                                            <div class="item-label">Basic Salary</div>
+                                            <div class="item-desc small text-muted">Core monthly base</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold">
+                                        ₹{{ salary_components.earnings.Basic_Salary }}
+                                    </div>
+                                </div>
+
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon earnings me-3"><i class="bi bi-houses"></i></div>
+                                        <div>
+                                            <div class="item-label">H.R.A.</div>
+                                            <div class="item-desc small text-muted">House rent allowance</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold">
+                                        ₹{{ salary_components.earnings.House_Rent_Allowance }}
+                                    </div>
+                                </div>
+
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon earnings me-3"><i class="bi bi-gift text-warning"></i>
+                                        </div>
+                                        <div>
+                                            <div class="item-label">Special Allowance</div>
+                                            <div class="item-desc small text-muted">Performance & bonus</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold">
+                                        ₹{{ salary_components.earnings.Special_Allowance }}
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="total-bar earnings mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Total Gross Earnings</span>
+                                    <span class="h5 mb-0 fw-bold">₹{{ salary_components.gross_salary }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Deductions Grid -->
+                        <div class="col-md-6">
+                            <div class="component-group">
+                                <div class="group-header text-danger mb-4 d-flex align-items-center">
+                                    <span class="line bg-danger me-2"></span>
+                                    <span class="text-uppercase fw-bold tracking-widest small">Statutory
+                                        Deductions</span>
+                                </div>
+
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon deductions me-3"><i class="bi bi-safe"></i></div>
+                                        <div>
+                                            <div class="item-label">Provident Fund</div>
+                                            <div class="item-desc small text-muted">Retirement savings</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold text-danger">
+                                        ₹{{ salary_components.deductions.Provident_Fund }}
+                                    </div>
+                                </div>
+
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon deductions me-3"><i class="bi bi-shield-lock"></i></div>
+                                        <div>
+                                            <div class="item-label">Professional Tax</div>
+                                            <div class="item-desc small text-muted">State tax reg.</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold text-danger">
+                                        ₹{{ salary_components.deductions.Professional_Tax }}
+                                    </div>
+                                </div>
+
+                                <div class="placeholder-space" style="height: 60px;"></div>
+
+                                <div
+                                    class="total-bar deductions mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Total Statutory Deductions</span>
+                                    <span class="h5 mb-0 fw-bold">₹{{ salary_components.total_deductions }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Net Pay Spotlight -->
+                    <div class="net-pay-spotlight mt-5">
+                        <div class="gradient-border-box">
+                            <div
+                                class="spotlight-content d-md-flex align-items-center justify-content-between p-4 bg-white rounded-4">
+                                <div class="d-flex align-items-center mb-3 mb-md-0">
+                                    <div class="spotlight-icon-circle me-3">
+                                        <i class="bi bi-stars"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="fw-bold mb-1">Monthly Credited Pay</h4>
+                                        <p class="text-muted small mb-0">Estimate after all standard deductions applied.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-md-end">
+                                    <div class="display-5 fw-bold text-primary mb-0">₹{{ salary_components.net_salary }}
+                                    </div>
+                                    <span class="badge bg-success-subtle text-success p-1 px-2 rounded-pill mt-2">
+                                        Active Pay Structure</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if employee.salary_structure and not employee.salary_structure|slice:":1" == "{" %}
+            <div class="glass-card mt-4 p-4 border-0 shadow-sm bg-light">
+                <h6 class="text-uppercase fw-bold text-muted small mb-3 border-bottom pb-2">Structure Metadata</h6>
+                <div class="p-3 bg-white rounded-3 border border-dashed">
+                    <pre class="mb-0 text-dark"
+                        style="white-space: pre-wrap; font-family: 'Inter', sans-serif; font-size: 0.85rem;">{{ employee.salary_structure }}</pre>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Premium Root Styling */
+    .page-content {
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .page-heading {
+        font-weight: 800;
+        color: #1a1e2b;
+        letter-spacing: -0.5px;
+    }
+
+    /* Glass Breadcrumbs */
+    .premium-breadcrumb {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 8px 16px !important;
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: inline-flex;
+        margin-bottom: 24px;
+    }
+
+    .premium-breadcrumb .breadcrumb-item a {
+        color: #4e73df;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .premium-breadcrumb .breadcrumb-item.active {
+        color: #858796;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+
+    .text-primary {
+        color: var(--primary) !important;
+    }
+
+    /* Master Salary Card */
+    .salary-master-card {
+        border-radius: 24px;
+        background: var(--primary);
+        box-shadow: 0 20px 40px rgba(78, 115, 223, 0.25);
+        border: none;
+    }
+
+    .card-glass-effect {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    .ctc-amount-display .currency {
+        font-size: 2rem;
+        font-weight: 300;
+        opacity: 0.8;
+        margin-right: 8px;
+    }
+
+    .ctc-amount-display .amount {
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -2px;
+    }
+
+    .card-icon-blob {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .effective-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* Detailed Components Styling */
+    .glass-card {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .line {
+        height: 4px;
+        width: 24px;
+        border-radius: 4px;
+    }
+
+    .tracking-widest {
+        letter-spacing: 0.1em;
+    }
+
+    .comp-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .comp-icon.earnings {
+        background: #f0f4ff;
+        color: #4e73df;
+    }
+
+    .comp-icon.deductions {
+        background: #fff5f5;
+        color: #e74a3b;
+    }
+
+    .item-label {
+        font-weight: 700;
+        color: #1a1e2b;
+        font-size: 0.95rem;
+    }
+
+    .item-desc {
+        font-size: 0.75rem !important;
+    }
+
+    .total-bar.earnings {
+        background: #eef2ff;
+        color: #3e5cb8;
+        border-left: 5px solid #4e73df;
+    }
+
+    .total-bar.deductions {
+        background: #fff5f5;
+        color: #c53030;
+        border-left: 5px solid #e74a3b;
+    }
+
+    /* Form & Buttons */
+    .form-label-custom {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #6e707e;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .modern-form .form-control,
+    .modern-form .form-select {
+        border-radius: 12px;
+        border: 1px solid #e3e6f0;
+        padding: 12px 16px;
+        background: #f8f9fc;
+        font-weight: 500;
+    }
+
+    .btn-link-premium {
+        color: #4e73df;
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        background: #f0f4ff;
+    }
+
+    .btn-link-premium:hover {
+        background: #4e73df;
+        color: #fff;
+    }
+
+    /* Spotlight pay item */
+    .net-pay-spotlight .gradient-border-box {
+        background: linear-gradient(135deg, #4e73df, #1cc88a);
+        padding: 2px;
+        border-radius: 20px;
+    }
+
+    .spotlight-icon-circle {
+        width: 60px;
+        height: 60px;
+        background: #f0f4ff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: #4e73df;
+    }
+
+    .hover-up:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    @media (max-width: 991px) {
+        .salary-master-card {
+            border-radius: 16px;
+        }
+
+        .glass-card {
+            border-radius: 16px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .ctc-amount-display .amount {
+            font-size: 2rem;
+        }
+
+        .page-heading {
+            font-size: 1.5rem;
+        }
+
+        .premium-breadcrumb {
+            display: none;
+        }
+
+        .net-pay-highlight {
+            text-align: center;
+        }
+
+        .net-pay-highlight .d-flex {
+            flex-direction: column;
+            align-items: center !important;
+            gap: 10px;
+        }
+
+        .net-percent-badge {
+            margin-top: 5px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .insight-card-premium {
+            padding: 1.25rem !important;
+        }
+
+        .display-6 {
+            font-size: 1.75rem;
+        }
+
+        .stat-pill {
+            padding: 6px 15px;
+        }
+
+        .stat-pill .value {
+            font-size: 1rem;
+        }
+
+        .p-4 {
+            padding: 1.25rem !important;
+        }
+
+        .display-5 {
+            font-size: 2rem;
+        }
+
+        .spotlight-content {
+            text-align: center;
+        }
+
+        .spotlight-icon-circle {
+            margin: 0 auto 15px !important;
+        }
+
+        .total-bar {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -148,8 +148,8 @@
                                     <i class="bi bi-share me-2"></i>Share Job
                                 </a>
                                 {% if user.is_superuser or user.is_staff %}
-                                <a href="#" class="btn btn-outline-danger btn-sm" 
-                                   onclick="confirmDelete({{ job.pk }}); return false;" 
+                                <a href="#" class="btn btn-outline-danger btn-sm"
+                                   onclick="confirmDelete({{ job.pk }}); return false;"
                                    title="Delete Job">
                                     <i class="bi bi-trash me-2"></i>Delete Job
                                 </a>
@@ -262,16 +262,16 @@ async function confirmDelete(jobId) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = `/jobs/${jobId}/delete/`;
-        
+
         // Add CSRF token - try multiple methods
         let csrfToken = null;
-        
+
         // Method 1: Look for hidden input with CSRF token
         const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
         if (csrfInput) {
             csrfToken = csrfInput.value;
         }
-        
+
         // Method 2: Get from cookie (Django standard method)
         if (!csrfToken) {
             const cookies = document.cookie.split(';');
@@ -283,7 +283,7 @@ async function confirmDelete(jobId) {
                 }
             }
         }
-        
+
         // Add CSRF token to form if found
         if (csrfToken) {
             const csrfField = document.createElement('input');
@@ -292,7 +292,7 @@ async function confirmDelete(jobId) {
             csrfField.value = csrfToken;
             form.appendChild(csrfField);
         }
-        
+
         document.body.appendChild(form);
         form.submit();
     }

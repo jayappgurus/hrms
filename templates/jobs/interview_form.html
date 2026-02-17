@@ -84,13 +84,13 @@
 
     <form method="post" id="interviewForm">
         {% csrf_token %}
-        
+
         <!-- Interview Details -->
         <div class="form-section">
             <div class="section-title">
                 <i class="bi bi-calendar-event me-2"></i>Interview Details
             </div>
-            
+
             <div class="form-grid">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.interview_type.label }}</label>
@@ -131,7 +131,7 @@
             <div class="section-title">
                 <i class="bi bi-geo-alt me-2"></i>Platform & Location
             </div>
-            
+
             <div class="form-grid">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.platform.label }}</label>
@@ -166,7 +166,7 @@
             <div class="section-title">
                 <i class="bi bi-person-badge me-2"></i>Interviewer
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.taken_by.label }}</label>
                 {{ form.taken_by }}
@@ -182,7 +182,7 @@
             <div class="section-title">
                 <i class="bi bi-chat-text me-2"></i>Remarks
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.remarks.label }}</label>
                 {{ form.remarks }}

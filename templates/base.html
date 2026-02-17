@@ -16,6 +16,11 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/hrms-portal.css' %}">
     <link rel="stylesheet" href="{% static 'css/shared-components.css' %}">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
 
     {% block extra_css %}{% endblock %}
@@ -96,7 +101,8 @@
                                     <li><a href="{% url 'employees:public_holidays_by_country' 'indian' %}"
                                             class="{% if request.resolver_match.kwargs.country == 'indian' %}active{% endif %}">Indian
                                             Holidays</a></li>
-                                    <li class="mt-2"><a href="{% url 'employees:public_holidays_by_country' 'australian' %}"
+                                    <li class="mt-2"><a
+                                            href="{% url 'employees:public_holidays_by_country' 'australian' %}"
                                             class="{% if request.resolver_match.kwargs.country == 'australian' %}active{% endif %}">Australian
                                             Holidays</a></li>
                                 </ul>
@@ -151,16 +157,16 @@
         <div class="page-wrapper">
 
             <!-- Top Header -->
-            <header class="top-header">
-                <!-- <div class="header-left">
+            <header class="top-header justify-content-between justify-content-md-end">
+                <div class="header-left">
                     <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
                         <i class="bi bi-list"></i>
                     </button>
-                    <div class="search-bar">
+                    <!-- <div class="search-bar">
                         <input type="text" class="form-control" placeholder="Search...">
                         <i class="bi bi-search"></i>
-                    </div>
-                </div> -->
+                    </div> -->
+                </div>
 
                 <div class="header-right">
                     <!-- Notifications -->
@@ -174,19 +180,20 @@
                         <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
                             <li class="dropdown-header">Notifications</li>
                             {% if unread_notifications %}
-                                {% for notification in unread_notifications %}
-                                <li><a class="dropdown-item" href="#">
-                                        <div class="notification-item">
-                                            <i class="bi {{ notification.icon }} text-{{ notification.notification_type }}"></i>
-                                            <div class="notification-content">
-                                                <p>{{ notification.title }}</p>
-                                                <small>{{ notification.created_at|timesince }} ago</small>
-                                            </div>
+                            {% for notification in unread_notifications %}
+                            <li><a class="dropdown-item" href="#">
+                                    <div class="notification-item">
+                                        <i
+                                            class="bi {{ notification.icon }} text-{{ notification.notification_type }}"></i>
+                                        <div class="notification-content">
+                                            <p>{{ notification.title }}</p>
+                                            <small>{{ notification.created_at|timesince }} ago</small>
                                         </div>
-                                    </a></li>
-                                {% endfor %}
+                                    </div>
+                                </a></li>
+                            {% endfor %}
                             {% else %}
-                                <li><a class="dropdown-item text-center text-muted">No new notifications</a></li>
+                            <li><a class="dropdown-item text-center text-muted">No new notifications</a></li>
                             {% endif %}
                             <li>
                                 <hr class="dropdown-divider">
@@ -206,19 +213,21 @@
                         <ul class="dropdown-menu dropdown-menu-end message-dropdown">
                             <li class="dropdown-header">Messages</li>
                             {% if unread_messages %}
-                                {% for message in unread_messages %}
-                                <li><a class="dropdown-item" href="#">
-                                        <div class="message-item">
-                                            <div class="message-avatar">{{ message.sender.get_full_name|slice:":2"|upper|default:message.sender.username|slice:":2"|upper }}</div>
-                                            <div class="message-content">
-                                                <p>{{ message.sender.get_full_name|default:message.sender.username }}</p>
-                                                <small>{{ message.subject|truncatewords:5 }}</small>
-                                            </div>
+                            {% for message in unread_messages %}
+                            <li><a class="dropdown-item" href="#">
+                                    <div class="message-item">
+                                        <div class="message-avatar">{{
+                                            message.sender.get_full_name|slice:":2"|upper|default:message.sender.username|slice:":2"|upper
+                                            }}</div>
+                                        <div class="message-content">
+                                            <p>{{ message.sender.get_full_name|default:message.sender.username }}</p>
+                                            <small>{{ message.subject|truncatewords:5 }}</small>
                                         </div>
-                                    </a></li>
-                                {% endfor %}
+                                    </div>
+                                </a></li>
+                            {% endfor %}
                             {% else %}
-                                <li><a class="dropdown-item text-center text-muted">No new messages</a></li>
+                            <li><a class="dropdown-item text-center text-muted">No new messages</a></li>
                             {% endif %}
                             <li>
                                 <hr class="dropdown-divider">
@@ -232,11 +241,13 @@
                         <button class="user-profile-btn" type="button" data-bs-toggle="dropdown">
                             <div class="user-avatar">
                                 {% if user.profile.employee.profile_picture %}
-                                    <img src="{{ user.profile.employee.profile_picture.url }}" alt="{{ user.get_full_name }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%;">
+                                <img src="{{ user.profile.employee.profile_picture.url }}"
+                                    alt="{{ user.get_full_name }}"
+                                    style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%;">
                                 {% else %}
-                                    <div class="avatar-placeholder">
-                                        <i class="bi bi-person"></i>
-                                    </div>
+                                <div class="avatar-placeholder">
+                                    <i class="bi bi-person"></i>
+                                </div>
                                 {% endif %}
                             </div>
                             <div class="user-info">
@@ -270,6 +281,26 @@
 
             <!-- Page Content -->
             <main class="main-content">
+                <!-- Messages -->
+                {% if messages %}
+                <div class="container-fluid px-0 mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm mb-3 d-flex align-items-center"
+                        role="alert"
+                        style="border-radius: 12px; background: {% if message.tags == 'success' %}#d1e7dd{% elif message.tags == 'danger' %}#f8d7da{% else %}#cfe2ff{% endif %};">
+                        <div class="flex-shrink-0 me-3">
+                            <i
+                                class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-success{% elif message.tags == 'danger' %}bi-exclamation-octagon-fill text-danger{% else %}bi-info-circle-fill text-primary{% endif %} fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 text-dark fw-medium">
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 <!-- Page Header -->
                 {% if request.resolver_match.url_name == 'dashboard' %}
                 <div class="page-header">
@@ -306,7 +337,8 @@
                     <p id="modalMessage">Are you sure you want to proceed?</p>
                 </div>
                 <div class="modern-modal-footer">
-                    <button type="button" class="btn btn-secondary modern-btn-secondary" id="modalCancel">Cancel</button>
+                    <button type="button" class="btn btn-secondary modern-btn-secondary"
+                        id="modalCancel">Cancel</button>
                     <button type="button" class="btn btn-primary modern-btn-primary" id="modalConfirm">Confirm</button>
                 </div>
             </div>
@@ -322,6 +354,36 @@
         // Hide preloader when page loads
         window.addEventListener('load', function () {
             document.getElementById('preloader').style.display = 'none';
+
+            // Date Input Placeholder Fix
+            function updateDateInputs() {
+                document.querySelectorAll('input[type="date"]').forEach(input => {
+                    // Check initial value
+                    if (input.value) {
+                        input.classList.add('has-value');
+                    } else {
+                        input.classList.remove('has-value');
+                    }
+
+                    // Listen for changes
+                    input.addEventListener('change', function () {
+                        if (this.value) {
+                            this.classList.add('has-value');
+                        } else {
+                            this.classList.remove('has-value');
+                        }
+                    });
+
+                    input.addEventListener('blur', function () {
+                        if (this.value) {
+                            this.classList.add('has-value');
+                        } else {
+                            this.classList.remove('has-value');
+                        }
+                    });
+                });
+            }
+            updateDateInputs();
         });
 
         // Modern Alert/Confirm System
@@ -334,19 +396,19 @@
                 this.confirmBtn = document.getElementById('modalConfirm');
                 this.cancelBtn = document.getElementById('modalCancel');
                 this.currentResolve = null;
-                
+
                 this.initEventListeners();
             }
 
             initEventListeners() {
                 this.confirmBtn.addEventListener('click', () => this.handleConfirm());
                 this.cancelBtn.addEventListener('click', () => this.handleCancel());
-                
+
                 // Close on backdrop click
                 this.modal.querySelector('.modern-modal-backdrop').addEventListener('click', () => {
                     this.handleCancel();
                 });
-                
+
                 // Close on Escape key
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape' && this.modal.classList.contains('show')) {
@@ -428,7 +490,7 @@
         window.modernAlert = new ModernAlert();
 
         // Replace native confirm
-        window.confirm = function(message, title = 'Confirm Action') {
+        window.confirm = function (message, title = 'Confirm Action') {
             return window.modernAlert.show({
                 type: 'question',
                 title: title,
@@ -439,7 +501,7 @@
         };
 
         // Replace native alert
-        window.alert = function(message, title = 'Information', type = 'info') {
+        window.alert = function (message, title = 'Information', type = 'info') {
             return window.modernAlert.show({
                 type: type,
                 title: title,
@@ -450,29 +512,25 @@
         };
 
         // Convenience methods
-        window.showSuccess = function(message, title = 'Success') {
+        window.showSuccess = function (message, title = 'Success') {
             return window.alert(message, title, 'success');
         };
 
-        window.showError = function(message, title = 'Error') {
+        window.showError = function (message, title = 'Error') {
             return window.alert(message, title, 'danger');
         };
 
-        window.showWarning = function(message, title = 'Warning') {
+        window.showWarning = function (message, title = 'Warning') {
             return window.alert(message, title, 'warning');
         };
 
-        window.showInfo = function(message, title = 'Information') {
+        window.showInfo = function (message, title = 'Information') {
             return window.alert(message, title, 'info');
         };
 
         // Sidebar toggle functionality
         document.getElementById('sidebarToggle')?.addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('collapsed');
-        });
-
-        document.getElementById('mobileSidebarToggle')?.addEventListener('click', function () {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
         });
 
         // Submenu toggle
@@ -501,12 +559,12 @@
             link.addEventListener('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 const subSubmenu = this.nextElementSibling;
                 if (subSubmenu && subSubmenu.classList.contains('sub-submenu')) {
                     // Toggle sub-submenu
                     subSubmenu.classList.toggle('show');
-                    
+
                     // Toggle expanded class on parent li
                     const parentLi = this.closest('.has-submenu');
                     if (parentLi) {
@@ -527,7 +585,7 @@
                 links.forEach(subLink => {
                     if (subLink.getAttribute('href') === currentPath) {
                         hasActiveChild = true;
-                        
+
                         // Check if it's in a sub-submenu
                         const subSubmenu = subLink.closest('.sub-submenu');
                         if (subSubmenu) {
@@ -558,7 +616,6 @@
         });
     </script>
 
-    {% block extra_js %}
     <script>
         // Enhanced Mobile Sidebar & Overlay Logic
         document.addEventListener('DOMContentLoaded', function () {
@@ -617,9 +674,33 @@
                     }
                 }, 250);
             });
+
+            // Initialize Flatpickr for date inputs
+            const dateInputs = document.querySelectorAll("input[type='date']");
+            dateInputs.forEach(input => {
+                const allowPastIds = ['id_date_of_birth', 'id_anniversary_date', 'id_joining_date', 'id_relieving_date'];
+                const isPastAllowed = allowPastIds.includes(input.id);
+
+                // Common config
+                const config = {
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "d/m/Y",
+                    allowInput: true,
+                    disableMobile: "true", // Force Flatpickr on mobile for consistent design
+                    theme: "material_blue"
+                };
+
+                // Apply constraints
+                if (!isPastAllowed) {
+                    config.minDate = "today";
+                }
+
+                flatpickr(input, config);
+            });
         });
     </script>
-    {% endblock %}
+    {% block extra_js %}{% endblock %}
 </body>
 
 </html>

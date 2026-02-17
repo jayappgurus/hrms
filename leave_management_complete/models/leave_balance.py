@@ -7,12 +7,11 @@ from decimal import Decimal
 from .employee import Employee
 from .leave_type import LeaveType
 
-
 class LeaveBalance(models.Model):
     """
     Employee leave balance tracking with monthly accrual
     """
-    
+
     employee = models.ForeignKey(
         Employee,
         on_delete=models.CASCADE,
@@ -24,7 +23,7 @@ class LeaveBalance(models.Model):
         related_name='balances'
     )
     year = models.IntegerField()
-    
+
     # Balance Tracking
     allocated = models.DecimalField(
         max_digits=5,
@@ -50,11 +49,11 @@ class LeaveBalance(models.Model):
         default=0,
         help_text="Carried forward from previous year"
     )
-    
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         db_table = 'leave_balances'
         unique_together = ['employee', 'leave_type', 'year']
@@ -62,10 +61,10 @@ class LeaveBalance(models.Model):
             models.Index(fields=['employee', 'year']),
             models.Index(fields=['leave_type', 'year']),
         ]
-    
+
     def __str__(self):
         return f"{self.employee.full_name} - {self.leave_type.name} ({self.year})"
-    
+
     @property
     def available(self):
         """Calculate available balance"""
@@ -75,17 +74,17 @@ class LeaveBalance(models.Model):
         else:
             # For other leaves, use full allocation
             return self.allocated + self.carried_forward - self.used
-    
+
     @property
     def is_sufficient(self, required_days):
         """Check if balance is sufficient for requested days"""
         return self.available >= Decimal(str(required_days))
-    
+
     def deduct(self, days):
         """Deduct days from balance"""
         self.used += Decimal(str(days))
         self.save()
-    
+
     def credit(self, days):
         """Credit days back to balance (for cancelled leaves)"""
         self.used -= Decimal(str(days))
@@ -93,12 +92,11 @@ class LeaveBalance(models.Model):
             self.used = 0
         self.save()
 
-
 class LeaveAccrualLog(models.Model):
     """
     Log of monthly accruals for audit trail
     """
-    
+
     employee = models.ForeignKey(
         Employee,
         on_delete=models.CASCADE,
@@ -123,15 +121,15 @@ class LeaveAccrualLog(models.Model):
         decimal_places=2
     )
     notes = models.TextField(blank=True)
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         db_table = 'leave_accrual_logs'
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['employee', 'year', 'month']),
         ]
-    
+
     def __str__(self):
         return f"{self.employee.full_name} - {self.leave_type.name} - {self.year}/{self.month}"

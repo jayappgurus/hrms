@@ -1,8 +1,8 @@
 from django import forms
+from datetime import date
 from django.core.validators import RegexValidator, EmailValidator
 from django.contrib.auth.models import User
 from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday
-
 
 class EmergencyContactForm(forms.ModelForm):
     class Meta:
@@ -32,21 +32,19 @@ class EmergencyContactForm(forms.ModelForm):
             }),
         }
 
-
-
 class EmployeeForm(forms.ModelForm):
     # Emergency Contact Fields
     emergency_contact_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter emergency contact name'}))
     emergency_contact_mobile = forms.CharField(max_length=15, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter mobile number'}))
     emergency_contact_email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter email address'}))
-    emergency_contact_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Enter address'}))
+    emergency_contact_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Enter emergency contact address'}))
     emergency_contact_relationship = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Spouse, Parent, Sibling'}))
 
     class Meta:
         model = Employee
         fields = [
-            'employee_code', 'full_name', 'profile_picture', 'department', 'designation', 'joining_date', 'relieving_date',
-            'employment_status', 'mobile_number', 'official_email', 'personal_email', 'local_address',
+            'employee_code', 'full_name', 'profile_picture', 'department', 'designation', 'joining_date', 'probation_end_date', 'relieving_date',
+            'employment_status', 'current_ctc', 'salary_structure', 'mobile_number', 'official_email', 'personal_email', 'local_address',
             'permanent_address', 'date_of_birth', 'marital_status', 'anniversary_date',
             'highest_qualification', 'total_experience_years', 'total_experience_months',
             'period_type', 'aadhar_card_number', 'pan_card_number', 'graduates_marksheet_count',
@@ -69,13 +67,29 @@ class EmployeeForm(forms.ModelForm):
             'designation': forms.Select(attrs={'class': 'form-select'}),
             'joining_date': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
+                'type': 'date',
+                'placeholder': 'YYYY-MM-DD'
+            }),
+            'probation_end_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'YYYY-MM-DD'
             }),
             'relieving_date': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
+                'type': 'date',
+                'placeholder': 'YYYY-MM-DD'
             }),
             'employment_status': forms.Select(attrs={'class': 'form-select'}),
+            'current_ctc': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Current CTC'
+            }),
+            'salary_structure': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Enter salary structure details...'
+            }),
             'mobile_number': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter mobile number'
@@ -100,16 +114,17 @@ class EmployeeForm(forms.ModelForm):
             }),
             'date_of_birth': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
+                'type': 'date',
+                'placeholder': 'YYYY-MM-DD'
             }),
             'marital_status': forms.Select(attrs={'class': 'form-select'}),
             'anniversary_date': forms.DateInput(attrs={
                 'class': 'form-control',
-                'type': 'date'
+                'type': 'date',
+                'placeholder': 'YYYY-MM-DD'
             }),
-            'highest_qualification': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'e.g., B.Tech, MBA, etc.'
+            'highest_qualification': forms.Select(attrs={
+                'class': 'form-select'
             }),
             'total_experience_years': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -153,10 +168,10 @@ class EmployeeForm(forms.ModelForm):
             self.fields['emergency_contact_email'].initial = ec.email
             self.fields['emergency_contact_address'].initial = ec.address
             self.fields['emergency_contact_relationship'].initial = ec.relationship
-        
+
         # Always show all designations for now
         self.fields['designation'].queryset = Designation.objects.all()
-        
+
         # Add dynamic designation filtering based on department (for future use)
         if 'department' in self.data:
             try:
@@ -198,7 +213,6 @@ class EmployeeForm(forms.ModelForm):
 
         return cleaned_data
 
-
 class EmployeeRegistrationForm(forms.ModelForm):
     """Form for employee self-registration"""
     # User fields
@@ -220,7 +234,7 @@ class EmployeeRegistrationForm(forms.ModelForm):
             'designation': forms.Select(attrs={'class': 'form-select'}),
             'mobile_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter mobile number'}),
             'personal_email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'personal@email.com'}),
-            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'placeholder': 'YYYY-MM-DD'}),
             'marital_status': forms.Select(attrs={'class': 'form-select'}),
             'highest_qualification': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Highest Qualification'}),
             'total_experience_years': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
@@ -261,28 +275,27 @@ class EmployeeRegistrationForm(forms.ModelForm):
         password = cleaned_data.get("password")
         confirm_password = cleaned_data.get("confirm_password")
         marital_status = cleaned_data.get('marital_status')
-        # Since we don't have anniversary_date in registration form, 
+        # Since we don't have anniversary_date in registration form,
         # we might want to handle it or just allow it to be empty for now.
         # But the model might require it if we add it later.
-        
+
         if password != confirm_password:
             raise forms.ValidationError("Passwords do not match.")
-        
+
         return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        
+
         # Save emergency contact fields directly to the employee model
         instance.emergency_contact_name = self.cleaned_data.get('emergency_contact_name', '')
         instance.emergency_contact_mobile = self.cleaned_data.get('emergency_contact_mobile', '')
         instance.emergency_contact_email = self.cleaned_data.get('emergency_contact_email', '')
         instance.emergency_contact_address = self.cleaned_data.get('emergency_contact_address', '')
-        
+
         if commit:
             instance.save()
         return instance
-
 
 class EmployeeSearchForm(forms.Form):
     search = forms.CharField(
@@ -293,7 +306,6 @@ class EmployeeSearchForm(forms.Form):
             'autocomplete': 'off'
         })
     )
-
 
 class EmployeeDocumentForm(forms.ModelForm):
     class Meta:
@@ -310,9 +322,7 @@ class EmployeeDocumentForm(forms.ModelForm):
             }),
         }
 
-
 from django.contrib.auth.models import User
-
 
 class UserProfileForm(forms.ModelForm):
     """Form for user profile management"""
@@ -337,7 +347,6 @@ class UserProfileForm(forms.ModelForm):
                 'placeholder': 'Enter email address'
             }),
         }
-
 
 class LeaveTypeForm(forms.ModelForm):
     class Meta:
@@ -372,7 +381,7 @@ class LeaveTypeForm(forms.ModelForm):
                 'class': 'form-check-input'
             }),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].label = 'Leave Type Name'
@@ -382,12 +391,11 @@ class LeaveTypeForm(forms.ModelForm):
         self.fields['requires_document'].label = 'Document Required'
         self.fields['description'].label = 'Description'
         self.fields['is_active'].label = 'Active Status'
-        
+
         # Add Bootstrap classes to checkboxes
         self.fields['is_paid'].widget.attrs['class'] = 'form-check-input'
         self.fields['requires_document'].widget.attrs['class'] = 'form-check-input'
         self.fields['is_active'].widget.attrs['class'] = 'form-check-input'
-
 
 class LeaveApplicationForm(forms.ModelForm):
     class Meta:
@@ -443,7 +451,7 @@ class LeaveApplicationForm(forms.ModelForm):
                 'id': 'id_is_first_child'
             }),
         }
-    
+
     def __init__(self, *args, **kwargs):
         self.employee = kwargs.pop('employee', None)
         super().__init__(*args, **kwargs)
@@ -456,11 +464,11 @@ class LeaveApplicationForm(forms.ModelForm):
         self.fields['is_wfh'].label = 'Work From Home'
         self.fields['is_office'].label = 'Work From Office'
         self.fields['is_first_child'].label = 'Is this for your first child?'
-        
+
         # Make fields optional initially
         self.fields['scheduled_hours'].required = False
         self.fields['is_first_child'].required = False
-    
+
     def clean(self):
         cleaned_data = super().clean()
         start_date = cleaned_data.get('start_date')
@@ -468,22 +476,21 @@ class LeaveApplicationForm(forms.ModelForm):
         is_half_day = cleaned_data.get('is_half_day')
         scheduled_hours = cleaned_data.get('scheduled_hours')
         leave_type = cleaned_data.get('leave_type')
-        
+
         # Validate dates
         if start_date and end_date and start_date > end_date:
             raise forms.ValidationError("End date must be after or equal to start date")
-        
+
         # Validate half-day requirements
         if is_half_day and not scheduled_hours:
             raise forms.ValidationError("Scheduled hours are required for half-day leave")
-        
+
         # Validate first child requirement for paternity/maternity
         if leave_type and leave_type.leave_type in ['paternity', 'maternity']:
             if 'is_first_child' not in cleaned_data or cleaned_data.get('is_first_child') is None:
                 self.fields['is_first_child'].required = True
-        
-        return cleaned_data
 
+        return cleaned_data
 
 class PublicHolidayForm(forms.ModelForm):
     class Meta:
@@ -495,8 +502,9 @@ class PublicHolidayForm(forms.ModelForm):
                 'placeholder': 'Enter holiday name'
             }),
             'date': forms.DateInput(attrs={
-                'class': 'modern-form-control',
-                'type': 'date'
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'YYYY-MM-DD'
             }),
             'year': forms.NumberInput(attrs={
                 'class': 'modern-form-control',
@@ -518,7 +526,7 @@ class PublicHolidayForm(forms.ModelForm):
                 'class': 'form-check-input'
             })
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].label = 'Holiday Name'
@@ -528,7 +536,7 @@ class PublicHolidayForm(forms.ModelForm):
         self.fields['is_optional'].label = 'Optional Holiday'
         self.fields['description'].label = 'Description'
         self.fields['is_active'].label = 'Active'
-        
+
         # Auto-populate day field based on date
         if self.instance and self.instance.pk:
             self.fields['day'] = forms.CharField(
@@ -549,7 +557,8 @@ class PublicHolidayForm(forms.ModelForm):
                     'placeholder': 'Will be auto-calculated'
                 })
             )
-    
+
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         # Auto-calculate day from date
@@ -558,3 +567,22 @@ class PublicHolidayForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+class PaySlipGenerationForm(forms.Form):
+    month = forms.ChoiceField(choices=[(i,  date(2000, i, 1).strftime('%B')) for i in range(1, 13)], widget=forms.Select(attrs={'class': 'form-select'}))
+    year = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-select'}))
+
+    def __init__(self, *args, **kwargs):
+        employee = kwargs.pop('employee', None)
+        super().__init__(*args, **kwargs)
+
+        current_year = date.today().year
+        start_year = current_year
+
+        if employee and employee.joining_date:
+            start_year = employee.joining_date.year
+
+        year_choices = [(y, y) for y in range(start_year, current_year + 1)]
+        # Sort in reverse to show latest year first
+        year_choices.sort(key=lambda x: x[0], reverse=True)
+        self.fields['year'].choices = year_choices

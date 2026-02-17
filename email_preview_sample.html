@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payslip Email Preview - January 2026</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .info-box strong {
+            color: #667eea;
+            display: inline-block;
+            min-width: 120px;
+        }
+        .download-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .download-button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        .download-button:hover {
+            transform: translateY(-2px);
+        }
+        .attachment-note {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #004085;
+        }
+        .attachment-note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .icon {
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .preview-note {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            text-align: center;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-note">
+        <strong>📧 Email Preview</strong> - This is how the payslip email will appear to employees
+    </div>
+    
+    <div class="email-container">
+        <div class="header">
+            <h1>💰 Payslip for January 2026</h1>
+            <p>HRMS Portal - People Operations</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Hello <strong>Jaydeep Gothi</strong>,
+            </div>
+            
+            <p>Please find your payslip for <strong>January 2026</strong>.</p>
+            
+            <div class="info-box">
+                <p><strong>Employee ID:</strong> EMP0004</p>
+                <p><strong>Department:</strong> Engineering</p>
+                <p><strong>Designation:</strong> Software Developer</p>
+                <p><strong>Period:</strong> January 2026</p>
+            </div>
+            
+            <div class="attachment-note">
+                <strong>📎 Attachment Included</strong>
+                Your payslip PDF is attached to this email. You can download it directly from your email client.
+            </div>
+            
+            <div class="download-section">
+                <p style="margin-bottom: 15px; color: #6c757d;">
+                    <span class="icon">📄</span>
+                    <strong>payslip_January_2026.pdf</strong>
+                </p>
+                <p style="font-size: 13px; color: #6c757d; margin-top: 15px; margin-bottom: 15px;">
+                    Click the button below to download your payslip, or check your email attachments.
+                </p>
+                <a href="javascript:alert('In actual email, this will download the PDF directly from the HRMS Portal!');" class="download-button" style="display: inline-block; padding: 12px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">
+                    📥 Download Payslip
+                </a>
+                <p style="font-size: 12px; color: #858796; margin-top: 15px; font-style: italic;">
+                    The payslip is also attached to this email for your convenience.
+                </p>
+            </div>
+            
+            <p style="margin-top: 25px; font-size: 14px; color: #6c757d;">
+                If you have any questions regarding your payslip, please contact the People Operations team.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>People Operations Team</strong></p>
+            <p>HRMS Portal</p>
+            <p style="margin-top: 10px; font-size: 11px;">
+                This is an automated email. Please do not reply to this message.
+            </p>
+        </div>
+    </div>
+    
+    <div class="preview-note" style="margin-top: 20px;">
+        <p><strong>Note:</strong> In actual emails, the PDF will be attached as <code>payslip_January_2026.pdf</code></p>
+    </div>
+</body>
+</html>

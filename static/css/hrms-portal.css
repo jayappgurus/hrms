@@ -88,12 +88,56 @@ a {
     transition: var(--transition);
 }
 
+/*           =====
+   DATE INPUT PLACEHOLDER FIX
+             ===== */
+input[type="date"] {
+    position: relative;
+    min-height: 48px;
+}
+
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field {
+    color: transparent;
+}
+
+input[type="date"]:focus::-webkit-datetime-edit-year-field,
+input[type="date"]:focus::-webkit-datetime-edit-month-field,
+input[type="date"]:focus::-webkit-datetime-edit-day-field,
+input[type="date"].has-value::-webkit-datetime-edit-year-field,
+input[type="date"].has-value::-webkit-datetime-edit-month-field,
+input[type="date"].has-value::-webkit-datetime-edit-day-field {
+    color: inherit;
+}
+
+input[type="date"]::before {
+    content: attr(placeholder);
+    position: absolute;
+    left: 45px;
+    /* Adjust left considering the icon */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    background: transparent;
+    font-size: 15px;
+}
+
+input[type="date"]:focus::before,
+input[type="date"].has-value::before {
+    content: "" !important;
+    display: none;
+}
+
 ul {
     list-style: none;
 }
-#rules-editor ul{
+
+#rules-editor ul {
     list-style: disc;
 }
+
 /*           =====
    PRELOADER
              ===== */
@@ -161,21 +205,22 @@ ul {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(
-        circle at 50% 0%,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0.08) 30%,
-        transparent 70%
-    );
+    background: radial-gradient(circle at 50% 0%,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.08) 30%,
+            transparent 70%);
     animation: pulsing-shine 4s ease-in-out infinite;
     pointer-events: none;
 }
 
 @keyframes pulsing-shine {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 0.3;
         transform: scale(1) translateY(0);
     }
+
     50% {
         opacity: 0.8;
         transform: scale(1.1) translateY(-10px);
@@ -209,7 +254,8 @@ ul {
     box-shadow: 0 0 15px rgba(229, 8, 128, 0.4);
     padding: 7px 6px;
 }
-.logo-placeholder img{
+
+.logo-placeholder img {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -238,9 +284,11 @@ ul {
     margin: 24px 12px 12px;
     font-weight: 700;
 }
+
 .nav-label:first-child {
     margin-top: 0;
 }
+
 .nav-item {
     margin-bottom: 6px;
 }
@@ -347,7 +395,7 @@ ul {
 .sub-menu li a.active {
     color: #fff;
     font-weight: 600;
-    background: linear-gradient(45deg, #332666 0%, #332666 100%);
+    background: rgba(255, 255, 255, 0.05);
     /* mini gradient */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     padding-left: 16px;
@@ -371,7 +419,6 @@ ul {
     box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
-    justify-content: end;
     padding: 0 40px;
     position: sticky;
     top: 0;
@@ -768,8 +815,9 @@ ul {
     width: 40px;
     height: 40px;
     overflow: hidden;
-    img{
-        width:100%;
+
+    img {
+        width: 100%;
         height: 100%;
         object-fit: cover;
     }
@@ -835,7 +883,6 @@ ul {
         background: rgba(67, 49, 133, 0.05);
         z-index: 998;
         display: none;
-        backdrop-filter: blur(2px);
     }
 
     .mobile-menu-overlay.show {
@@ -918,30 +965,38 @@ ul {
 .border-dashed {
     border-style: dashed !important;
 }
-.leave-type-list .description-content ul{
+
+.leave-type-list .description-content ul {
     list-style-type: disc;
 }
+
 .leave-type-list .description-content ul li:nth-child(n+3) {
     display: none;
 }
+
 .leave-type-list .description-content ul li:nth-child(2)::after {
     content: "...";
     color: #6c757d;
     font-style: italic;
 }
-.leave-type-list .modern-card-body{
+
+.leave-type-list .modern-card-body {
     padding: 70px 16px 16px;
 }
-.leave-type-list .leave-action-buttons{
+
+.leave-type-list .leave-action-buttons {
     top: 16px;
     right: 16px;
 }
-.has-submenu .sub-submenu{
+
+.has-submenu .sub-submenu {
     display: none;
 }
-.has-submenu .sub-submenu.show{
+
+.has-submenu .sub-submenu.show {
     display: block;
 }
-.has-submenu.expanded .nav-arrow{
+
+.has-submenu.expanded .nav-arrow {
     transform: rotate(180deg);
 }

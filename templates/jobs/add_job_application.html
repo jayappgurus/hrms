@@ -15,17 +15,17 @@
         box-shadow: var(--shadow-sm);
         border: 1px solid var(--border-color);
     }
-    
+
     .form-section {
         margin-bottom: 32px;
         padding-bottom: 24px;
         border-bottom: 2px solid #f1f5f9;
     }
-    
+
     .form-section:last-of-type {
         border-bottom: none;
     }
-    
+
     .section-title {
         font-size: 18px;
         font-weight: 700;
@@ -35,18 +35,18 @@
         align-items: center;
         gap: 12px;
     }
-    
+
     .section-title i {
         color: var(--primary);
         font-size: 22px;
     }
-    
+
     .candidate-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 20px;
     }
-    
+
     .form-actions {
         display: flex;
         justify-content: space-between;
@@ -76,14 +76,14 @@
 
 <form method="post" id="applicationForm" enctype="multipart/form-data" class="application-form">
     {% csrf_token %}
-    
+
     <!-- Job Selection -->
     <div class="form-section">
         <div class="section-title">
             <i class="bi bi-briefcase-fill"></i>
             Job Position
         </div>
-        
+
         <div class="modern-form-group">
             <label class="modern-form-label required">{{ form.job.label }}</label>
             {{ form.job }}
@@ -92,14 +92,14 @@
             {% endif %}
         </div>
     </div>
-    
+
     <!-- Basic Information -->
     <div class="form-section">
         <div class="section-title">
             <i class="bi bi-person-circle"></i>
             Basic Information
         </div>
-        
+
         <div class="candidate-grid">
             <div class="modern-form-group">
                 <label class="modern-form-label required">{{ form.candidate_name.label }}</label>
@@ -108,7 +108,7 @@
                 <div class="text-danger small mt-1">{{ form.candidate_name.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label required">{{ form.email.label }}</label>
                 {{ form.email }}
@@ -116,7 +116,7 @@
                 <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.phone_number.label }}</label>
                 {{ form.phone_number }}
@@ -124,7 +124,7 @@
                 <div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label required">{{ form.source.label }}</label>
                 {{ form.source }}
@@ -135,14 +135,14 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Referral Information -->
     <div class="form-section">
         <div class="section-title">
             <i class="bi bi-person-check-fill"></i>
             Referral Information
         </div>
-        
+
         <div class="candidate-grid">
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.referred_by.label }}</label>
@@ -152,7 +152,7 @@
                 {% endif %}
                 <small class="form-help-text">Select if this candidate was referred by an employee</small>
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.referral_notes.label }}</label>
                 {{ form.referral_notes }}
@@ -162,14 +162,14 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Professional Information -->
     <div class="form-section">
         <div class="section-title">
             <i class="bi bi-building"></i>
             Professional Information
         </div>
-        
+
         <div class="candidate-grid">
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.current_organization.label }}</label>
@@ -178,7 +178,7 @@
                 <div class="text-danger small mt-1">{{ form.current_organization.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.current_ctc.label }}</label>
                 {{ form.current_ctc }}
@@ -187,7 +187,7 @@
                 {% endif %}
                 <small class="form-help-text">In INR per annum</small>
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.expected_ctc.label }}</label>
                 {{ form.expected_ctc }}
@@ -196,7 +196,7 @@
                 {% endif %}
                 <small class="form-help-text">In INR per annum</small>
             </div>
-            
+
             <div class="modern-form-group">
                 <div class="form-check mt-4">
                     {{ form.is_negotiable }}
@@ -205,14 +205,14 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Experience & Education -->
     <div class="form-section">
         <div class="section-title">
             <i class="bi bi-mortarboard-fill"></i>
             Experience & Education
         </div>
-        
+
         <div class="candidate-grid">
             <div class="modern-form-group">
                 <label class="modern-form-label required">{{ form.total_experience.label }}</label>
@@ -221,7 +221,7 @@
                 <div class="text-danger small mt-1">{{ form.total_experience.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.relevant_experience.label }}</label>
                 {{ form.relevant_experience }}
@@ -229,7 +229,7 @@
                 <div class="text-danger small mt-1">{{ form.relevant_experience.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.degree_name.label }}</label>
                 {{ form.degree_name }}
@@ -237,7 +237,7 @@
                 <div class="text-danger small mt-1">{{ form.degree_name.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.passing_year.label }}</label>
                 {{ form.passing_year }}
@@ -247,14 +247,14 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Additional Details -->
     <div class="form-section">
         <div class="section-title">
             <i class="bi bi-info-circle-fill"></i>
             Additional Details
         </div>
-        
+
         <div class="candidate-grid">
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.official_notice_period.label }}</label>
@@ -264,7 +264,7 @@
                 {% endif %}
                 <small class="form-help-text">e.g., 30 days, 2 months</small>
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.current_location.label }}</label>
                 {{ form.current_location }}
@@ -272,7 +272,7 @@
                 <div class="text-danger small mt-1">{{ form.current_location.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.preferred_location.label }}</label>
                 {{ form.preferred_location }}
@@ -280,7 +280,7 @@
                 <div class="text-danger small mt-1">{{ form.preferred_location.errors.0 }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="modern-form-group">
                 <div class="form-check mt-4">
                     {{ form.training_included }}
@@ -293,14 +293,14 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Documents -->
     <div class="form-section">
         <div class="section-title">
             <i class="bi bi-file-earmark-pdf-fill"></i>
             Documents
         </div>
-        
+
         <div class="candidate-grid">
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.resume.label }}</label>
@@ -310,7 +310,7 @@
                 {% endif %}
                 <small class="form-help-text">Upload resume (PDF, DOC, DOCX)</small>
             </div>
-            
+
             <div class="modern-form-group">
                 <label class="modern-form-label">{{ form.cover_letter.label }}</label>
                 {{ form.cover_letter }}
@@ -321,7 +321,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Form Actions -->
     <div class="form-actions">
         <a href="{% url 'employees:candidate_tracker' %}" class="btn btn-outline-secondary">

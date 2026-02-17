@@ -1,0 +1,428 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4 page-content">
+    <!-- Premium Header Area -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb premium-breadcrumb p-0">
+                    <li class="breadcrumb-item"><a href="{% url 'employees:dashboard' %}"><i
+                                class="bi bi-house-door me-1"></i>Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'employees:employee_detail' employee.pk %}">
+                            {{ employee.full_name }}</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'employees:salary_details' employee.pk %}">Salary
+                            Details</a></li>
+                    <li class="breadcrumb-item active">Increment Timeline</li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-4">
+                <div>
+                    <h1 class="h2 page-heading mb-1 text-dark">Professional Growth</h1>
+                    <p class="text-muted mb-0">Visualizing your career trajectory and financial appreciation</p>
+                </div>
+                <div class="growth-stats-pills d-flex gap-2">
+                    <div class="stat-pill">
+                        <span class="label">Total Records</span>
+                        <span class="value">{{ increments.count|default:"0" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Insights Row -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6 col-lg-4">
+            <div class="insight-card-premium h-100 p-4"
+                style="background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);">
+                <div class="d-flex justify-content-between mb-3 text-white">
+                    <i class="bi bi-graph-up-arrow fs-2 opacity-50"></i>
+                    <span class="small fw-bold text-uppercase tracking-wider">Current CTC</span>
+                </div>
+                <h2 class="display-6 fw-bold text-white mb-2">₹{{ employee.current_ctc }}</h2>
+                <div class="salary-source d-flex align-items-center text-white-50 small">
+                    <i class="bi bi-check-circle-fill me-2"></i> Active Structure Verified
+                </div>
+            </div>
+        </div>
+
+        {% if increments %}
+        <div class="col-md-6 col-lg-4">
+            <div class="insight-card-premium h-100 p-4 bg-white border">
+                <div class="d-flex justify-content-between mb-3 text-primary">
+                    <i class="bi bi-stars fs-2 opacity-50"></i>
+                    <span class="small fw-bold text-uppercase text-muted tracking-wider">Latest Appraisal</span>
+                </div>
+                {% with latest=increments.0 %}
+                <h2 class="display-6 fw-bold text-dark mb-2">+{{ latest.increment_percentage }}%</h2>
+                <div class="salary-source d-flex align-items-center text-success small fw-bold">
+                    <i class="bi bi-arrow-up-right me-2"></i> On {{ latest.effective_date|date:"M Y" }}
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-6 col-lg-4">
+            <div class="insight-card-premium h-100 p-4 bg-white border">
+                <div class="d-flex justify-content-between mb-3 text-warning">
+                    <i class="bi bi-briefcase fs-2 opacity-50"></i>
+                    <span class="small fw-bold text-uppercase text-muted tracking-wider">Organization Tenure</span>
+                </div>
+                <h2 class="display-6 fw-bold text-dark mb-2">
+                    {{ employee.joining_date|timesince|truncatewords:2|cut:"," }}
+                </h2>
+                <div class="salary-source d-flex align-items-center text-muted small">
+                    <i class="bi bi-calendar3 me-2"></i> Since {{ employee.joining_date|date:"d M, Y" }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Content -->
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="timeline-container">
+                <div class="timeline-v-line"></div>
+
+                {% for increment in increments %}
+                <div class="timeline-milestone mb-5">
+                    <div class="milestone-dot shadow-lg">
+                        <i class="bi bi-rocket-takeoff-fill"></i>
+                    </div>
+                    <div class="milestone-card glass-card hover-lift transition">
+                        <div class="p-0">
+                            <div
+                                class="milestone-header d-flex justify-content-between align-items-center p-4 border-bottom bg-light-subtle rounded-top-4">
+                                <div>
+                                    <h5 class="fw-bold mb-0 text-dark">{{ increment.effective_date|date:"F Y" }}
+                                        Appraisal</h5>
+                                    <span class="small text-muted"><i class="bi bi-calendar-event me-1"></i> Effective:
+                                        {{ increment.effective_date|date:"d M, Y" }}</span>
+                                </div>
+                                <div class="percent-badge">
+                                    <span class="badge increment-pill shadow-sm">{{ increment.increment_percentage }}%
+                                        Rise</span>
+                                </div>
+                            </div>
+
+                            <div class="p-4">
+                                <div class="row g-4 text-center">
+                                    <div class="col-md-3 border-end border-light">
+                                        <div class="label-small text-muted text-uppercase mb-1 tracking-widest">Previous
+                                        </div>
+                                        <div class="fw-bold text-dark">₹{{ increment.previous_ctc }}</div>
+                                    </div>
+                                    <div class="col-md-3 border-end border-light">
+                                        <div class="label-small text-muted text-uppercase mb-1 tracking-widest">Added
+                                        </div>
+                                        <div class="fw-bold text-success">+₹{{ increment.incremented_amount }}</div>
+                                    </div>
+                                    <div class="col-md-3 border-end border-light">
+                                        <div class="label-small text-muted text-uppercase mb-1 tracking-widest">New CTC
+                                        </div>
+                                        <div class="h5 mb-0 fw-bolder text-primary">₹{{ increment.revised_ctc }}</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="label-small text-muted text-uppercase mb-1 tracking-widest">Role
+                                        </div>
+                                        <span class="badge role-pill">
+                                            {{ increment.new_designation.name|default:employee.designation.name }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Empty State -->
+                <div class="empty-growth-center text-center py-5">
+                    <div class="empty-icon-box mb-4 mx-auto">
+                        <i class="bi bi-lightning-charge text-muted opacity-25" style="font-size: 5rem;"></i>
+                    </div>
+                    <h4 class="fw-bold text-muted">Awaiting First Milestone</h4>
+                    <p class="text-muted-50 max-w-400 mx-auto">Your growth story is just beginning. Once your first
+                        increment is processed, this timeline will visualize your career progression.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Policy Context -->
+            <div class="premium-notice mt-5 p-4 rounded-4 shadow-sm border-0 d-flex align-items-start gap-4"
+                style="background: #ffffff; border-left: 6px solid #4e73df !important;">
+                <div class="notice-icon-ring mt-1">
+                    <i class="bi bi-info-lg"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-1">Company Appraisal Disclosure</h6>
+                    <p class="mb-0 text-muted small">Annual performance cycles occur in Q1 and Q3. Revised CTC updates
+                        are reflected in the payroll system within 5 business days of the effective date. For
+                        clarification on components, please reach out to the <a href="#"
+                            class="text-primary fw-bold">People Operations</a> team.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling System */
+    .page-content {
+        background: #fbfbfc;
+        min-height: 100vh;
+    }
+
+    .page-heading {
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    /* Breadcrumbs */
+    .premium-breadcrumb {
+        background: #fff;
+        padding: 8px 18px !important;
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: inline-flex;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+    }
+
+    .premium-breadcrumb a {
+        color: #4e73df;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-decoration: none;
+    }
+
+    .premium-breadcrumb .active {
+        color: #858796;
+        font-size: 0.8rem;
+    }
+
+    /* Stats Pill */
+    .stat-pill {
+        background: #fff;
+        border: 1px solid #e3e6f0;
+        padding: 8px 20px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .stat-pill .label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #858796;
+        text-transform: uppercase;
+    }
+
+    .stat-pill .value {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #4e73df;
+    }
+
+    /* Insight Cards */
+    .insight-card-premium {
+        border-radius: 20px;
+        border: none;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .insight-card-premium:hover {
+        transform: translateY(-5px);
+    }
+
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+
+    /* Timeline Engine */
+    .timeline-container {
+        position: relative;
+        padding: 20px 0;
+    }
+
+    .timeline-v-line {
+        position: absolute;
+        left: 25px;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(180deg, #4e73df 0%, #e3e6f0 100%);
+        border-radius: 10px;
+    }
+
+    .timeline-milestone {
+        position: relative;
+        padding-left: 70px;
+    }
+
+    .milestone-dot {
+        position: absolute;
+        left: 7px;
+        top: 20px;
+        width: 40px;
+        height: 40px;
+        background: #4e73df;
+        border: 5px solid #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        z-index: 2;
+        font-size: 1rem;
+    }
+
+    .glass-card {
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .increment-pill {
+        background: #1cc88a;
+        color: #fff;
+        font-weight: 800;
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+    }
+
+    .tracking-widest {
+        letter-spacing: 0.1em;
+        font-size: 0.65rem;
+    }
+
+    .role-pill {
+        background: #f0f4ff;
+        color: #4e73df;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+    }
+
+    /* Notice Component */
+    .notice-icon-ring {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #eef2ff;
+        color: #4e73df;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    /* Animation utils */
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+    }
+
+    .transition {
+        transition: all 0.3s ease;
+    }
+
+    @media (max-width: 991px) {
+        .timeline-milestone {
+            padding-left: 60px;
+        }
+
+        .label-small {
+            font-size: 0.6rem;
+        }
+
+        .stat-pill {
+            padding: 8px 15px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .timeline-v-line {
+            left: 15px;
+        }
+
+        .timeline-milestone {
+            padding-left: 45px;
+        }
+
+        .milestone-dot {
+            left: -3px;
+            width: 36px;
+            height: 36px;
+            font-size: 0.8rem;
+        }
+
+        .milestone-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 15px;
+        }
+
+        .page-heading {
+            font-size: 1.5rem;
+        }
+
+        .premium-breadcrumb {
+            display: none;
+        }
+
+        .milestone-card .row>div {
+            border-right: none !important;
+            border-bottom: 1px solid #f8f9fc;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .milestone-card .row>div:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .display-6 {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .insight-card-premium {
+            padding: 1.25rem !important;
+        }
+
+        .display-6 {
+            font-size: 1.75rem;
+        }
+
+        .stat-pill {
+            padding: 6px 12px;
+        }
+
+        .stat-pill .value {
+            font-size: 1rem;
+        }
+
+        .timeline-milestone {
+            padding-left: 40px;
+        }
+
+        .milestone-dot {
+            width: 32px;
+            height: 32px;
+            left: -1px;
+        }
+    }
+</style>
+{% endblock %}

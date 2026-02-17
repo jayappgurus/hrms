@@ -1,0 +1,27 @@
+PAYSLIP FOR {{ month_name|upper }} {{ year }}
+=====================================
+
+Hello {{ employee_name }},
+
+Please find your payslip for {{ month_name }} {{ year }}.
+
+EMPLOYEE DETAILS
+----------------
+Employee ID:  {{ employee_code }}
+Department:   {{ department }}
+Designation:  {{ designation }}
+Period:       {{ month_name }} {{ year }}
+
+ATTACHMENT
+----------
+Your payslip PDF (payslip_{{ month_name }}_{{ year }}.pdf) is attached to this email.
+You can download it directly from your email client.
+
+If you have any questions regarding your payslip, please contact the People Operations team.
+
+Regards,
+People Operations Team
+HRMS Portal
+
+---
+This is an automated email. Please do not reply to this message.

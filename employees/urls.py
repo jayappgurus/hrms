@@ -7,23 +7,30 @@ from . import views_auth
 from . import views_job_application as views_job_app
 from . import views_csv
 from . import views_notifications
+from . import views_salary
 
 app_name = 'employees'
 
 urlpatterns = [
+    # Salary & Increment Details
+    path('employee/<int:pk>/salary/', views_salary.SalaryDetailsView.as_view(), name='salary_details'),
+    path('employee/<int:pk>/increments/', views_salary.IncrementDetailsView.as_view(), name='increment_details'),
+    path('employee/<int:pk>/payslip/generate/', views_salary.GeneratePaySlipView.as_view(), name='generate_payslip'),
+    path('payslip/download/<int:slip_id>/', views_salary.download_payslip, name='download_payslip'),
+
     # Registration
     path('register/', views_auth.EmployeeRegistrationView.as_view(), name='register'),
     # Dashboard and API
     path('', views.DashboardView.as_view(), name='dashboard'),
     path('api/calendar-events/', views.CalendarEventsView.as_view(), name='calendar_events'),
-    
+
     # Department & Designation Management
     path('departments/', views_department.department_management, name='department_management'),
     path('departments/add/', views_department.add_department, name='add_department'),
     path('designations/add/', views_department.add_designation, name='add_designation'),
     path('ajax/get-designations/', views.get_designations_by_department, name='get_designations_by_department'),
     path('api/designations/', views.DesignationAPIView.as_view(), name='designations_api'),
-    
+
     # Employee Management
     path('employees/', views.EmployeeListView.as_view(), name='employee_list'),
     path('employees/add/', views.EmployeeCreateView.as_view(), name='employee_add'),
@@ -31,16 +38,16 @@ urlpatterns = [
     path('employee/<int:pk>/edit/', views.EmployeeUpdateView.as_view(), name='employee_edit'),
     path('employee/<int:pk>/delete/', views.EmployeeDeleteView.as_view(), name='employee_delete_record'),
     path('employee/<int:pk>/toggle-status/', views.toggle_employee_status, name='toggle_employee_status'),
-    path('employee/<int:employee_pk>/document/<str:document_type>/update/', 
+    path('employee/<int:employee_pk>/document/<str:document_type>/update/',
          views.update_document_status, name='update_document_status'),
-    path('update-document-status/<int:document_id>/', 
+    path('update-document-status/<int:document_id>/',
          views.update_document_status_by_id, name='update_document_status_by_id'),
-    
+
     # Employee CSV Import/Export
     path('employees/export-csv/', views_csv.export_employees_csv, name='export_employees_csv'),
     path('employees/import-csv/', views_csv.import_employees_csv, name='import_employees_csv'),
     path('employees/sample-csv/', views_csv.download_employee_sample_csv, name='download_employee_sample_csv'),
-    
+
     # Device Management
     path('devices/', views.DeviceListView.as_view(), name='device_list'),
     path('devices/add/', views.DeviceCreateView.as_view(), name='device_add'),
@@ -49,7 +56,7 @@ urlpatterns = [
     path('devices/visibility/', views.DeviceVisibilityView.as_view(), name='device_visibility'),
     path('devices/<int:pk>/allocate/', views.allocate_device, name='allocate_device'),
     path('devices/<int:pk>/return/', views.return_device, name='return_device'),
-    
+
     # Leave & Holiday Management
     path('holidays/', views.PublicHolidayListView.as_view(), name='public_holidays'),
     path('holidays/add/', views.PublicHolidayCreateView.as_view(), name='public_holiday_add'),
@@ -57,12 +64,12 @@ urlpatterns = [
     path('holidays/<str:country>/', views.PublicHolidayListView.as_view(), name='public_holidays_by_country'),
     path('holidays/<int:pk>/edit/', views.PublicHolidayUpdateView.as_view(), name='public_holiday_edit'),
     path('holidays/<int:pk>/delete/', views.PublicHolidayDeleteView.as_view(), name='public_holiday_delete'),
-    
+
     # Public Holiday CSV Import/Export
     path('holidays/export-csv/', views_csv.export_public_holidays_csv, name='export_public_holidays_csv'),
     path('holidays/import-csv/', views_csv.import_public_holidays_csv, name='import_public_holidays_csv'),
     path('holidays/sample-csv/', views_csv.download_public_holiday_sample_csv, name='download_public_holiday_sample_csv'),
-    
+
     path('leave-types/', views.LeaveTypeListView.as_view(), name='leave_types'),
     path('leave-types/add/', views.LeaveTypeCreateView.as_view(), name='leave_type_add'),
     path('leave-types/<int:pk>/', views.LeaveTypeDetailView.as_view(), name='leave_type_detail'),
@@ -73,7 +80,7 @@ urlpatterns = [
     path('leave-application/<int:pk>/', views.LeaveApplicationDetailView.as_view(), name='leave_application_detail'),
     path('leave-application/<int:pk>/approve/', views.approve_leave, name='approve_leave'),
     path('leave-application/<int:pk>/reject/', views.reject_leave, name='reject_leave'),
-    
+
     # User Management
     path('users/', views_user_management.UserListView.as_view(), name='user_list'),
     path('users/add/', views_user_management.UserCreateView.as_view(), name='create_user'),
@@ -91,26 +98,26 @@ urlpatterns = [
     path('jobs/<int:pk>/', views_job.JobDescriptionDetailView.as_view(), name='job_detail'),
     path('jobs/<int:pk>/edit/', views_job.JobDescriptionUpdateView.as_view(), name='job_edit'),
     path('jobs/<int:pk>/delete/', views_job.JobDescriptionDeleteView.as_view(), name='job_delete'),
-    
+
     # Job Description CSV Import/Export
     path('jobs/export-csv/', views_csv.export_job_descriptions_csv, name='export_job_descriptions_csv'),
     path('jobs/import-csv/', views_csv.import_job_descriptions_csv, name='import_job_descriptions_csv'),
     path('jobs/sample-csv/', views_csv.download_job_description_sample_csv, name='download_job_description_sample_csv'),
-    
+
     path('jobs/apply/', views_job_app.add_job_application_view, name='add_job_application'),
     path('jobs/application/success/', views_job_app.job_application_success_view, name='job_application_success'),
     path('candidates/', views_job.JobApplicationListView.as_view(), name='candidate_list'),
     path('candidates/<int:pk>/', views_job.JobApplicationDetailView.as_view(), name='candidate_detail'),
     path('candidates/tracker/', views_job.CandidateTrackerView.as_view(), name='candidate_tracker'),
-    
+
     # Interview Management
     path('candidates/<int:application_id>/interview/add/', views_job.add_interview, name='add_interview'),
     path('interview/<int:interview_id>/edit/', views_job.edit_interview, name='edit_interview'),
     path('interview/<int:interview_id>/delete/', views_job.delete_interview, name='delete_interview'),
-    
+
     path('candidates/interview/', views_job.InterviewScheduleView.as_view(), name='interview_schedule'),
     path('openings/', views_job.CurrentOpeningsView.as_view(), name='current_openings'),
-    
+
     # Notifications & Messages
     path('notifications/create/', views_notifications.create_notification, name='create_notification'),
     path('messages/create/', views_notifications.create_message, name='create_message'),

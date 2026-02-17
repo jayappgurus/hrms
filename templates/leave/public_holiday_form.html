@@ -13,7 +13,8 @@
             {% if form.instance.pk %}Edit Holiday{% else %}Add Holiday{% endif %}
         </h1>
         <p class="page-subtitle">
-            {% if form.instance.pk %}Update holiday information{% else %}Add a new public holiday to the calendar{% endif %}
+            {% if form.instance.pk %}Update holiday information{% else %}Add a new public holiday to the calendar{%
+            endif %}
         </p>
     </div>
     <a href="{% url 'employees:public_holidays' %}" class="btn btn-outline-secondary">
@@ -42,7 +43,10 @@
                 <div class="col-md-6">
                     <div class="modern-form-group">
                         <label class="modern-form-label required">{{ form.date.label }}</label>
-                        {{ form.date }}
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar"></i></span>
+                            {{ form.date }}
+                        </div>
                         {% if form.date.errors %}
                         <div class="text-danger small mt-1">{{ form.date.errors.0 }}</div>
                         {% endif %}
@@ -118,57 +122,57 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.querySelector('[name="date"]');
-    const dayInput = document.querySelector('[name="day"]');
-    const yearInput = document.querySelector('[name="year"]');
-    
-    // Auto-calculate day and year when date changes
-    if (dateInput) {
-        dateInput.addEventListener('change', function() {
-            if (this.value) {
-                const date = new Date(this.value);
-                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                const dayName = days[date.getDay()];
-                
-                // Auto-set day from date
-                if (dayInput) {
-                    dayInput.value = dayName;
-                    console.log('Day set to:', dayName);
-                }
-                
-                // Auto-set year from date (always update)
-                if (yearInput) {
-                    yearInput.value = date.getFullYear();
-                    console.log('Year set to:', date.getFullYear());
-                }
-            }
-        });
-        
-        // Also listen to input event for better responsiveness
-        dateInput.addEventListener('input', function() {
-            if (this.value) {
-                const date = new Date(this.value);
-                if (!isNaN(date.getTime())) {
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.querySelector('[name="date"]');
+        const dayInput = document.querySelector('[name="day"]');
+        const yearInput = document.querySelector('[name="year"]');
+
+        // Auto-calculate day and year when date changes
+        if (dateInput) {
+            dateInput.addEventListener('change', function () {
+                if (this.value) {
+                    const date = new Date(this.value);
                     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                     const dayName = days[date.getDay()];
-                    
+
+                    // Auto-set day from date
                     if (dayInput) {
                         dayInput.value = dayName;
+                        console.log('Day set to:', dayName);
                     }
-                    
+
+                    // Auto-set year from date (always update)
                     if (yearInput) {
                         yearInput.value = date.getFullYear();
+                        console.log('Year set to:', date.getFullYear());
                     }
                 }
+            });
+
+            // Also listen to input event for better responsiveness
+            dateInput.addEventListener('input', function () {
+                if (this.value) {
+                    const date = new Date(this.value);
+                    if (!isNaN(date.getTime())) {
+                        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                        const dayName = days[date.getDay()];
+
+                        if (dayInput) {
+                            dayInput.value = dayName;
+                        }
+
+                        if (yearInput) {
+                            yearInput.value = date.getFullYear();
+                        }
+                    }
+                }
+            });
+
+            // Trigger change event on page load if date has value
+            if (dateInput.value) {
+                dateInput.dispatchEvent(new Event('change'));
             }
-        });
-        
-        // Trigger change event on page load if date has value
-        if (dateInput.value) {
-            dateInput.dispatchEvent(new Event('change'));
         }
-    }
-});
+    });
 </script>
 {% endblock %}

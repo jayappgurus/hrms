@@ -19,7 +19,7 @@
                 <div class="card-body">
                     <form method="post" novalidate>
                         {% csrf_token %}
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3 d-none" id="name-field-container">
                                 <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
@@ -32,7 +32,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="col-md-6 mb-3">
                                 <label for="{{ form.leave_type.id_for_label }}" class="form-label">{{ form.leave_type.label }}</label>
                                 {{ form.leave_type }}
@@ -45,7 +45,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="{{ form.max_days_per_year.id_for_label }}" class="form-label">Leave Duration</label>
@@ -61,7 +61,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">{{ form.is_paid.label }}</label>
                                 <div class="form-check">
@@ -78,7 +78,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">{{ form.requires_document.label }}</label>
                                 <div class="form-check">
@@ -96,10 +96,10 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="{{ form.description.id_for_label }}" class="form-label">Rules</label>
-                            
+
                             <!-- Rich Text Editor Toolbar -->
                             <div class="btn-toolbar mb-2" role="toolbar">
                                 <div class="btn-group me-2" role="group">
@@ -127,13 +127,13 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <!-- Rich Text Editor -->
                             <div id="rules-editor" contenteditable="true" class="form-control rich-text-editor" style="min-height: 120px; max-height: 300px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 0.375rem; padding: 0.375rem 0.75rem;" placeholder="Enter rules and regulations for this leave type..."></div>
-                            
+
                             <!-- Hidden field to store the content -->
                             <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" style="display: none;">{{ form.description.value|default:'' }}</textarea>
-                            
+
                             {% if form.description.errors %}
                                 <div class="text-danger">
                                     {% for error in form.description.errors %}
@@ -142,7 +142,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">{{ form.is_active.label }}</label>
                             <div class="form-check">
@@ -159,7 +159,7 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
+
                         <div class="d-flex justify-content-end gap-2">
                             <a href="{% url 'employees:leave_types' %}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left me-2"></i>Back to List
@@ -180,17 +180,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     const editor = document.getElementById('rules-editor');
     const hiddenField = document.getElementById('{{ form.description.id_for_label }}');
-    
+
     // Load existing content into editor
     if (hiddenField.value) {
         editor.innerHTML = hiddenField.value;
     }
-    
+
     // Sync editor content to hidden field on input
     editor.addEventListener('input', function() {
         hiddenField.value = editor.innerHTML;
     });
-    
+
     // Handle placeholder
     function updatePlaceholder() {
         if (editor.innerHTML.trim() === '') {
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
             editor.removeAttribute('data-placeholder');
         }
     }
-    
+
     editor.addEventListener('focus', updatePlaceholder);
     editor.addEventListener('blur', updatePlaceholder);
     editor.addEventListener('input', updatePlaceholder);
@@ -246,12 +246,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const leaveTypeSelect = document.getElementById('{{ form.leave_type.id_for_label }}');
     const nameField = document.getElementById('{{ form.name.id_for_label }}');
     const nameFieldContainer = document.getElementById('name-field-container');
-    
+
     // Function to update name field based on leave type selection
     function updateNameField() {
         const selectedOption = leaveTypeSelect.options[leaveTypeSelect.selectedIndex];
         const leaveTypeText = selectedOption.text;
-        
+
         if (leaveTypeSelect.value) {
             // Auto-populate the name field with the selected leave type text
             nameField.value = leaveTypeText;
@@ -261,13 +261,13 @@ document.addEventListener('DOMContentLoaded', function() {
             nameFieldContainer.classList.remove('d-none'); // Show the name field if no selection
         }
     }
-    
+
     // Add event listener to leave type select
     leaveTypeSelect.addEventListener('change', updateNameField);
-    
+
     // Initialize on page load
     updateNameField();
-    
+
     // For edit forms, if there's already a value, keep the field hidden
     {% if form.instance.pk %}
         if (nameField.value) {

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block title %}{{ employee.full_name }} - Employee Details{% endblock %}
 
@@ -30,7 +30,7 @@
         font-size: 48px;
         font-weight: 800;
         margin: 0 auto 24px;
- 
+
         box-shadow: 0 12px 32px rgba(229, 8, 128, 0.4);
         box-shadow: 0 12px 32px rgba(0, 201, 255, 0.4);
         position: relative;
@@ -43,7 +43,7 @@
         height: 100%;
         object-fit: cover;
         border-radius: 50%;
-        transition: all 0.3s ease;
+        transition: all 0.3s_ease;
     }
 
     .profile-avatar-large .avatar-fallback {
@@ -130,12 +130,10 @@
 <div class="profile-header-card">
     <div class="profile-avatar-large">
         {% if employee.profile_picture %}
-            <img src="{{ employee.profile_picture.url }}" 
-                 alt="{{ employee.full_name }}" 
-                 class="profile-avatar-img"
-                 onerror="this.style.display='none'; this.parentElement.querySelector('.avatar-fallback').style.display='flex';">
+        <img src="{{ employee.profile_picture.url }}" alt="{{ employee.full_name }}" class="profile-avatar-img"
+            onerror="this.style.display='none'; this.parentElement.querySelector('.avatar-fallback').style.display='flex';">
         {% else %}
-            <div class="avatar-fallback">{{ employee.full_name|slice:":2"|upper }}</div>
+        <div class="avatar-fallback">{{ employee.full_name|slice:":2"|upper }}</div>
         {% endif %}
     </div>
     <h1 class="profile-name">{{ employee.full_name }}</h1>
@@ -162,6 +160,9 @@
             <i class="bi bi-pencil me-2"></i>Edit Profile
         </a>
         {% endif %}
+        <a href="{% url 'employees:salary_details' employee.pk %}" class="btn btn-secondary">
+            <i class="bi bi-cash-stack me-2"></i>Salary & PaySlips
+        </a>
         <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-light">
             <i class="bi bi-arrow-left me-2"></i>Back to List
         </a>
@@ -263,6 +264,12 @@
                     <div class="detail-value">{{ employee.get_marital_status_display }}</div>
                 </div>
             </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Anniversary Date</div>
+                    <div class="detail-value">{{ employee.anniversary_date|date:"M d, Y" }}</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -351,38 +358,32 @@
                             <div class="d-flex align-items-center">
                                 <div class="me-3">
                                     {% if doc.is_submitted %}
-                                    <div class="document-status-icon success">
-                                        <i class="bi bi-check-lg"></i>
-                                    </div>
+                                    <div class="document-status-icon success"><i class="bi bi-check-lg"></i></div>
                                     {% else %}
-                                    <div class="document-status-icon warning">
-                                        <i class="bi bi-dash"></i>
-                                    </div>
+                                    <div class="document-status-icon warning"><i class="bi bi-dash"></i></div>
                                     {% endif %}
                                 </div>
-                                <div>
+                                <div class="flex-grow-1">
                                     <div class="fw-medium text-dark">{{ doc.display }}</div>
                                     {% if doc.submitted_date %}
-                                    <small class="text-muted">Submitted on {{ doc.submitted_date|date:"M d, Y" }}</small>
+                                    <small class="text-muted">
+                                        Submitted on {{ doc.submitted_date|date:"M d, Y" }}
+                                    </small>
                                     {% endif %}
                                 </div>
                             </div>
                             <div class="form-check form-switch">
                                 {% if doc.id %}
-                                <input class="form-check-input document-toggle" type="checkbox" 
-                                       id="documentToggle_{{ doc.id }}" 
-                                       data-document-id="{{ doc.id }}" 
-                                       {% if doc.is_submitted %}checked{% endif %}
-                                       {% if not request.user.is_staff and not request.user.is_superuser %}disabled{% endif %}>
+                                <input class="form-check-input document-toggle" type="checkbox" id="dt_{{ doc.id }}"
+                                    data-id="{{ doc.id }}" {{ doc.is_submitted|yesno:"checked," }} {{
+                                    request.user.is_staff|yesno:",disabled" }}>
                                 {% else %}
-                                <input class="form-check-input document-toggle-new" type="checkbox" 
-                                       id="documentToggle_{{ doc.type }}" 
-                                       data-document-type="{{ doc.type }}"
-                                       data-employee-id="{{ employee.id }}"
-                                       {% if doc.is_submitted %}checked{% endif %}
-                                       {% if not request.user.is_staff and not request.user.is_superuser %}disabled{% endif %}>
+                                <input class="form-check-input document-toggle-new" type="checkbox"
+                                    id="dtn_{{ doc.type }}" data-type="{{ doc.type }}" {{
+                                    doc.is_submitted|yesno:"checked," }} {{ request.user.is_staff|yesno:",disabled" }}>
                                 {% endif %}
-                                <label class="form-check-label visually-hidden" for="documentToggle_{{ doc.id|default:doc.type }}">Toggle document submission status</label>
+                                <label class="form-check-label visually-hidden"
+                                    for="dt_{{ doc.id|default:doc.type }}">Toggle</label>
                             </div>
                         </div>
                         {% endfor %}
@@ -440,21 +441,21 @@
     }
 
     // Handle document toggle switches
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const toggleElements = document.querySelectorAll('.document-toggle');
-        
-        toggleElements.forEach(function(toggle) {
-            toggle.addEventListener('change', function() {
-                const documentId = this.getAttribute('data-document-id');
+
+        toggleElements.forEach(function (toggle) {
+            toggle.addEventListener('change', function () {
+                const documentId = this.getAttribute('data-id');
                 const isSubmitted = this.checked;
-                
+
                 console.log('Toggle changed:', { documentId, isSubmitted });
-                
+
                 // Update the status icon immediately for better UX
                 const listItem = this.closest('.list-group-item');
                 const statusIcon = listItem.querySelector('.document-status-icon');
                 const iconElement = statusIcon.querySelector('i');
-                
+
                 if (isSubmitted) {
                     statusIcon.classList.remove('warning');
                     statusIcon.classList.add('success');
@@ -466,12 +467,12 @@
                     iconElement.classList.remove('bi-check-lg');
                     iconElement.classList.add('bi-dash');
                 }
-                
+
                 // Send AJAX request to update the database
                 const url = `/update-document-status/${documentId}/`;
                 console.log('Sending request to:', url);
                 console.log('Full URL should be:', window.location.origin + url);
-                
+
                 fetch(url, {
                     method: 'POST',
                     headers: {
@@ -482,51 +483,51 @@
                         'is_submitted': isSubmitted
                     })
                 })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-                    if (data.success) {
-                        // Update submitted date if available
-                        const dateContainer = listItem.querySelector('small.text-muted');
-                        if (data.submitted_date) {
-                            if (dateContainer) {
-                                dateContainer.textContent = `Submitted on ${data.submitted_date}`;
-                            } else {
-                                const docInfo = listItem.querySelector('div > div:last-child');
-                                const newDateElement = document.createElement('small');
-                                newDateElement.className = 'text-muted';
-                                newDateElement.textContent = `Submitted on ${data.submitted_date}`;
-                                docInfo.appendChild(newDateElement);
-                            }
-                        } else {
-                            if (dateContainer) {
-                                dateContainer.remove();
-                            }
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
                         }
-                        
-                        // Show success message
-                        showToast(`Document status updated to ${isSubmitted ? 'Submitted' : 'Pending'}`, 'success');
-                    } else {
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data);
+                        if (data.success) {
+                            // Update submitted date if available
+                            const dateContainer = listItem.querySelector('small.text-muted');
+                            if (data.submitted_date) {
+                                if (dateContainer) {
+                                    dateContainer.textContent = `Submitted on ${data.submitted_date}`;
+                                } else {
+                                    const docInfo = listItem.querySelector('div > div:last-child');
+                                    const newDateElement = document.createElement('small');
+                                    newDateElement.className = 'text-muted';
+                                    newDateElement.textContent = `Submitted on ${data.submitted_date}`;
+                                    docInfo.appendChild(newDateElement);
+                                }
+                            } else {
+                                if (dateContainer) {
+                                    dateContainer.remove();
+                                }
+                            }
+
+                            // Show success message
+                            showToast(`Document status updated to ${isSubmitted ? 'Submitted' : 'Pending'}`, 'success');
+                        } else {
+                            // Revert toggle on error
+                            this.checked = !isSubmitted;
+                            showToast('Failed to update document status', 'error');
+                        }
+                    })
+                    .catch(error => {
                         // Revert toggle on error
                         this.checked = !isSubmitted;
-                        showToast('Failed to update document status', 'error');
-                    }
-                })
-                .catch(error => {
-                    // Revert toggle on error
-                    this.checked = !isSubmitted;
-                    console.error('Error:', error);
-                    showToast('Failed to update document status: ' + error.message, 'error');
-                });
+                        console.error('Error:', error);
+                        showToast('Failed to update document status: ' + error.message, 'error');
+                    });
             });
         });
-        
+
         // Helper function to get CSRF token
         function getCookie(name) {
             let cookieValue = null;
@@ -542,7 +543,7 @@
             }
             return cookieValue;
         }
-        
+
         // Helper function to show toast notifications
         function showToast(message, type = 'info') {
             const toastHtml = `
@@ -555,7 +556,7 @@
                     </div>
                 </div>
             `;
-            
+
             // Create toast container if it doesn't exist
             let toastContainer = document.getElementById('toast-container');
             if (!toastContainer) {
@@ -564,36 +565,36 @@
                 toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
                 document.body.appendChild(toastContainer);
             }
-            
+
             // Create and show toast
             const toastElement = document.createElement('div');
             toastElement.innerHTML = toastHtml;
             const toast = new bootstrap.Toast(toastElement.querySelector('.toast'));
             toastContainer.appendChild(toastElement);
             toast.show();
-            
+
             // Remove toast element after it's hidden
-            toastElement.addEventListener('hidden.bs.toast', function() {
+            toastElement.addEventListener('hidden.bs.toast', function () {
                 toastElement.remove();
             });
         }
-        
+
         // Handle document toggle for new documents (that don't exist in DB yet)
         const newToggleElements = document.querySelectorAll('.document-toggle-new');
-        
-        newToggleElements.forEach(function(toggle) {
-            toggle.addEventListener('change', function() {
-                const documentType = this.getAttribute('data-document-type');
-                const employeeId = this.getAttribute('data-employee-id');
+
+        newToggleElements.forEach(function (toggle) {
+            toggle.addEventListener('change', function () {
+                const documentType = this.getAttribute('data-type');
+                const employeeId = '{{ employee.id }}';
                 const isSubmitted = this.checked;
-                
+
                 console.log('New document toggle changed:', { documentType, employeeId, isSubmitted });
-                
+
                 // Update the status icon immediately for better UX
                 const listItem = this.closest('.list-group-item');
                 const statusIcon = listItem.querySelector('.document-status-icon');
                 const iconElement = statusIcon.querySelector('i');
-                
+
                 if (isSubmitted) {
                     statusIcon.classList.remove('warning');
                     statusIcon.classList.add('success');
@@ -605,11 +606,11 @@
                     iconElement.classList.remove('bi-check-lg');
                     iconElement.classList.add('bi-dash');
                 }
-                
+
                 // Send AJAX request to create/update the document
                 const url = `/employee/${employeeId}/document/${documentType}/update/`;
                 console.log('Sending request to:', url);
-                
+
                 fetch(url, {
                     method: 'POST',
                     headers: {
@@ -618,35 +619,35 @@
                     },
                     body: `is_submitted=${isSubmitted ? 'on' : ''}`
                 })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-                    if (data.success) {
-                        // Show success message
-                        showToast(`Document status updated to ${isSubmitted ? 'Submitted' : 'Pending'}`, 'success');
-                        
-                        // Reload page to get the document ID for future updates
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000);
-                    } else {
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data);
+                        if (data.success) {
+                            // Show success message
+                            showToast(`Document status updated to ${isSubmitted ? 'Submitted' : 'Pending'}`, 'success');
+
+                            // Reload page to get the document ID for future updates
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            // Revert toggle on error
+                            this.checked = !isSubmitted;
+                            showToast('Failed to update document status', 'error');
+                        }
+                    })
+                    .catch(error => {
                         // Revert toggle on error
                         this.checked = !isSubmitted;
-                        showToast('Failed to update document status', 'error');
-                    }
-                })
-                .catch(error => {
-                    // Revert toggle on error
-                    this.checked = !isSubmitted;
-                    console.error('Error:', error);
-                    showToast('Failed to update document status: ' + error.message, 'error');
-                });
+                        console.error('Error:', error);
+                        showToast('Failed to update document status: ' + error.message, 'error');
+                    });
             });
         });
     });

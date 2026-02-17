@@ -19,7 +19,7 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="mb-3">
                         <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
                         {{ form.title }}
@@ -27,7 +27,7 @@
                             <div class="text-danger">{{ form.title.errors }}</div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="{{ form.message.id_for_label }}" class="form-label">{{ form.message.label }}</label>
                         {{ form.message }}
@@ -35,21 +35,21 @@
                             <div class="text-danger">{{ form.message.errors }}</div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.notification_type.id_for_label }}" class="form-label">{{ form.notification_type.label }}</label>
                             {{ form.notification_type }}
                             <small class="text-muted">Choose notification color/style</small>
                         </div>
-                        
+
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.icon.id_for_label }}" class="form-label">{{ form.icon.label }}</label>
                             {{ form.icon }}
                             <small class="text-muted">Bootstrap icon class name</small>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <div class="form-check">
                             {{ form.target_all }}
@@ -58,13 +58,13 @@
                             </label>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3" id="targetUsersDiv">
                         <label for="{{ form.target_users.id_for_label }}" class="form-label">{{ form.target_users.label }}</label>
                         {{ form.target_users }}
                         <small class="text-muted">Hold Ctrl/Cmd to select multiple users</small>
                     </div>
-                    
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-send me-2"></i>Send Notification
@@ -74,7 +74,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
@@ -100,7 +100,7 @@
                 {% endif %}
             </div>
         </div>
-        
+
         <div class="card mt-3">
             <div class="card-header">
                 <h6 class="mb-0">Icon Examples</h6>
@@ -123,7 +123,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const targetAllCheckbox = document.getElementById('{{ form.target_all.id_for_label }}');
     const targetUsersDiv = document.getElementById('targetUsersDiv');
-    
+
     function toggleTargetUsers() {
         if (targetAllCheckbox.checked) {
             targetUsersDiv.style.display = 'none';
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             targetUsersDiv.style.display = 'block';
         }
     }
-    
+
     targetAllCheckbox.addEventListener('change', toggleTargetUsers);
     toggleTargetUsers(); // Initial state
 });

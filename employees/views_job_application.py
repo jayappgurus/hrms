@@ -9,12 +9,12 @@ from .models import Department, Designation
 @require_http_methods(["GET", "POST"])
 def add_job_application_view(request):
     """Handle job application creation with candidate linking"""
-    
+
     if request.method == 'POST':
         form = JobApplicationForm(request.POST, request.FILES)
         if form.is_valid():
             application = form.save(commit=False)
-            
+
             # Link to the selected job
             job_id = request.POST.get('job')
             if job_id:
@@ -24,10 +24,10 @@ def add_job_application_view(request):
                 except JobDescription.DoesNotExist:
                     messages.error(request, 'Selected job not found or is not active.')
                     return redirect('employees:add_job_application')
-            
+
             application.status = 'received'
             application.save()
-            
+
             messages.success(request, f'Application submitted successfully for {job.title if job else "position"}!')
             return redirect('employees:job_application_success')
         else:
@@ -37,7 +37,7 @@ def add_job_application_view(request):
         form = JobApplicationForm()
         # Get available active jobs for selection
         available_jobs = JobDescription.objects.filter(status='active').select_related('designation', 'department')
-        
+
         return render(request, 'jobs/add_job_application.html', {
             'form': form,
             'available_jobs': available_jobs

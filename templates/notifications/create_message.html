@@ -19,7 +19,7 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="mb-3">
                         <label for="{{ form.subject.id_for_label }}" class="form-label">{{ form.subject.label }}</label>
                         {{ form.subject }}
@@ -27,7 +27,7 @@
                             <div class="text-danger">{{ form.subject.errors }}</div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="{{ form.body.id_for_label }}" class="form-label">{{ form.body.label }}</label>
                         {{ form.body }}
@@ -35,7 +35,7 @@
                             <div class="text-danger">{{ form.body.errors }}</div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="mb-3">
                         <div class="form-check">
                             {{ form.target_all }}
@@ -44,13 +44,13 @@
                             </label>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3" id="targetUsersDiv">
                         <label for="{{ form.target_users.id_for_label }}" class="form-label">{{ form.target_users.label }}</label>
                         {{ form.target_users }}
                         <small class="text-muted">Hold Ctrl/Cmd to select multiple users</small>
                     </div>
-                    
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-send me-2"></i>Send Message
@@ -60,7 +60,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
@@ -89,7 +89,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const targetAllCheckbox = document.getElementById('{{ form.target_all.id_for_label }}');
     const targetUsersDiv = document.getElementById('targetUsersDiv');
-    
+
     function toggleTargetUsers() {
         if (targetAllCheckbox.checked) {
             targetUsersDiv.style.display = 'none';
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
             targetUsersDiv.style.display = 'block';
         }
     }
-    
+
     targetAllCheckbox.addEventListener('change', toggleTargetUsers);
     toggleTargetUsers(); // Initial state
 });

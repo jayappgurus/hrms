@@ -6,24 +6,23 @@ from django.db import models
 from decimal import Decimal
 from .employee import Employee
 
-
 class PaidAbsence(models.Model):
     """
     Paid absence tracking for special leaves
     """
-    
+
     ABSENCE_TYPE_CHOICES = [
         ('marriage', 'Marriage Leave'),
         ('paternity', 'Paternity Leave'),
         ('maternity', 'Maternity Leave'),
     ]
-    
+
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
     ]
-    
+
     # Core Fields
     employee = models.ForeignKey(
         Employee,
@@ -34,12 +33,12 @@ class PaidAbsence(models.Model):
         max_length=20,
         choices=ABSENCE_TYPE_CHOICES
     )
-    
+
     # Dates
     start_date = models.DateField()
     end_date = models.DateField()
     applied_date = models.DateTimeField(auto_now_add=True)
-    
+
     # Details
     total_days = models.DecimalField(
         max_digits=5,
@@ -47,7 +46,7 @@ class PaidAbsence(models.Model):
         help_text="Total paid absence days"
     )
     reason = models.TextField()
-    
+
     # For Paternity/Maternity
     is_first_child = models.BooleanField(
         default=False,
@@ -58,7 +57,7 @@ class PaidAbsence(models.Model):
         blank=True,
         help_text="For maternity leave"
     )
-    
+
     # Documents
     marriage_certificate = models.FileField(
         upload_to='paid_absence/marriage/%Y/%m/',
@@ -70,7 +69,7 @@ class PaidAbsence(models.Model):
         null=True,
         blank=True
     )
-    
+
     # Approval
     status = models.CharField(
         max_length=20,
@@ -86,11 +85,11 @@ class PaidAbsence(models.Model):
     )
     approved_date = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
-    
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
         db_table = 'paid_absences'
         ordering = ['-applied_date']
@@ -98,18 +97,18 @@ class PaidAbsence(models.Model):
             models.Index(fields=['employee', 'absence_type']),
             models.Index(fields=['status']),
         ]
-    
+
     def __str__(self):
         return f"{self.employee.full_name} - {self.get_absence_type_display()}"
-    
+
     @property
     def is_pending(self):
         return self.status == 'pending'
-    
+
     @property
     def is_approved(self):
         return self.status == 'approved'
-    
+
     @classmethod
     def get_days_for_type(cls, absence_type):
         """Get standard days for each absence type"""

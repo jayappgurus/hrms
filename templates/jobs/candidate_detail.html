@@ -184,7 +184,7 @@
             {{ application.get_status_display }}
         </span>
     </div>
-    
+
     <div class="detail-grid">
         <div class="detail-item">
             <div class="detail-label">Email</div>
@@ -223,7 +223,7 @@
             Professional Information
         </div>
     </div>
-    
+
     <div class="detail-grid">
         <div class="detail-item">
             <div class="detail-label">Current Organization</div>
@@ -286,7 +286,7 @@
                     Education
                 </div>
             </div>
-            
+
             <div class="detail-item">
                 <div class="detail-label">Degree Name</div>
                 <div class="detail-value">{{ application.degree_name|default:"—" }}</div>
@@ -297,7 +297,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-6">
         <div class="detail-card">
             <div class="detail-header">
@@ -306,7 +306,7 @@
                     Additional Details
                 </div>
             </div>
-            
+
             <div class="detail-item">
                 <div class="detail-label">Notice Period</div>
                 <div class="detail-value">{{ application.official_notice_period|default:"—" }}</div>
@@ -333,7 +333,7 @@
             Location Details
         </div>
     </div>
-    
+
     <div class="detail-grid">
         <div class="detail-item">
             <div class="detail-label">Current Location</div>
@@ -364,7 +364,7 @@
             Documents
         </div>
     </div>
-    
+
     <div class="d-flex gap-3">
         {% if application.resume %}
         <a href="{{ application.resume.url }}" class="btn btn-outline-primary" download>
@@ -395,7 +395,7 @@
         </a>
         {% endif %}
     </div>
-    
+
     {% if interviews %}
         {% for interview in interviews %}
         <div class="interview-card">
@@ -410,12 +410,12 @@
                     </span>
                     {% if request.user.is_superuser or request.user.is_staff %}
                     <div class="interview-actions">
-                        <a href="{% url 'employees:edit_interview' interview.pk %}" 
+                        <a href="{% url 'employees:edit_interview' interview.pk %}"
                            class="btn btn-sm btn-outline-secondary"
                            title="Edit">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <a href="{% url 'employees:delete_interview' interview.pk %}" 
+                        <a href="{% url 'employees:delete_interview' interview.pk %}"
                            class="btn btn-sm btn-outline-danger"
                            title="Delete">
                             <i class="bi bi-trash"></i>
@@ -424,7 +424,7 @@
                     {% endif %}
                 </div>
             </div>
-            
+
             <div class="interview-details">
                 <div class="interview-detail-item">
                     <i class="bi bi-calendar3"></i>
@@ -441,7 +441,7 @@
                 {% if interview.taken_by %}
                 <div class="interview-detail-item">
                     <i class="bi bi-person-badge"></i>
-                    <span><strong>Taken By:</strong> 
+                    <span><strong>Taken By:</strong>
                         <a href="{% url 'employees:employee_detail' interview.taken_by.pk %}" class="text-primary">
                             {{ interview.taken_by.full_name }}
                         </a>
@@ -449,25 +449,25 @@
                 </div>
                 {% endif %}
             </div>
-            
+
             {% if interview.meeting_link %}
             <div class="interview-detail-item mb-2">
                 <i class="bi bi-link-45deg"></i>
-                <span><strong>Meeting Link:</strong> 
+                <span><strong>Meeting Link:</strong>
                     <a href="{{ interview.meeting_link }}" target="_blank" class="text-primary">
                         {{ interview.meeting_link|truncatechars:50 }}
                     </a>
                 </span>
             </div>
             {% endif %}
-            
+
             {% if interview.location %}
             <div class="interview-detail-item mb-2">
                 <i class="bi bi-geo-alt"></i>
                 <span><strong>Location:</strong> {{ interview.location }}</span>
             </div>
             {% endif %}
-            
+
             {% if interview.remarks %}
             <div class="interview-remarks">
                 <div class="interview-remarks-label">REMARKS:</div>
@@ -497,7 +497,7 @@
             Timeline
         </div>
     </div>
-    
+
     <div class="detail-grid">
         <div class="detail-item">
             <div class="detail-label">Registered Date</div>

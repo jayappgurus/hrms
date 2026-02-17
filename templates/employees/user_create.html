@@ -22,11 +22,11 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <h6 class="text-muted mb-3">User Account Information</h6>
-                            
+
                             <div class="mb-3">
                                 <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
                                 {{ form.username }}
@@ -38,7 +38,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
                                 {{ form.password1 }}
@@ -50,7 +50,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
                                 {{ form.password2 }}
@@ -63,10 +63,10 @@
                                 {% endif %}
                             </div>
                         </div>
-                        
+
                         <div class="col-md-6">
                             <h6 class="text-muted mb-3">User Profile Information</h6>
-                            
+
                             <div class="mb-3">
                                 <label for="role" class="form-label">Role</label>
                                 <select name="role" id="role" class="form-select" required>
@@ -76,7 +76,7 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="department" class="form-label">Department</label>
                                 <select name="department" id="department" class="form-select">
@@ -86,14 +86,14 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="phone" class="form-label">Phone Number</label>
                                 <input type="tel" name="phone" id="phone" class="form-control" placeholder="Enter phone number">
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="d-flex justify-content-end gap-2 mt-4">
                         <a href="{% url 'employees:user_list' %}" class="btn btn-secondary">
                             <i class="bi bi-x-circle"></i> Cancel
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
     formFields.forEach(field => {
         field.classList.add('form-control');
     });
-    
+
     // Add form-control class to select elements
     const selectFields = document.querySelectorAll('select');
     selectFields.forEach(field => {

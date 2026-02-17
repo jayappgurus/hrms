@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('departmentForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
-        
+
         fetch('{% url "employees:add_department" %}', {
             method: 'POST',
             body: formData,
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('designationForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
-        
+
         fetch('{% url "employees:add_designation" %}', {
             method: 'POST',
             body: formData,

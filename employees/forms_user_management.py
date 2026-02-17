@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import UserProfile, Department
 
-
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
@@ -12,12 +11,11 @@ class UserProfileForm(forms.ModelForm):
             'department': forms.Select(attrs={'class': 'form-select'}, required=False),
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'}),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['department'].queryset = Department.objects.all()
         self.fields['department'].empty_label = "Select Department"
-
 
 class UserSearchForm(forms.Form):
     search = forms.CharField(
@@ -27,13 +25,12 @@ class UserSearchForm(forms.Form):
             'placeholder': 'Search users...'
         })
     )
-    
+
     role = forms.ChoiceField(
         required=False,
         choices=[('', 'All Roles')] + UserProfile.ROLE_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
-
 
 class UserCreateForm(forms.ModelForm):
     username = forms.CharField(
@@ -73,33 +70,33 @@ class UserCreateForm(forms.ModelForm):
         required=False,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
-    
+
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'is_staff']
-    
+
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Passwords don't match")
         return password2
-    
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         username = self.cleaned_data.get('username')
-        
+
         # Check if email already exists for another user
         if User.objects.filter(email=email).exclude(username=username).exists():
             raise forms.ValidationError("A user with that email already exists.")
         return email
-    
+
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if User.objects.filter(username=username).exists():
             raise forms.ValidationError("A user with that username already exists.")
         return username
-    
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password1'])

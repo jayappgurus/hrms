@@ -17,10 +17,9 @@ from .forms import EmployeeRegistrationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-
 class CustomAuthenticationForm(AuthenticationForm):
     """Custom authentication form that accepts both username and email"""
-    
+
     username = forms.CharField(
         label="Username or Email",
         widget=forms.TextInput(attrs={
@@ -29,7 +28,7 @@ class CustomAuthenticationForm(AuthenticationForm):
             'placeholder': 'Enter username or email'
         })
     )
-    
+
     def clean_username(self):
         username = self.cleaned_data.get('username')
         # Check if the input is an email address
@@ -41,25 +40,24 @@ class CustomAuthenticationForm(AuthenticationForm):
                 raise ValidationError("No user found with this email address.")
         return username
 
-
 @method_decorator(csrf_protect, name='dispatch')
 class CustomLoginView(View):
     def get(self, request):
         if request.user.is_authenticated:
             return self.redirect_based_on_role(request.user)
-        
+
         form = CustomAuthenticationForm()
         return render(request, 'registration/login.html', {'form': form})
-    
+
     def post(self, request):
         form = CustomAuthenticationForm(request, data=request.POST)
-        
+
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            
+
             user = authenticate(request, username=username, password=password)
-            
+
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Trilokn Infotech Pvt. Ltd., {user.get_full_name() or user.username}!')
@@ -68,15 +66,15 @@ class CustomLoginView(View):
                 messages.error(request, 'Invalid username/email or password.')
         else:
             messages.error(request, 'Please correct the errors below.')
-        
+
         return render(request, 'registration/login.html', {'form': form})
-    
+
     def redirect_based_on_role(self, user):
         """Redirect user based on their role"""
         try:
             profile = user.profile
             role = profile.role
-            
+
             # Role-based redirects - all users go to dashboard
             if role == 'admin':
                 return HttpResponseRedirect(reverse('employees:dashboard'))
@@ -88,11 +86,10 @@ class CustomLoginView(View):
                 return HttpResponseRedirect(reverse('employees:dashboard'))
             else:  # employee
                 return HttpResponseRedirect(reverse('employees:dashboard'))
-                
+
         except AttributeError:
             # If user has no profile, redirect to dashboard
             return HttpResponseRedirect(reverse('employees:dashboard'))
-
 
 def custom_logout(request):
     """Custom logout view"""
@@ -100,7 +97,6 @@ def custom_logout(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return HttpResponseRedirect(reverse('login'))
-
 
 class EmployeeRegistrationView(CreateView):
     model = Employee

@@ -3,7 +3,6 @@ from django.shortcuts import redirect
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 
-
 def role_required(allowed_roles=[]):
     """
     Decorator to restrict access to users with specific roles
@@ -14,7 +13,7 @@ def role_required(allowed_roles=[]):
             if not request.user.is_authenticated:
                 messages.error(request, 'You must be logged in to access this page.')
                 return redirect('login')
-            
+
             try:
                 user_profile = request.user.profile
                 if user_profile.role in allowed_roles:
@@ -25,10 +24,9 @@ def role_required(allowed_roles=[]):
             except AttributeError:
                 messages.error(request, 'User profile not found. Please contact administrator.')
                 return redirect('employees:employee_list')
-        
+
         return wrapper
     return decorator
-
 
 def admin_required(view_func):
     """
@@ -36,13 +34,11 @@ def admin_required(view_func):
     """
     return role_required(['admin'])(view_func)
 
-
 def director_required(view_func):
     """
     Decorator to restrict access to Director users
     """
     return role_required(['admin', 'director'])(view_func)
-
 
 def hr_required(view_func):
     """
@@ -50,13 +46,11 @@ def hr_required(view_func):
     """
     return role_required(['admin', 'director', 'hr'])(view_func)
 
-
 def accountant_required(view_func):
     """
     Decorator to restrict access to Accountant users
     """
     return role_required(['admin', 'director', 'accountant'])(view_func)
-
 
 def manager_required(view_func):
     """
@@ -64,13 +58,11 @@ def manager_required(view_func):
     """
     return role_required(['admin', 'director', 'hr', 'manager'])(view_func)
 
-
 def it_admin_required(view_func):
     """
     Decorator to restrict access to IT Admin users
     """
     return role_required(['admin', 'it_admin'])(view_func)
-
 
 def employee_required(view_func):
     """
@@ -82,9 +74,8 @@ def employee_required(view_func):
             messages.error(request, 'You must be logged in to access this page.')
             return redirect('login')
         return view_func(request, *args, **kwargs)
-    
-    return wrapper
 
+    return wrapper
 
 def can_manage_employees(view_func):
     """
@@ -95,7 +86,7 @@ def can_manage_employees(view_func):
         if not request.user.is_authenticated:
             messages.error(request, 'You must be logged in to access this page.')
             return redirect('login')
-        
+
         try:
             user_profile = request.user.profile
             if user_profile.can_manage_employees:
@@ -106,9 +97,8 @@ def can_manage_employees(view_func):
         except AttributeError:
             messages.error(request, 'User profile not found. Please contact administrator.')
             return redirect('employees:employee_list')
-    
-    return wrapper
 
+    return wrapper
 
 def can_view_all_employees(view_func):
     """
@@ -119,7 +109,7 @@ def can_view_all_employees(view_func):
         if not request.user.is_authenticated:
             messages.error(request, 'You must be logged in to access this page.')
             return redirect('login')
-        
+
         try:
             user_profile = request.user.profile
             if user_profile.can_view_all_employees:
@@ -130,9 +120,8 @@ def can_view_all_employees(view_func):
         except AttributeError:
             messages.error(request, 'User profile not found. Please contact administrator.')
             return redirect('employees:employee_list')
-    
-    return wrapper
 
+    return wrapper
 
 def can_manage_system(view_func):
     """
@@ -143,7 +132,7 @@ def can_manage_system(view_func):
         if not request.user.is_authenticated:
             messages.error(request, 'You must be logged in to access this page.')
             return redirect('login')
-        
+
         try:
             user_profile = request.user.profile
             if user_profile.can_manage_system:
@@ -154,5 +143,5 @@ def can_manage_system(view_func):
         except AttributeError:
             messages.error(request, 'User profile not found. Please contact administrator.')
             return redirect('employees:employee_list')
-    
+
     return wrapper

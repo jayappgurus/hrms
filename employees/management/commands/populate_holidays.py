@@ -4,15 +4,9 @@ from employees.models import PublicHoliday
 
 from datetime import datetime
 
-
-
-
-
 class Command(BaseCommand):
 
     help = 'Populate Indian and Australian public holidays for 2024-2026'
-
-
 
     def handle(self, *args, **kwargs):
 
@@ -21,8 +15,6 @@ class Command(BaseCommand):
         PublicHoliday.objects.all().delete()
 
         self.stdout.write('Cleared existing holidays')
-
-
 
         # Indian Holidays 2024
 
@@ -59,8 +51,6 @@ class Command(BaseCommand):
             {'name': 'Christmas', 'date': '2024-12-25', 'is_optional': False},
 
         ]
-
-
 
         # Indian Holidays 2025
 
@@ -110,8 +100,6 @@ class Command(BaseCommand):
 
         ]
 
-
-
         # Indian Holidays 2026
 
         indian_holidays_2026 = [
@@ -160,8 +148,6 @@ class Command(BaseCommand):
 
         ]
 
-
-
         # Australian Holidays 2025
 
         australian_holidays_2025 = [
@@ -193,8 +179,6 @@ class Command(BaseCommand):
             {'name': 'Boxing Day', 'date': '2025-12-26', 'is_optional': False},
 
         ]
-
-
 
         # Australian Holidays 2026
 
@@ -228,8 +212,6 @@ class Command(BaseCommand):
 
         ]
 
-
-
         # Create Indian holidays
 
         for holiday_data in indian_holidays_2024 + indian_holidays_2025 + indian_holidays_2026:
@@ -256,11 +238,7 @@ class Command(BaseCommand):
 
             )
 
-
-
         self.stdout.write(self.style.SUCCESS(f'Created {len(indian_holidays_2025) + len(indian_holidays_2026)} Indian holidays'))
-
-
 
         # Create Australian holidays
 
@@ -288,9 +266,6 @@ class Command(BaseCommand):
 
             )
 
-
-
         self.stdout.write(self.style.SUCCESS(f'Created {len(australian_holidays_2025) + len(australian_holidays_2026)} Australian holidays'))
 
         self.stdout.write(self.style.SUCCESS('Successfully populated all holidays!'))
-

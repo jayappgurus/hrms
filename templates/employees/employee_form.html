@@ -78,7 +78,7 @@
     </a>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="employeeForm" novalidate data-designations="{{ all_designations|safe }}">
+<form method="post" enctype="multipart/form-data" id="employeeForm" novalidate>
     {% csrf_token %}
 
     <!-- Core Employee Details -->
@@ -97,9 +97,11 @@
                     <div class="d-flex align-items-start gap-3 align-items-center">
                         <div class="profile-picture-preview">
                             {% if form.instance.profile_picture %}
-                            <img src="{{ form.instance.profile_picture.url }}" alt="Profile Picture" id="profilePreview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0;">
+                            <img src="{{ form.instance.profile_picture.url }}" alt="Profile Picture" id="profilePreview"
+                                style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0;">
                             {% else %}
-                            <div id="profilePreview" style="width: 120px; height: 120px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid #e2e8f0;">
+                            <div id="profilePreview"
+                                style="width: 120px; height: 120px; background: #f1f5f9; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px solid #e2e8f0;">
                                 <i class="bi bi-person" style="font-size: 48px; color: #94a3b8;"></i>
                             </div>
                             {% endif %}
@@ -109,7 +111,9 @@
                             {% if form.profile_picture.errors %}
                             <div class="text-danger small mt-1">{{ form.profile_picture.errors.0 }}</div>
                             {% endif %}
-                            <small class="form-help-text d-block mt-2">Upload a profile picture (JPG, PNG, max 5MB)</small>
+                            <small class="form-help-text d-block mt-2">Upload a profile picture (JPG, PNG, max
+                                5MB)</small>
+                            <small class="form-help-text d-block text-primary">Passport Size Photos (4 Copies)</small>
                         </div>
                     </div>
                 </div>
@@ -135,7 +139,7 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.department.label }}</label>
                     {{ form.department }}
@@ -145,7 +149,15 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-4">
+                <div class="modern-form-group">
+                    <label class="modern-form-label">Department Head</label>
+                    <input type="text" id="departmentHead" class="form-control modern-form-control" readonly
+                        placeholder="Select department first">
+                </div>
+            </div>
+
+            <div class="col-md-4">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.designation.label }}</label>
                     {{ form.designation }}
@@ -159,7 +171,10 @@
             <div class="col-md-4">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.joining_date.label }}</label>
-                    {{ form.joining_date }}
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                        {{ form.joining_date }}
+                    </div>
                     {% if form.joining_date.errors %}
                     <div class="text-danger small mt-1">{{ form.joining_date.errors.0 }}</div>
                     {% endif %}
@@ -168,8 +183,25 @@
 
             <div class="col-md-4">
                 <div class="modern-form-group">
+                    <label class="modern-form-label">{{ form.probation_end_date.label }}</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                        {{ form.probation_end_date }}
+                    </div>
+                    {% if form.probation_end_date.errors %}
+                    <div class="text-danger small mt-1">{{ form.probation_end_date.errors.0 }}</div>
+                    {% endif %}
+                    <small class="form-help-text">Auto-calculated (3 months from joining)</small>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="modern-form-group">
                     <label class="modern-form-label">{{ form.relieving_date.label }}</label>
-                    {{ form.relieving_date }}
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                        {{ form.relieving_date }}
+                    </div>
                     {% if form.relieving_date.errors %}
                     <div class="text-danger small mt-1">{{ form.relieving_date.errors.0 }}</div>
                     {% endif %}
@@ -284,19 +316,19 @@
                 </div>
                 <div class="col-md-6">
                     <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.emergency_contact_address.label }}</label>
-                        {{ form.emergency_contact_address }}
-                        {% if form.emergency_contact_address.errors %}
-                        <div class="text-danger small mt-1">{{ form.emergency_contact_address.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="col-md-6" style="display: none;">
-                    <div class="modern-form-group">
                         <label class="modern-form-label">{{ form.emergency_contact_relationship.label }}</label>
                         {{ form.emergency_contact_relationship }}
                         {% if form.emergency_contact_relationship.errors %}
                         <div class="text-danger small mt-1">{{ form.emergency_contact_relationship.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.emergency_contact_address.label }}</label>
+                        {{ form.emergency_contact_address }}
+                        {% if form.emergency_contact_address.errors %}
+                        <div class="text-danger small mt-1">{{ form.emergency_contact_address.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -316,7 +348,10 @@
             <div class="col-md-4">
                 <div class="modern-form-group">
                     <label class="modern-form-label required">{{ form.date_of_birth.label }}</label>
-                    {{ form.date_of_birth }}
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                        {{ form.date_of_birth }}
+                    </div>
                     {% if form.date_of_birth.errors %}
                     <div class="text-danger small mt-1">{{ form.date_of_birth.errors.0 }}</div>
                     {% endif %}
@@ -335,7 +370,10 @@
             <div class="col-md-4" id="anniversary_section">
                 <div class="modern-form-group">
                     <label class="modern-form-label">{{ form.anniversary_date.label }}</label>
-                    {{ form.anniversary_date }}
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                        {{ form.anniversary_date }}
+                    </div>
                     {% if form.anniversary_date.errors %}
                     <div class="text-danger small mt-1">{{ form.anniversary_date.errors.0 }}</div>
                     {% endif %}
@@ -343,6 +381,7 @@
             </div>
         </div>
     </div>
+
     <div class="form-section">
         <div class="form-section-header">
             <div class="form-section-icon">
@@ -390,7 +429,35 @@
                 </div>
             </div>
         </div>
-
+    </div>
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="form-section-icon">
+                <i class="bi bi-cash-coin"></i>
+            </div>
+            <h5 class="form-section-title">Salary Details</h5>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="modern-form-group">
+                    <label class="modern-form-label">{{ form.current_ctc.label }}</label>
+                    {{ form.current_ctc }}
+                    {% if form.current_ctc.errors %}
+                    <div class="text-danger small mt-1">{{ form.current_ctc.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="modern-form-group">
+                    <label class="modern-form-label">{{ form.salary_structure.label }}</label>
+                    {{ form.salary_structure }}
+                    {% if form.salary_structure.errors %}
+                    <div class="text-danger small mt-1">{{ form.salary_structure.errors.0 }}</div>
+                    {% endif %}
+                    <small class="form-help-text">Copy details from salary slip</small>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="form-section">
         <div class="form-section-header">
@@ -419,8 +486,18 @@
                     {% endif %}
                 </div>
             </div>
-        </div>
 
+            <div class="col-md-6">
+                <div class="modern-form-group">
+                    <label class="modern-form-label">{{ form.graduates_marksheet_count.label }}</label>
+                    {{ form.graduates_marksheet_count }}
+                    {% if form.graduates_marksheet_count.errors %}
+                    <div class="text-danger small mt-1">{{ form.graduates_marksheet_count.errors.0 }}</div>
+                    {% endif %}
+                    <small class="form-help-text">2 Copies Required</small>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Form Actions -->
@@ -469,78 +546,154 @@
         // Department-Designation dependency
         const departmentField = document.getElementById('id_department');
         const designationField = document.getElementById('id_designation');
+        const departmentHeadField = document.getElementById('departmentHead');
 
-        // Store all designations data from Django template
-        const allDesignations = JSON.parse(document.getElementById('employeeForm').getAttribute('data-designations'));
+        // Store all designations and departments data directly from Django context
+        // Using safe filter to output the JSON string directly into JS
+        const allDesignations = {{ all_designations|default:"[]"|safe }};
+        const allDepartments = {{ all_departments|default:"[]"|safe }};
+
         console.log('Designations loaded successfully:', allDesignations.length);
+        console.log('Departments loaded successfully:', allDepartments.length);
 
-        function loadDesignations(departmentId) {
-            console.log('Loading designations for department:', departmentId);
-
-            // Clear current designation options
-            designationField.innerHTML = '<option value="">Select a designation</option>';
-
-            // Filter designations by department if selected, otherwise show all
-            const filteredDesignations = departmentId ?
-                allDesignations.filter(d => d.department_id == departmentId) :
-                allDesignations;
-
-            console.log('Filtered designations:', filteredDesignations);
-
-            if (filteredDesignations.length === 0) {
-                designationField.innerHTML = '<option value="">No designations available</option>';
-            } else {
-                filteredDesignations.forEach(designation => {
-                    const option = document.createElement('option');
-                    option.value = designation.id;
-                    option.textContent = designation.name;
-                    designationField.appendChild(option);
-                });
-            }
+    function updateDepartmentHead(departmentId) {
+        if (!departmentId) {
+            departmentHeadField.value = '';
+            return;
         }
+        const dept = allDepartments.find(d => d.id == departmentId);
+        departmentHeadField.value = dept && dept.head__full_name ? dept.head__full_name : 'Not Assigned';
+    }
 
-        departmentField.addEventListener('change', function () {
-            loadDesignations(this.value);
-        });
+    function loadDesignations(departmentId) {
+        console.log('Loading designations for department:', departmentId);
+        updateDepartmentHead(departmentId);
 
-        // Load designations on page load
-        loadDesignations(departmentField.value);
+        // Capture currently selected designation to restore it after rebuilding options
+        const currentDesignationId = designationField.value;
 
-        // Anniversary date toggle
-        const maritalStatusField = document.getElementById('id_marital_status');
-        const anniversarySection = document.getElementById('anniversary_section');
+        // Clear current designation options
+        designationField.innerHTML = '<option value="">Select a designation</option>';
 
-        function toggleAnniversary() {
-            if (maritalStatusField.value === 'married') {
-                anniversarySection.style.display = 'block';
+        // Filter designations by department if selected, otherwise show NONE
+        const filteredDesignations = departmentId ?
+            allDesignations.filter(d => d.department_id == departmentId) :
+            [];
+
+        console.log('Filtered designations:', filteredDesignations);
+
+        if (filteredDesignations.length === 0) {
+            if (departmentId) {
+                designationField.innerHTML = '<option value="">No designations available for this department</option>';
             } else {
-                anniversarySection.style.display = 'none';
+                designationField.innerHTML = '<option value="">Select a department first</option>';
             }
-        }
+        } else {
+            filteredDesignations.forEach(designation => {
+                const option = document.createElement('option');
+                option.value = designation.id;
+                option.textContent = designation.name;
 
-        maritalStatusField.addEventListener('change', toggleAnniversary);
-        toggleAnniversary(); // Run on load
-
-        // Profile picture preview
-        const profilePictureInput = document.getElementById('id_profile_picture');
-        const profilePreview = document.getElementById('profilePreview');
-
-        if (profilePictureInput) {
-            profilePictureInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        if (profilePreview.tagName === 'IMG') {
-                            profilePreview.src = e.target.result;
-                        } else {
-                            profilePreview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px;">`;
-                        }
-                    };
-                    reader.readAsDataURL(file);
+                // Restore selection
+                if (currentDesignationId && designation.id == currentDesignationId) {
+                    option.selected = true;
                 }
+
+                designationField.appendChild(option);
             });
         }
+    }
+
+    departmentField.addEventListener('change', function () {
+        loadDesignations(this.value);
+    });
+
+    // Load designations on page load
+    if (departmentField.value) {
+        loadDesignations(departmentField.value);
+    } else {
+        loadDesignations('');
+    }
+
+    // Anniversary date toggle
+    const maritalStatusField = document.getElementById('id_marital_status');
+    const anniversarySection = document.getElementById('anniversary_section');
+
+    function toggleAnniversary() {
+        if (maritalStatusField.value === 'married') {
+            anniversarySection.style.display = 'block';
+        } else {
+            anniversarySection.style.display = 'none';
+        }
+    }
+
+    maritalStatusField.addEventListener('change', toggleAnniversary);
+    toggleAnniversary(); // Run on load
+
+    // Profile picture preview
+    const profilePictureInput = document.getElementById('id_profile_picture');
+    const profilePreview = document.getElementById('profilePreview');
+
+    if (profilePictureInput) {
+        profilePictureInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    if (profilePreview.tagName === 'IMG') {
+                        profilePreview.src = e.target.result;
+                    } else {
+                        profilePreview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" style="width: 120px; height: 120px; object-fit: cover; border-radius: 12px;">`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Auto-calculate Probation End Date
+    const joiningDateInput = document.getElementById('id_joining_date');
+    const probationDateInput = document.getElementById('id_probation_end_date');
+
+    if (joiningDateInput && probationDateInput) {
+        joiningDateInput.addEventListener('change', function () {
+            if (this.value) {
+                const joiningDate = new Date(this.value);
+                const probationDate = new Date(joiningDate);
+                probationDate.setMonth(probationDate.getMonth() + 3);
+
+                // Format to YYYY-MM-DD
+                const year = probationDate.getFullYear();
+                const month = String(probationDate.getMonth() + 1).padStart(2, '0');
+                const day = String(probationDate.getDate()).padStart(2, '0');
+
+                probationDateInput.value = `${year}-${month}-${day}`;
+
+                if (probationDateInput._flatpickr) {
+                    probationDateInput._flatpickr.setDate(probationDateInput.value);
+                }
+            }
+        });
+    }
+
+    // Relieving Date Validation
+    const relievingDateInput = document.getElementById('id_relieving_date');
+    if (relievingDateInput && joiningDateInput) {
+        relievingDateInput.addEventListener('change', function () {
+            if (this.value && joiningDateInput.value) {
+                const relieving = new Date(this.value);
+                const joining = new Date(joiningDateInput.value);
+
+                if (relieving < joining) {
+                    alert('Relieving Date cannot be before Joining Date');
+                    this.value = '';
+                    if (this._flatpickr) {
+                        this._flatpickr.clear();
+                    }
+                }
+            }
+        });
+    }
     });
 </script>
 {% endblock %}

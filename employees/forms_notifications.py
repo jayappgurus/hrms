@@ -2,7 +2,6 @@ from django import forms
 from .models import Notification, Message
 from django.contrib.auth.models import User
 
-
 class NotificationForm(forms.ModelForm):
     class Meta:
         model = Notification
@@ -40,7 +39,6 @@ class NotificationForm(forms.ModelForm):
             'target_all': 'Send to All Employees',
             'target_users': 'Or Select Specific Users',
         }
-
 
 class MessageForm(forms.ModelForm):
     class Meta:

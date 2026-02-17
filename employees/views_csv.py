@@ -14,7 +14,6 @@ from decimal import Decimal
 from .models import Employee, Department, Designation, PublicHoliday
 from .models_job import JobDescription
 
-
 #     ====== EMPLOYEE CSV EXPORT/IMPORT     ======
 
 @login_required
@@ -22,23 +21,23 @@ def export_employees_csv(request):
     """Export all employees to CSV"""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="employees_export.csv"'
-    
+
     writer = csv.writer(response)
-    
+
     # Write header
     writer.writerow([
-        'Employee Code', 'Full Name', 'Department', 'Designation', 
+        'Employee Code', 'Full Name', 'Department', 'Designation',
         'Joining Date', 'Relieving Date', 'Employment Status',
         'Mobile Number', 'Official Email', 'Personal Email',
         'Local Address', 'Permanent Address',
         'Date of Birth', 'Marital Status', 'Anniversary Date',
         'Highest Qualification', 'Total Experience Years', 'Total Experience Months',
         'Probation Status', 'Aadhar Card Number', 'PAN Card Number',
-        'Emergency Contact Name', 'Emergency Contact Mobile', 
-        'Emergency Contact Email', 'Emergency Contact Address', 
+        'Emergency Contact Name', 'Emergency Contact Mobile',
+        'Emergency Contact Email', 'Emergency Contact Address',
         'Emergency Contact Relationship'
     ])
-    
+
     # Write data
     employees = Employee.objects.select_related('department', 'designation').all()
     for emp in employees:
@@ -70,32 +69,31 @@ def export_employees_csv(request):
             emp.emergency_contact_address or '',
             emp.emergency_contact_relationship or '',
         ])
-    
-    return response
 
+    return response
 
 @login_required
 def download_employee_sample_csv(request):
     """Download sample CSV template for employee import"""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="employee_import_sample.csv"'
-    
+
     writer = csv.writer(response)
-    
+
     # Write header
     writer.writerow([
-        'Employee Code', 'Full Name', 'Department', 'Designation', 
+        'Employee Code', 'Full Name', 'Department', 'Designation',
         'Joining Date', 'Relieving Date', 'Employment Status',
         'Mobile Number', 'Official Email', 'Personal Email',
         'Local Address', 'Permanent Address',
         'Date of Birth', 'Marital Status', 'Anniversary Date',
         'Highest Qualification', 'Total Experience Years', 'Total Experience Months',
         'Probation Status', 'Aadhar Card Number', 'PAN Card Number',
-        'Emergency Contact Name', 'Emergency Contact Mobile', 
-        'Emergency Contact Email', 'Emergency Contact Address', 
+        'Emergency Contact Name', 'Emergency Contact Mobile',
+        'Emergency Contact Email', 'Emergency Contact Address',
         'Emergency Contact Relationship'
     ])
-    
+
     # Write sample data
     writer.writerow([
         'EMP001', 'John Doe', 'Engineering', 'Software Engineer',
@@ -107,29 +105,28 @@ def download_employee_sample_csv(request):
         'Confirmed', '123456789012', 'ABCDE1234F',
         'Jane Doe', '9876543211', 'jane@email.com', '789 Road, Village', 'Spouse'
     ])
-    
-    return response
 
+    return response
 
 @login_required
 def import_employees_csv(request):
     """Import employees from CSV file"""
     if request.method == 'POST' and request.FILES.get('csv_file'):
         csv_file = request.FILES['csv_file']
-        
+
         if not csv_file.name.endswith('.csv'):
             messages.error(request, 'Please upload a valid CSV file.')
             return redirect('employees:employee_list')
-        
+
         try:
             # Read CSV file
             file_data = TextIOWrapper(csv_file.file, encoding='utf-8')
             csv_reader = csv.DictReader(file_data)
-            
+
             success_count = 0
             error_count = 0
             errors = []
-            
+
             with transaction.atomic():
                 for row_num, row in enumerate(csv_reader, start=2):
                     try:
@@ -137,36 +134,36 @@ def import_employees_csv(request):
                         dept_name = row.get('Department', '').strip()
                         if not dept_name:
                             raise ValueError("Department is required")
-                        
+
                         department, _ = Department.objects.get_or_create(
                             name=dept_name,
                             defaults={'description': f'{dept_name} Department'}
                         )
-                        
+
                         # Get or create designation
                         desig_name = row.get('Designation', '').strip()
                         if not desig_name:
                             raise ValueError("Designation is required")
-                        
+
                         designation, _ = Designation.objects.get_or_create(
                             name=desig_name,
                             department=department,
                             defaults={'description': f'{desig_name} Position'}
                         )
-                        
+
                         # Parse dates
                         joining_date = datetime.strptime(row.get('Joining Date', '').strip(), '%Y-%m-%d').date() if row.get('Joining Date', '').strip() else None
                         relieving_date = datetime.strptime(row.get('Relieving Date', '').strip(), '%Y-%m-%d').date() if row.get('Relieving Date', '').strip() else None
                         date_of_birth = datetime.strptime(row.get('Date of Birth', '').strip(), '%Y-%m-%d').date() if row.get('Date of Birth', '').strip() else None
                         anniversary_date = datetime.strptime(row.get('Anniversary Date', '').strip(), '%Y-%m-%d').date() if row.get('Anniversary Date', '').strip() else None
-                        
+
                         # Create or update employee
                         employee_code = row.get('Employee Code', '').strip()
                         official_email = row.get('Official Email', '').strip()
-                        
+
                         if not official_email:
                             raise ValueError("Official Email is required")
-                        
+
                         employee, created = Employee.objects.update_or_create(
                             official_email=official_email,
                             defaults={
@@ -197,98 +194,98 @@ def import_employees_csv(request):
                                 'emergency_contact_relationship': row.get('Emergency Contact Relationship', '').strip(),
                             }
                         )
-                        
+
                         success_count += 1
-                        
+
                     except Exception as e:
                         error_count += 1
                         errors.append(f"Row {row_num}: {str(e)}")
-            
+
             # Show results
             if success_count > 0:
                 messages.success(request, f'Successfully imported {success_count} employee(s).')
-            
+
             if error_count > 0:
                 error_msg = f'Failed to import {error_count} employee(s). Errors: ' + '; '.join(errors[:5])
                 if len(errors) > 5:
                     error_msg += f' ... and {len(errors) - 5} more errors.'
                 messages.error(request, error_msg)
-            
+
         except Exception as e:
             messages.error(request, f'Error processing CSV file: {str(e)}')
-        
-        return redirect('employees:employee_list')
-    
-    return render(request, 'employees/import_csv.html', {'model_name': 'Employee'})
 
+        return redirect('employees:employee_list')
+
+    return render(request, 'employees/import_csv.html', {'model_name': 'Employee'})
 
 #     ====== PUBLIC HOLIDAY CSV EXPORT/IMPORT     ======
 
 @login_required
 def export_public_holidays_csv(request):
-    """Export all public holidays to CSV"""
+    """Export public holidays to CSV with optional country filter"""
+    # Get country parameter from query string (default to 'IN')
+    country = request.GET.get('country', 'IN')
+
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="public_holidays_export.csv"'
-    
+    response['Content-Disposition'] = f'attachment; filename="public_holidays_{country}_{timezone.now().year}.csv"'
+
     writer = csv.writer(response)
-    
+
     # Write header
-    writer.writerow(['Name', 'Date', 'Day', 'Year', 'Is Active'])
-    
-    # Write data
-    holidays = PublicHoliday.objects.all().order_by('date')
+    writer.writerow(['Name', 'Date', 'Country', 'Description', 'Is Active'])
+
+    # Write data - filter by country
+    holidays = PublicHoliday.objects.filter(country=country).order_by('date')
     for holiday in holidays:
         writer.writerow([
             holiday.name,
             holiday.date.strftime('%Y-%m-%d'),
-            holiday.day,
-            holiday.year,
+            holiday.country,
+            holiday.description or '',
             'Yes' if holiday.is_active else 'No'
         ])
-    
-    return response
 
+    return response
 
 @login_required
 def download_public_holiday_sample_csv(request):
     """Download sample CSV template for public holiday import"""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="public_holiday_import_sample.csv"'
-    
+
     writer = csv.writer(response)
-    
+
     # Write header
     writer.writerow(['Name', 'Date', 'Year', 'Is Active'])
-    
+
     # Write sample data
     writer.writerow(['Republic Day', '2026-01-26', '2026', 'Yes'])
     writer.writerow(['Independence Day', '2026-08-15', '2026', 'Yes'])
     writer.writerow(['Gandhi Jayanti', '2026-10-02', '2026', 'Yes'])
     writer.writerow(['Diwali', '2026-11-04', '2026', 'Yes'])
     writer.writerow(['Christmas', '2026-12-25', '2026', 'Yes'])
-    
-    return response
 
+    return response
 
 @login_required
 def import_public_holidays_csv(request):
     """Import public holidays from CSV file"""
     if request.method == 'POST' and request.FILES.get('csv_file'):
         csv_file = request.FILES['csv_file']
-        
+
         if not csv_file.name.endswith('.csv'):
             messages.error(request, 'Please upload a valid CSV file.')
             return redirect('employees:public_holidays')
-        
+
         try:
             # Read CSV file
             file_data = TextIOWrapper(csv_file.file, encoding='utf-8')
             csv_reader = csv.DictReader(file_data)
-            
+
             success_count = 0
             error_count = 0
             errors = []
-            
+
             with transaction.atomic():
                 for row_num, row in enumerate(csv_reader, start=2):
                     try:
@@ -296,16 +293,16 @@ def import_public_holidays_csv(request):
                         date_str = row.get('Date', '').strip()
                         if not date_str:
                             raise ValueError("Date is required")
-                        
+
                         holiday_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-                        
+
                         # Get day name from date
                         day_name = holiday_date.strftime('%A')
-                        
+
                         # Parse is_active
                         is_active_str = row.get('Is Active', 'Yes').strip().lower()
                         is_active = is_active_str in ['yes', 'true', '1', 'active']
-                        
+
                         # Create or update holiday
                         holiday, created = PublicHoliday.objects.update_or_create(
                             date=holiday_date,
@@ -316,30 +313,29 @@ def import_public_holidays_csv(request):
                                 'is_active': is_active
                             }
                         )
-                        
+
                         success_count += 1
-                        
+
                     except Exception as e:
                         error_count += 1
                         errors.append(f"Row {row_num}: {str(e)}")
-            
+
             # Show results
             if success_count > 0:
                 messages.success(request, f'Successfully imported {success_count} public holiday(s).')
-            
+
             if error_count > 0:
                 error_msg = f'Failed to import {error_count} holiday(s). Errors: ' + '; '.join(errors[:5])
                 if len(errors) > 5:
                     error_msg += f' ... and {len(errors) - 5} more errors.'
                 messages.error(request, error_msg)
-            
+
         except Exception as e:
             messages.error(request, f'Error processing CSV file: {str(e)}')
-        
-        return redirect('employees:public_holidays')
-    
-    return render(request, 'employees/import_csv.html', {'model_name': 'Public Holiday'})
 
+        return redirect('employees:public_holidays')
+
+    return render(request, 'employees/import_csv.html', {'model_name': 'Public Holiday'})
 
 #     ====== JOB DESCRIPTION CSV EXPORT/IMPORT     ======
 
@@ -348,9 +344,9 @@ def export_job_descriptions_csv(request):
     """Export all job descriptions to CSV"""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="job_descriptions_export.csv"'
-    
+
     writer = csv.writer(response)
-    
+
     # Write header
     writer.writerow([
         'Title', 'Department', 'Designation', 'Employment Type', 'Experience Level',
@@ -358,7 +354,7 @@ def export_job_descriptions_csv(request):
         'Min Salary', 'Max Salary', 'Currency', 'Location', 'Work Mode',
         'Number of Vacancies', 'Application Deadline', 'Status'
     ])
-    
+
     # Write data
     jobs = JobDescription.objects.select_related('department', 'designation').all()
     for job in jobs:
@@ -379,18 +375,17 @@ def export_job_descriptions_csv(request):
             job.application_deadline.strftime('%Y-%m-%d') if job.application_deadline else '',
             job.status
         ])
-    
-    return response
 
+    return response
 
 @login_required
 def download_job_description_sample_csv(request):
     """Download sample CSV template for job description import"""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="job_description_import_sample.csv"'
-    
+
     writer = csv.writer(response)
-    
+
     # Write header
     writer.writerow([
         'Title', 'Department', 'Designation', 'Employment Type', 'Experience Level',
@@ -398,7 +393,7 @@ def download_job_description_sample_csv(request):
         'Min Salary', 'Max Salary', 'Currency', 'Location', 'Work Mode',
         'Number of Vacancies', 'Application Deadline', 'Status'
     ])
-    
+
     # Write sample data
     writer.writerow([
         'Senior Software Engineer',
@@ -417,29 +412,28 @@ def download_job_description_sample_csv(request):
         '2026-03-31',
         'active'
     ])
-    
-    return response
 
+    return response
 
 @login_required
 def import_job_descriptions_csv(request):
     """Import job descriptions from CSV file"""
     if request.method == 'POST' and request.FILES.get('csv_file'):
         csv_file = request.FILES['csv_file']
-        
+
         if not csv_file.name.endswith('.csv'):
             messages.error(request, 'Please upload a valid CSV file.')
             return redirect('employees:job_list')
-        
+
         try:
             # Read CSV file
             file_data = TextIOWrapper(csv_file.file, encoding='utf-8')
             csv_reader = csv.DictReader(file_data)
-            
+
             success_count = 0
             error_count = 0
             errors = []
-            
+
             with transaction.atomic():
                 for row_num, row in enumerate(csv_reader, start=2):
                     try:
@@ -447,31 +441,31 @@ def import_job_descriptions_csv(request):
                         dept_name = row.get('Department', '').strip()
                         if not dept_name:
                             raise ValueError("Department is required")
-                        
+
                         department, _ = Department.objects.get_or_create(
                             name=dept_name,
                             defaults={'description': f'{dept_name} Department'}
                         )
-                        
+
                         # Get or create designation
                         desig_name = row.get('Designation', '').strip()
                         if not desig_name:
                             raise ValueError("Designation is required")
-                        
+
                         designation, _ = Designation.objects.get_or_create(
                             name=desig_name,
                             department=department,
                             defaults={'description': f'{desig_name} Position'}
                         )
-                        
+
                         # Parse dates
                         application_deadline = None
                         deadline_str = row.get('Application Deadline', '').strip()
                         if deadline_str:
                             application_deadline = datetime.strptime(deadline_str, '%Y-%m-%d').date()
-                        
+
                         # Parse boolean fields
-                        
+
                         # Parse salary
                         min_salary = None
                         max_salary = None
@@ -479,7 +473,7 @@ def import_job_descriptions_csv(request):
                             min_salary = Decimal(row.get('Min Salary', '').strip())
                         if row.get('Max Salary', '').strip():
                             max_salary = Decimal(row.get('Max Salary', '').strip())
-                        
+
                         # Create job description
                         job = JobDescription.objects.create(
                             title=row.get('Title', '').strip(),
@@ -499,26 +493,26 @@ def import_job_descriptions_csv(request):
                             status=row.get('Status', 'draft').strip(),
                             posted_by=request.user
                         )
-                        
+
                         success_count += 1
-                        
+
                     except Exception as e:
                         error_count += 1
                         errors.append(f"Row {row_num}: {str(e)}")
-            
+
             # Show results
             if success_count > 0:
                 messages.success(request, f'Successfully imported {success_count} job description(s).')
-            
+
             if error_count > 0:
                 error_msg = f'Failed to import {error_count} job(s). Errors: ' + '; '.join(errors[:5])
                 if len(errors) > 5:
                     error_msg += f' ... and {len(errors) - 5} more errors.'
                 messages.error(request, error_msg)
-            
+
         except Exception as e:
             messages.error(request, f'Error processing CSV file: {str(e)}')
-        
+
         return redirect('employees:job_list')
-    
+
     return render(request, 'employees/import_csv.html', {'model_name': 'Job Description'})

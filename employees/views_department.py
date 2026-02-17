@@ -14,7 +14,7 @@ def department_management(request):
     """View for managing departments and designations"""
     departments = Department.objects.all().prefetch_related('designation_set', 'employee_set')
     designations = Designation.objects.select_related('department').all()
-    
+
     context = {
         'departments': departments,
         'designations': designations,
@@ -31,14 +31,14 @@ def add_department(request):
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         description = request.POST.get('description', '').strip()
-        
+
         if not name:
             return JsonResponse({'success': False, 'error': 'Department name is required'})
-        
+
         # Check if department already exists
         if Department.objects.filter(name__iexact=name).exists():
             return JsonResponse({'success': False, 'error': 'Department with this name already exists'})
-        
+
         try:
             department = Department.objects.create(
                 name=name,
@@ -47,7 +47,7 @@ def add_department(request):
             return JsonResponse({'success': True, 'department_id': department.id})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-    
+
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 @csrf_exempt
@@ -60,20 +60,20 @@ def add_designation(request):
         name = request.POST.get('name', '').strip()
         description = request.POST.get('description', '').strip()
         department_id = request.POST.get('department', '').strip()
-        
+
         if not name:
             return JsonResponse({'success': False, 'error': 'Designation name is required'})
-        
+
         if not department_id:
             return JsonResponse({'success': False, 'error': 'Department is required'})
-        
+
         try:
             department = Department.objects.get(id=department_id)
-            
+
             # Check if designation already exists for this department
             if Designation.objects.filter(name__iexact=name, department=department).exists():
                 return JsonResponse({'success': False, 'error': 'Designation with this name already exists in this department'})
-            
+
             designation = Designation.objects.create(
                 name=name,
                 department=department,
@@ -84,5 +84,5 @@ def add_designation(request):
             return JsonResponse({'success': False, 'error': 'Department not found'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-    
+
     return JsonResponse({'success': False, 'error': 'Invalid request method'})

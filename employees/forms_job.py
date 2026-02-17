@@ -3,7 +3,6 @@ from django.core.validators import RegexValidator, EmailValidator
 from .models_job import JobDescription, JobApplication, InterviewSchedule
 from .models import Department, Designation
 
-
 class JobDescriptionForm(forms.ModelForm):
     """Form for creating and editing job descriptions"""
     class Meta:
@@ -76,7 +75,7 @@ class JobDescriptionForm(forms.ModelForm):
                 'class': 'form-control',
             }),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['title'].label = 'Job Title'
@@ -106,7 +105,6 @@ class JobDescriptionForm(forms.ModelForm):
             ('SGD', 'SGD - Singapore Dollar'),
             ('AED', 'AED - UAE Dirham'),
         ]
-
 
 class JobApplicationForm(forms.ModelForm):
     """Form for job applications"""
@@ -201,7 +199,7 @@ class JobApplicationForm(forms.ModelForm):
                 'accept': '.pdf,.doc,.docx'
             }),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['job'].label = 'Applied Position'
@@ -226,16 +224,15 @@ class JobApplicationForm(forms.ModelForm):
         self.fields['available_for_interview'].label = 'Available for Interview'
         self.fields['resume'].label = 'Resume/CV'
         self.fields['cover_letter'].label = 'Cover Letter'
-        
+
         # Make referred_by optional and add empty label
         self.fields['referred_by'].required = False
         self.fields['referred_by'].empty_label = "No Referral"
-        
+
         # Add Bootstrap classes to checkboxes
         self.fields['is_negotiable'].widget.attrs['class'] = 'form-check-input'
         self.fields['training_included'].widget.attrs['class'] = 'form-check-input'
         self.fields['available_for_interview'].widget.attrs['class'] = 'form-check-input'
-
 
 class InterviewScheduleForm(forms.ModelForm):
     """Form for scheduling interviews"""
@@ -283,7 +280,7 @@ class InterviewScheduleForm(forms.ModelForm):
                 'placeholder': 'Enter interview remarks (no character limit)...'
             }),
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['application'].label = 'Candidate'
@@ -296,16 +293,15 @@ class InterviewScheduleForm(forms.ModelForm):
         self.fields['taken_by'].label = 'Taken By (Employee)'
         self.fields['status'].label = 'Status'
         self.fields['remarks'].label = 'Remarks'
-        
+
         # Make fields optional as needed
         self.fields['meeting_link'].required = False
         self.fields['location'].required = False
         self.fields['remarks'].required = False
         self.fields['taken_by'].required = False
-        
+
         # Add empty label for taken_by
         self.fields['taken_by'].empty_label = "Select Employee"
-
 
 class JobSearchForm(forms.Form):
     """Form for searching job descriptions"""
@@ -317,32 +313,31 @@ class JobSearchForm(forms.Form):
             'placeholder': 'Search by title, department, or skills...'
         })
     )
-    
+
     department = forms.ModelChoiceField(
         queryset=Department.objects.all(),
         required=False,
         empty_label="All Departments",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+
     employment_type = forms.ChoiceField(
         choices=[('', 'All Types')] + JobDescription.EMPLOYMENT_TYPE_CHOICES,
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+
     experience_level = forms.ChoiceField(
         choices=[('', 'All Levels')] + JobDescription.EXPERIENCE_LEVEL_CHOICES,
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+
     status = forms.ChoiceField(
         choices=[('', 'All Status')] + JobDescription.STATUS_CHOICES,
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
 
 class CandidateSearchForm(forms.Form):
     """Form for searching candidates"""
@@ -354,13 +349,13 @@ class CandidateSearchForm(forms.Form):
             'placeholder': 'Search by name, email, or skills...'
         })
     )
-    
+
     status = forms.ChoiceField(
         choices=[('', 'All Status')] + JobApplication.STATUS_CHOICES,
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+
     source = forms.ChoiceField(
         choices=[('', 'All Sources')] + JobApplication.SOURCE_CHOICES,
         required=False,

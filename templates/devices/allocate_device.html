@@ -29,7 +29,7 @@
 
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="row g-3">
                         <div class="col-12">
                             <label for="employee_id" class="form-label">Assign To Employee *</label>
@@ -44,7 +44,7 @@
                             <small class="form-text text-muted">Select the employee who will be using this device.</small>
                         </div>
                     </div>
-                    
+
                     <div class="d-flex justify-content-between mt-4">
                         <a href="{% url 'employees:device_visibility' %}" class="btn btn-secondary">
                             <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
@@ -69,11 +69,11 @@
 
 .form-select:focus {
     border-color: #332666;
- 
+
     box-shadow: 0 0 0 0.2rem rgba(67, 49, 133, 0.25);
-  
+
     box-shadow: 0 0 0 0.2rem rgba(0, 55, 110, 0.25);
- 
+
 }
 
 .form-label {

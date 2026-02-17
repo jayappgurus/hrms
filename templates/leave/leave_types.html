@@ -67,14 +67,14 @@
                     <td class="text-end" style="padding: 20px;">
                         <div class="d-flex gap-2 justify-content-end">
                             <a href="{% url 'employees:leave_type_detail' leave_type.pk %}"
-                               class="btn btn-sm" 
+                               class="btn btn-sm"
                                style="border: 1px solid #d1e7dd; background: white; color: #198754; padding: 6px 12px;"
                                title="View">
                                 <i class="bi bi-eye"></i>
                             </a>
                             {% if not user.profile.role == 'employee' %}
                             <a href="{% url 'employees:leave_type_edit' leave_type.pk %}"
-                               class="btn btn-sm" 
+                               class="btn btn-sm"
                                style="border: 1px solid #dee2e6; background: white; color: #6c757d; padding: 6px 12px;"
                                title="Edit">
                                 <i class="bi bi-pencil"></i>
@@ -82,7 +82,7 @@
                             {% endif %}
                             {% if not user.profile.role == 'employee' %}
                             <a href="{% url 'employees:leave_type_delete' leave_type.pk %}"
-                               class="btn btn-sm" 
+                               class="btn btn-sm"
                                style="border: 1px solid #f8d7da; background: white; color: #dc3545; padding: 6px 12px;"
                                title="Delete">
                                 <i class="bi bi-trash"></i>

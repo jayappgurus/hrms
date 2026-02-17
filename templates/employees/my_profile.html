@@ -71,8 +71,8 @@
 <div class="profile-header-card">
     <div class="profile-avatar-large">
         {% if employee.profile_picture %}
-            <img src="{{ employee.profile_picture.url }}" 
-                 alt="{{ employee.full_name }}" 
+            <img src="{{ employee.profile_picture.url }}"
+                 alt="{{ employee.full_name }}"
                  class="profile-avatar-img"
                  onerror="this.style.display='none'; this.parentElement.querySelector('.avatar-fallback').style.display='flex';">
         {% else %}
@@ -136,6 +136,12 @@
                 <div class="detail-item">
                     <div class="detail-label">Marital Status</div>
                     <div class="detail-value">{{ employee.get_marital_status_display }}</div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-label">Anniversary Date</div>
+                    <div class="detail-value">{{ employee.anniversary_date|date:"M d, Y" }}</div>
                 </div>
             </div>
         </div>

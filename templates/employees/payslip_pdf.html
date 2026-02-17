@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>PaySlip - {{ month_name }} {{ year }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #4e73df;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4e73df;
+            margin: 0;
+        }
+
+        .payslip-title {
+            font-size: 18px;
+            text-transform: uppercase;
+            margin: 10px 0;
+            color: #5a5c69;
+        }
+
+        .employee-info {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table td {
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #6e707e;
+            width: 30%;
+        }
+
+        .value {
+            color: #333;
+        }
+
+        .salary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .salary-table th {
+            background-color: #f8f9fc;
+            border: 1px solid #e3e6f0;
+            padding: 10px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .salary-table td {
+            border: 1px solid #e3e6f0;
+            padding: 10px;
+            font-size: 12px;
+        }
+
+        .section-header {
+            background-color: #4e73df;
+            color: white;
+            font-weight: bold;
+            text-align: center !important;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f8f9fc;
+        }
+
+        .net-pay-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fc;
+            border: 1px solid #e3e6f0;
+            text-align: right;
+        }
+
+        .net-pay-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1cc88a;
+        }
+
+        .footer {
+            margin-top: 50px;
+            font-size: 10px;
+            text-align: center;
+            color: #858796;
+            border-top: 1px solid #e3e6f0;
+            padding-top: 10px;
+        }
+
+        .signature-area {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            margin-top: 40px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1 class="company-name">HRMS Portal Pvt Ltd</h1>
+        <p style="margin: 0; font-size: 12px;">123 Business Avenue, Tech Park, City - 400001</p>
+        <div class="payslip-title">Salary Slip for {{ month_name }} - {{ year }}</div>
+    </div>
+
+    <table class="info-table">
+        <tr>
+            <td class="label">Employee Name:</td>
+            <td class="value">{{ employee.full_name }}</td>
+            <td class="label">Employee ID:</td>
+            <td class="value">{{ employee.employee_code }}</td>
+        </tr>
+        <tr>
+            <td class="label">Department:</td>
+            <td class="value">{{ employee.department.name }}</td>
+            <td class="label">Designation:</td>
+            <td class="value">{{ employee.designation.name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Joining Date:</td>
+            <td class="value">{{ employee.joining_date|date:"d M Y" }}</td>
+            <td class="label">Bank Account:</td>
+            <td class="value">XXXXXXXXXXXX</td>
+        </tr>
+    </table>
+
+    <table class="salary-table">
+        <thead>
+            <tr>
+                <th colspan="2" class="section-header">Earnings</th>
+                <th colspan="2" class="section-header">Deductions</th>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <th>Amount (₹)</th>
+                <th>Description</th>
+                <th>Amount (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="width: 35%;">Basic Salary</td>
+                <td style="width: 15%;">{{ salary.earnings.Basic_Salary }}
+                </td>
+                <td style="width: 35%;">Provident Fund</td>
+                <td style="width: 15%;">{{ salary.deductions.Provident_Fund }}
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 35%;">House Rent Allowance</td>
+                <td style="width: 15%;">{{ salary.earnings.House_Rent_Allowance }}</td>
+                <td style="width: 35%;">Professional Tax</td>
+                <td style="width: 15%;">{{ salary.deductions.Professional_Tax }}
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 35%;">Special Allowance</td>
+                <td style="width: 15%;">{{ salary.earnings.Special_Allowance }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <!-- Fill empty rows if needed for alignment -->
+            <tr class="total-row">
+                <td>Total Earnings (A)</td>
+                <td>₹{{ salary.gross_salary }}</td>
+                <td>Total Deductions (B)</td>
+                <td>₹{{ salary.total_deductions }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="net-pay-section">
+        <div style="font-size: 14px; margin-bottom: 5px;">Net Take-Home Pay (A-B)</div>
+        <div class="net-pay-amount">₹{{ salary.net_salary }}</div>
+        <div style="font-style: italic; font-size: 11px; margin-top: 5px;">(Amount in words: Rupees
+            ________________________________ only)</div>
+    </div>
+
+    <div class="signature-area">
+        <div class="signature-box" style="float: left;">
+            <div class="signature-line"></div>
+            <div style="font-size: 12px;">Employee Signature</div>
+        </div>
+        <div class="signature-box" style="float: right;">
+            <div class="signature-line"></div>
+            <div style="font-size: 12px;">Authorized Signatory</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>This is a computer-generated document and does not require a physical signature for digital validation.</p>
+        <p>Generated on {{ today|date:"d M Y" }} | Secret Key: HRMS-{{ employee.id }}-{{ year }}{{ month }}</p>
+    </div>
+</body>
+
+</html>
