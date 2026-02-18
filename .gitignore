@@ -215,7 +215,3 @@ Thumbs.db
 # Backup files
 *.bak
 *.backup
-
-# Deployment scripts
-deploy.sh
-.htaccess

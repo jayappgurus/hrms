@@ -683,7 +683,10 @@ class DeviceVisibilityView(LoginRequiredMixin, ListView):
     context_object_name = 'devices'
 
     def get_queryset(self):
-        return Device.objects.all().order_by('device_name')
+        return Device.objects.prefetch_related(
+            'allocations__assigned_to',
+            'allocations__assigned_by'
+        ).all().order_by('device_name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

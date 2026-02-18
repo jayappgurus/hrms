@@ -132,6 +132,13 @@
                         </td>
                         <td data-label="Actions" class="text-end">
                             <div class="table-actions justify-content-end">
+                                <button type="button" class="btn btn-sm btn-info" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#historyModal{{ device.pk }}"
+                                    title="View History">
+                                    <i class="bi bi-clock-history"></i>
+                                    <span class="d-none d-md-inline ms-1">History</span>
+                                </button>
                                 {% if device.status == 'available' %}
                                 <a href="{% url 'employees:allocate_device' device.pk %}" class="btn btn-sm btn-success"
                                     title="Allocate Device">
@@ -170,4 +177,114 @@
         {% endif %}
     </div>
 </div>
+
+<!-- History Modals -->
+{% for device in devices %}
+<div class="modal fade" id="historyModal{{ device.pk }}" tabindex="-1" aria-labelledby="historyModalLabel{{ device.pk }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header modal-header-gradient">
+                <h5 class="modal-title" id="historyModalLabel{{ device.pk }}">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Allocation History - {{ device.device_name }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if device.allocations.all %}
+                <div class="timeline">
+                    {% for allocation in device.allocations.all %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker {% if not allocation.returned_date %}active{% endif %}"></div>
+                        <div class="timeline-content">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <i class="bi bi-person-circle me-1"></i>
+                                        {{ allocation.assigned_to.full_name }}
+                                        <span class="badge bg-secondary ms-2">{{ allocation.assigned_to.employee_code }}</span>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-building me-1"></i>
+                                        {{ allocation.assigned_to.department.name }} - {{ allocation.assigned_to.designation.name }}
+                                    </small>
+                                </div>
+                                {% if not allocation.returned_date %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Currently Active
+                                </span>
+                                {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-archive me-1"></i>Returned
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row g-2 mt-2">
+                                <div class="col-md-6">
+                                    <div class="info-box">
+                                        <i class="bi bi-calendar-check text-success"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Allocated Date</small>
+                                            <strong>{{ allocation.assigned_date|date:"M d, Y" }}</strong>
+                                            <small class="text-muted">{{ allocation.assigned_date|date:"h:i A" }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="info-box">
+                                        {% if allocation.returned_date %}
+                                        <i class="bi bi-calendar-x text-danger"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Returned Date</small>
+                                            <strong>{{ allocation.returned_date|date:"M d, Y" }}</strong>
+                                            <small class="text-muted">{{ allocation.returned_date|date:"h:i A" }}</small>
+                                        </div>
+                                        {% else %}
+                                        <i class="bi bi-hourglass-split text-warning"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Status</small>
+                                            <strong class="text-success">In Use</strong>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if allocation.assigned_by %}
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-person-badge me-1"></i>
+                                    Allocated by: <strong>{{ allocation.assigned_by.get_full_name|default:allocation.assigned_by.username }}</strong>
+                                </small>
+                            </div>
+                            {% endif %}
+                            
+                            {% if allocation.return_notes %}
+                            <div class="mt-2 p-2 bg-light rounded">
+                                <small class="text-muted d-block mb-1">
+                                    <i class="bi bi-sticky me-1"></i>Return Notes:
+                                </small>
+                                <small>{{ allocation.return_notes }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">No allocation history available for this device.</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}

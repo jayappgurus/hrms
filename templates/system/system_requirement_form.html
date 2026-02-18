@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="bi bi-clipboard-check me-2"></i>{{ title }}
+                </h2>
+                <a href="{% url 'employees:system_requirement_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="post" id="requirementForm">
+                        {% csrf_token %}
+
+                        <!-- Employee Information -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <h5 class="form-section-title">Employee Information</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.requested_by.id_for_label }}" class="form-label">Requested
+                                            By <span class="text-danger">*</span></label>
+                                        {{ form.requested_by }}
+                                        {% if form.requested_by.errors %}
+                                        <div class="text-danger small mt-1">{{ form.requested_by.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.requested_for.id_for_label }}" class="form-label">Requested
+                                            For</label>
+                                        {{ form.requested_for }}
+                                        <small class="form-text text-muted">Optional</small>
+                                        {% if form.requested_for.errors %}
+                                        <div class="text-danger small mt-1">{{ form.requested_for.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Requirement Types -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-list-check"></i>
+                                </div>
+                                <h5 class="form-section-title">Requirement Types <span class="text-danger">*</span></h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="requirement-types-grid">
+                                        {% for value, label in form.fields.requirement_types.choices %}
+                                        <div class="form-check form-check-card">
+                                            <input class="form-check-input requirement-type-checkbox" type="checkbox"
+                                                name="requirement_types" value="{{ value }}"
+                                                id="id_requirement_types_{{ forloop.counter0 }}"
+                                                {% if value in form.initial.requirement_types %}checked{% endif %}>
+                                            <label class="form-check-label"
+                                                for="id_requirement_types_{{ forloop.counter0 }}">
+                                                <i class="bi bi-{% if value == 'cpu' %}cpu{% elif value == 'screen' %}display{% elif value == 'keyboard' %}keyboard{% elif value == 'mouse' %}mouse{% elif value == 'headphone' %}headphones{% endif %}"></i>
+                                                {{ label }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% if form.requirement_types.errors %}
+                                    <div class="text-danger small mt-2">{{ form.requirement_types.errors.0 }}</div>
+                                    {% endif %}
+                                    {% if form.non_field_errors %}
+                                    <div class="text-danger small mt-2">{{ form.non_field_errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CPU Specifications -->
+                        <div class="form-section mb-4 spec-section" id="cpu-section" style="display: none;"></div>
+                        <div class="form-section-header mb-3">
+                            <div class="form-section-icon">
+                                <i class="bi bi-cpu"></i>
+                            </div>
+                            <h5 class="form-section-title">CPU Specifications</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.cpu_ram.id_for_label }}" class="form-label">RAM</label>
+                                    {{ form.cpu_ram }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.cpu_storage.id_for_label }}" class="form-label">Storage</label>
+                                    {{ form.cpu_storage }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.cpu_company_name.id_for_label }}" class="form-label">Company
+                                        Name</label>
+                                    {{ form.cpu_company_name }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.cpu_processor.id_for_label }}"
+                                        class="form-label">Processor</label>
+                                    {{ form.cpu_processor }}
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="{{ form.cpu_label_no.id_for_label }}" class="form-label">Label
+                                        No.</label>
+                                    {{ form.cpu_label_no }}
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <!-- Screen Specifications -->
+                <div class="form-section mb-4 spec-section" id="screen-section" style="display: none;">
+                    <div class="form-section-header mb-3">
+                        <div class="form-section-icon">
+                            <i class="bi bi-display"></i>
+                        </div>
+                        <h5 class="form-section-title">Monitor/Screen Specifications</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.screen_company_name.id_for_label }}" class="form-label">Company
+                                    Name</label>
+                                {{ form.screen_company_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.screen_size.id_for_label }}" class="form-label">Size</label>
+                                {{ form.screen_size }}
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="{{ form.screen_label_no.id_for_label }}" class="form-label">Label
+                                    No.</label>
+                                {{ form.screen_label_no }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Keyboard Specifications -->
+                <div class="form-section mb-4 spec-section" id="keyboard-section" style="display: none;">
+                    <div class="form-section-header mb-3">
+                        <div class="form-section-icon">
+                            <i class="bi bi-keyboard"></i>
+                        </div>
+                        <h5 class="form-section-title">Keyboard Specifications</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.keyboard_company_name.id_for_label }}" class="form-label">Company
+                                    Name</label>
+                                {{ form.keyboard_company_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.keyboard_label_no.id_for_label }}" class="form-label">Label
+                                    No.</label>
+                                {{ form.keyboard_label_no }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mouse Specifications -->
+                <div class="form-section mb-4 spec-section" id="mouse-section" style="display: none;">
+                    <div class="form-section-header mb-3">
+                        <div class="form-section-icon">
+                            <i class="bi bi-mouse"></i>
+                        </div>
+                        <h5 class="form-section-title">Mouse Specifications</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.mouse_company_name.id_for_label }}" class="form-label">Company
+                                    Name</label>
+                                {{ form.mouse_company_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.mouse_label_no.id_for_label }}" class="form-label">Label No.</label>
+                                {{ form.mouse_label_no }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Headphone Specifications -->
+                <div class="form-section mb-4 spec-section" id="headphone-section" style="display: none;">
+                    <div class="form-section-header mb-3">
+                        <div class="form-section-icon">
+                            <i class="bi bi-headphones"></i>
+                        </div>
+                        <h5 class="form-section-title">Headphone Specifications</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.headphone_company_name.id_for_label }}" class="form-label">Company
+                                    Name</label>
+                                {{ form.headphone_company_name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.headphone_label_no.id_for_label }}" class="form-label">Label
+                                    No.</label>
+                                {{ form.headphone_label_no }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Details -->
+                <div class="form-section mb-4">
+                    <div class="form-section-header mb-3">
+                        <div class="form-section-icon">
+                            <i class="bi bi-cart-check"></i>
+                        </div>
+                        <h5 class="form-section-title">Order Details</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.estimated_cost.id_for_label }}" class="form-label">Estimated Cost
+                                    (₹)</label>
+                                {{ form.estimated_cost }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.priority.id_for_label }}" class="form-label">Priority <span
+                                        class="text-danger">*</span></label>
+                                {{ form.priority }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">Status <span
+                                        class="text-danger">*</span></label>
+                                {{ form.status }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="modern-form-group">
+                                <label class="modern-form-label required">{{ form.order_date.label }}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                                    {{ form.order_date }}
+                                </div>
+                                {% if form.order_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.order_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="modern-form-group">
+                                <label class="modern-form-label required">{{ form.expected_delivery_date.label }}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                                    {{ form.expected_delivery_date }}
+                                </div>
+                                {% if form.expected_delivery_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.expected_delivery_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="{{ form.vendor_name.id_for_label }}" class="form-label">Vendor Name</label>
+                                {{ form.vendor_name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-0 p-4">
+                    <a href="{% url 'employees:system_requirement_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>{{ button_text }}
+                    </button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.requirement-type-checkbox');
+
+        function toggleSpecSections() {
+            checkboxes.forEach(checkbox => {
+                const sectionId = checkbox.value + '-section';
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.style.display = checkbox.checked ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Initial state
+        toggleSpecSections();
+
+        // Listen for changes
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', toggleSpecSections);
+        });
+    });
+</script>
+
+<style>
+    .form-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .form-section-header {
+        display: flex;
+        align-items: center;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .form-section-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+    }
+
+    .form-section-icon i {
+        color: white;
+        font-size: 20px;
+    }
+
+    .form-section-title {
+        margin: 0;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .requirement-types-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .form-check-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .form-check-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .form-check-card input:checked~label {
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .form-check-card input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .form-check-card label {
+        cursor: pointer;
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-check-card label i {
+        font-size: 20px;
+    }
+
+    .spec-section {
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}

@@ -729,3 +729,168 @@ class SalarySlip(models.Model):
     def get_download_url(self):
         from django.urls import reverse
         return reverse('employees:download_payslip', args=[self.id])
+
+
+# System Management Models
+
+class SystemDetail(models.Model):
+    """Complete system details allocated to an employee"""
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='system_details')
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='system_details')
+    
+    # CPU Details
+    cpu_ram = models.CharField(max_length=50, help_text="e.g., 16GB DDR4")
+    cpu_storage = models.CharField(max_length=50, help_text="e.g., 512GB SSD")
+    cpu_company_name = models.CharField(max_length=100, help_text="e.g., Dell, HP, Lenovo")
+    cpu_processor = models.CharField(max_length=100, help_text="e.g., Intel i7, AMD Ryzen 5")
+    cpu_label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    
+    # Screen Details
+    screen_company_name = models.CharField(max_length=100, help_text="e.g., Dell, LG, Samsung")
+    screen_label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    screen_size = models.CharField(max_length=20, help_text="e.g., 24 inch, 27 inch")
+    
+    # Keyboard Details
+    keyboard_company_name = models.CharField(max_length=100, help_text="e.g., Logitech, Dell")
+    keyboard_label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    
+    # Mouse Details
+    mouse_company_name = models.CharField(max_length=100, help_text="e.g., Logitech, Dell")
+    mouse_label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    
+    # Headphone Details (Optional)
+    has_headphone = models.BooleanField(default=False, help_text="Does employee have headphone?")
+    headphone_company_name = models.CharField(max_length=100, blank=True, null=True)
+    headphone_label_no = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    
+    # Extender Details (Optional)
+    has_extender = models.BooleanField(default=False, help_text="Does employee have extender?")
+    extender_label = models.CharField(max_length=100, blank=True, null=True)
+    extender_name = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Allocation Details
+    allocated_date = models.DateField(auto_now_add=True)
+    allocated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='system_allocations')
+    is_active = models.BooleanField(default=True)
+    return_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True, help_text="Additional notes or remarks")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "System Detail"
+        verbose_name_plural = "System Details"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.employee.full_name} - {self.cpu_company_name} ({self.cpu_label_no})"
+
+
+class MacAddress(models.Model):
+    """MAC Address details for devices"""
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='mac_addresses', null=True, blank=True)
+    mac_address = models.CharField(
+        max_length=17, 
+        unique=True,
+        help_text="MAC Address (e.g., 00:1B:44:11:3A:B7)",
+        validators=[
+            RegexValidator(
+                regex=r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$',
+                message="Enter a valid MAC address (e.g., 00:1B:44:11:3A:B7)"
+            )
+        ]
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "MAC Address"
+        verbose_name_plural = "MAC Addresses"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        if self.employee:
+            return f"{self.employee.full_name} - {self.mac_address}"
+        return self.mac_address
+
+
+class SystemRequirement(models.Model):
+    """Future and required system requirements"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('ordered', 'Ordered'),
+        ('received', 'Received'),
+        ('allocated', 'Allocated'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent'),
+    ]
+    
+    requested_by = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='system_requirements')
+    requested_for = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='system_requirements_for', null=True, blank=True)
+    
+    # Multiple requirement types stored as comma-separated values
+    requirement_types = models.CharField(max_length=200, default='cpu', help_text="Comma-separated requirement types")
+    
+    # CPU Specifications
+    cpu_ram = models.CharField(max_length=50, blank=True, null=True)
+    cpu_storage = models.CharField(max_length=50, blank=True, null=True)
+    cpu_company_name = models.CharField(max_length=100, blank=True, null=True)
+    cpu_processor = models.CharField(max_length=100, blank=True, null=True)
+    cpu_label_no = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Screen Specifications
+    screen_company_name = models.CharField(max_length=100, blank=True, null=True)
+    screen_label_no = models.CharField(max_length=100, blank=True, null=True)
+    screen_size = models.CharField(max_length=20, blank=True, null=True)
+    
+    # Keyboard Specifications
+    keyboard_company_name = models.CharField(max_length=100, blank=True, null=True)
+    keyboard_label_no = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Mouse Specifications
+    mouse_company_name = models.CharField(max_length=100, blank=True, null=True)
+    mouse_label_no = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Headphone Specifications
+    headphone_company_name = models.CharField(max_length=100, blank=True, null=True)
+    headphone_label_no = models.CharField(max_length=100, blank=True, null=True)
+    
+    estimated_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    # Approval Details
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_requirements')
+    approved_date = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True, null=True)
+    
+    # Order Details
+    order_date = models.DateField(null=True, blank=True)
+    expected_delivery_date = models.DateField(null=True, blank=True)
+    actual_delivery_date = models.DateField(null=True, blank=True)
+    vendor_name = models.CharField(max_length=200, blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "System Requirement"
+        verbose_name_plural = "System Requirements"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.requirement_types} - {self.requested_by.full_name} ({self.status})"
+    
+    def get_requirement_types_list(self):
+        """Return list of requirement types"""
+        return [t.strip() for t in self.requirement_types.split(',') if t.strip()]

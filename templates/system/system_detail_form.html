@@ -1,0 +1,441 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="bi bi-pc-display-horizontal me-2"></i>{{ title }}
+                </h2>
+                <a href="{% url 'employees:system_detail_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 mx-auto">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="post" id="systemDetailForm">
+                        {% csrf_token %}
+
+                        <!-- Employee Selection -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-person-fill"></i>
+                                </div>
+                                <h5 class="form-section-title">Employee Information</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.employee.id_for_label }}" class="form-label">Employee <span class="text-danger">*</span></label>
+                                        {{ form.employee }}
+                                        {% if form.employee.errors %}
+                                        <div class="text-danger small mt-1">{{ form.employee.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                                        {{ form.department }}
+                                        <small class="form-text text-muted">Auto-filled based on employee</small>
+                                        {% if form.department.errors %}
+                                        <div class="text-danger small mt-1">{{ form.department.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CPU Details -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-cpu"></i>
+                                </div>
+                                <h5 class="form-section-title">CPU Details</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.cpu_ram.id_for_label }}" class="form-label">RAM <span class="text-danger">*</span></label>
+                                        {{ form.cpu_ram }}
+                                        {% if form.cpu_ram.errors %}
+                                        <div class="text-danger small mt-1">{{ form.cpu_ram.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.cpu_storage.id_for_label }}" class="form-label">Storage <span class="text-danger">*</span></label>
+                                        {{ form.cpu_storage }}
+                                        {% if form.cpu_storage.errors %}
+                                        <div class="text-danger small mt-1">{{ form.cpu_storage.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.cpu_company_name.id_for_label }}" class="form-label">Company Name <span class="text-danger">*</span></label>
+                                        {{ form.cpu_company_name }}
+                                        {% if form.cpu_company_name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.cpu_company_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.cpu_processor.id_for_label }}" class="form-label">Processor <span class="text-danger">*</span></label>
+                                        {{ form.cpu_processor }}
+                                        {% if form.cpu_processor.errors %}
+                                        <div class="text-danger small mt-1">{{ form.cpu_processor.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="{{ form.cpu_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
+                                        {{ form.cpu_label_no }}
+                                        {% if form.cpu_label_no.errors %}
+                                        <div class="text-danger small mt-1">{{ form.cpu_label_no.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Screen Details -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-display"></i>
+                                </div>
+                                <h5 class="form-section-title">Screen Details</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.screen_company_name.id_for_label }}" class="form-label">Company Name <span class="text-danger">*</span></label>
+                                        {{ form.screen_company_name }}
+                                        {% if form.screen_company_name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.screen_company_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.screen_size.id_for_label }}" class="form-label">Size <span class="text-danger">*</span></label>
+                                        {{ form.screen_size }}
+                                        {% if form.screen_size.errors %}
+                                        <div class="text-danger small mt-1">{{ form.screen_size.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="{{ form.screen_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
+                                        {{ form.screen_label_no }}
+                                        {% if form.screen_label_no.errors %}
+                                        <div class="text-danger small mt-1">{{ form.screen_label_no.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Keyboard Details -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-keyboard"></i>
+                                </div>
+                                <h5 class="form-section-title">Keyboard Details</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.keyboard_company_name.id_for_label }}" class="form-label">Company Name <span class="text-danger">*</span></label>
+                                        {{ form.keyboard_company_name }}
+                                        {% if form.keyboard_company_name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.keyboard_company_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.keyboard_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
+                                        {{ form.keyboard_label_no }}
+                                        {% if form.keyboard_label_no.errors %}
+                                        <div class="text-danger small mt-1">{{ form.keyboard_label_no.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mouse Details -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-mouse"></i>
+                                </div>
+                                <h5 class="form-section-title">Mouse Details</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.mouse_company_name.id_for_label }}" class="form-label">Company Name <span class="text-danger">*</span></label>
+                                        {{ form.mouse_company_name }}
+                                        {% if form.mouse_company_name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.mouse_company_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.mouse_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
+                                        {{ form.mouse_label_no }}
+                                        {% if form.mouse_label_no.errors %}
+                                        <div class="text-danger small mt-1">{{ form.mouse_label_no.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Headphone Details -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-headphones"></i>
+                                </div>
+                                <h5 class="form-section-title">Headphone Details</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="{{ form.has_headphone.id_for_label }}" class="form-label">Has Headphone? <span class="text-danger">*</span></label>
+                                        {{ form.has_headphone }}
+                                        {% if form.has_headphone.errors %}
+                                        <div class="text-danger small mt-1">{{ form.has_headphone.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="headphoneFields" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.headphone_company_name.id_for_label }}" class="form-label">Company Name</label>
+                                            {{ form.headphone_company_name }}
+                                            {% if form.headphone_company_name.errors %}
+                                            <div class="text-danger small mt-1">{{ form.headphone_company_name.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.headphone_label_no.id_for_label }}" class="form-label">Label No.</label>
+                                            {{ form.headphone_label_no }}
+                                            {% if form.headphone_label_no.errors %}
+                                            <div class="text-danger small mt-1">{{ form.headphone_label_no.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Extender Details -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-hdd-network"></i>
+                                </div>
+                                <h5 class="form-section-title">Extender Details</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="{{ form.has_extender.id_for_label }}" class="form-label">Has Extender? <span class="text-danger">*</span></label>
+                                        {{ form.has_extender }}
+                                        {% if form.has_extender.errors %}
+                                        <div class="text-danger small mt-1">{{ form.has_extender.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="extenderFields" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.extender_label.id_for_label }}" class="form-label">Label</label>
+                                            {{ form.extender_label }}
+                                            {% if form.extender_label.errors %}
+                                            <div class="text-danger small mt-1">{{ form.extender_label.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.extender_name.id_for_label }}" class="form-label">Name</label>
+                                            {{ form.extender_name }}
+                                            {% if form.extender_name.errors %}
+                                            <div class="text-danger small mt-1">{{ form.extender_name.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                {{ form.is_active }}
+                                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                                    Is Active
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'employees:system_detail_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>{{ button_text }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hasHeadphoneSelect = document.getElementById('id_has_headphone');
+    const headphoneFields = document.getElementById('headphoneFields');
+    const hasExtenderSelect = document.getElementById('id_has_extender');
+    const extenderFields = document.getElementById('extenderFields');
+    const employeeSelect = document.getElementById('id_employee');
+    const departmentSelect = document.getElementById('id_department');
+
+    // Make department field readonly
+    departmentSelect.setAttribute('readonly', 'readonly');
+    departmentSelect.style.pointerEvents = 'none';
+
+    // Employee data with departments
+    const employeeData = {
+        {% for employee in form.fields.employee.queryset %}
+        '{{ employee.id }}': {
+            'department_id': '{{ employee.department.id }}',
+            'department_name': '{{ employee.department.name }}'
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    // Auto-fill department when employee is selected
+    function updateDepartment() {
+        const employeeId = employeeSelect.value;
+        if (employeeId && employeeData[employeeId]) {
+            const deptId = employeeData[employeeId].department_id;
+            // Temporarily enable the field to set value
+            departmentSelect.removeAttribute('readonly');
+            departmentSelect.style.pointerEvents = 'auto';
+            departmentSelect.value = deptId;
+            // Make it readonly again
+            departmentSelect.setAttribute('readonly', 'readonly');
+            departmentSelect.style.pointerEvents = 'none';
+        } else {
+            departmentSelect.removeAttribute('readonly');
+            departmentSelect.style.pointerEvents = 'auto';
+            departmentSelect.value = '';
+            departmentSelect.setAttribute('readonly', 'readonly');
+            departmentSelect.style.pointerEvents = 'none';
+        }
+    }
+
+    // Toggle headphone fields
+    function toggleHeadphoneFields() {
+        if (hasHeadphoneSelect.value === 'True') {
+            headphoneFields.style.display = 'block';
+        } else {
+            headphoneFields.style.display = 'none';
+        }
+    }
+
+    // Toggle extender fields
+    function toggleExtenderFields() {
+        if (hasExtenderSelect.value === 'True') {
+            extenderFields.style.display = 'block';
+        } else {
+            extenderFields.style.display = 'none';
+        }
+    }
+
+    // Before form submission, enable department field so it gets submitted
+    document.getElementById('systemDetailForm').addEventListener('submit', function(e) {
+        departmentSelect.removeAttribute('readonly');
+        departmentSelect.style.pointerEvents = 'auto';
+    });
+
+    // Initial state
+    updateDepartment();
+    toggleHeadphoneFields();
+    toggleExtenderFields();
+
+    // Event listeners
+    employeeSelect.addEventListener('change', updateDepartment);
+    hasHeadphoneSelect.addEventListener('change', toggleHeadphoneFields);
+    hasExtenderSelect.addEventListener('change', toggleExtenderFields);
+});
+</script>
+
+<style>
+.form-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.form-section-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+}
+
+.form-section-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+}
+
+.form-section-icon i {
+    color: white;
+    font-size: 20px;
+}
+
+.form-section-title {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+}
+</style>
+{% endblock %}

@@ -2,7 +2,11 @@ from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 from django.utils.html import format_html
-from .models import Department, Designation, EmergencyContact, Employee, EmployeeDocument, UserProfile, PublicHoliday, Notification, Message
+from .models import (
+    Department, Designation, EmergencyContact, Employee, EmployeeDocument, 
+    UserProfile, PublicHoliday, Notification, Message,
+    SystemDetail, MacAddress, SystemRequirement
+)
 from .decorators import role_required
 
 # Use the default admin site but customize it
@@ -269,3 +273,107 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ('subject', 'body')
     filter_horizontal = ('target_users',)
     readonly_fields = ('created_at',)
+
+
+# System Management Models
+
+@admin.register(SystemDetail)
+class SystemDetailAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'department', 'cpu_company_name', 'cpu_label_no', 'is_active', 'allocated_date')
+    list_filter = ('is_active', 'allocated_date', 'has_headphone', 'has_extender', 'department')
+    search_fields = ('employee__full_name', 'employee__employee_code', 'cpu_label_no', 'cpu_company_name')
+    readonly_fields = ('allocated_date', 'created_at', 'updated_at')
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        ('Employee', {
+            'fields': ('employee', 'department')
+        }),
+        ('CPU Details', {
+            'fields': ('cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor', 'cpu_label_no')
+        }),
+        ('Screen Details', {
+            'fields': ('screen_company_name', 'screen_label_no', 'screen_size')
+        }),
+        ('Peripherals', {
+            'fields': ('keyboard_company_name', 'keyboard_label_no', 'mouse_company_name', 'mouse_label_no')
+        }),
+        ('Optional Equipment', {
+            'fields': ('has_headphone', 'headphone_company_name', 'headphone_label_no',
+                      'has_extender', 'extender_label', 'extender_name')
+        }),
+        ('Allocation Details', {
+            'fields': ('allocated_by', 'allocated_date', 'is_active', 'return_date', 'notes')
+        }),
+        ('System Information', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(MacAddress)
+class MacAddressAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'mac_address', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('employee__full_name', 'employee__employee_code', 'mac_address')
+    readonly_fields = ('created_at', 'updated_at')
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        ('MAC Address Information', {
+            'fields': ('employee', 'mac_address')
+        }),
+        ('System Information', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(SystemRequirement)
+class SystemRequirementAdmin(admin.ModelAdmin):
+    list_display = ('requested_by', 'requirement_types', 'priority', 'status', 'created_at')
+    list_filter = ('priority', 'status', 'created_at')
+    search_fields = ('requested_by__full_name', 'requirement_types')
+    readonly_fields = ('created_at', 'updated_at', 'approved_date')
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        ('Request Information', {
+            'fields': ('requested_by', 'requested_for', 'requirement_types')
+        }),
+        ('CPU Specifications', {
+            'fields': ('cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor', 'cpu_label_no'),
+            'classes': ('collapse',)
+        }),
+        ('Screen Specifications', {
+            'fields': ('screen_company_name', 'screen_label_no', 'screen_size'),
+            'classes': ('collapse',)
+        }),
+        ('Keyboard Specifications', {
+            'fields': ('keyboard_company_name', 'keyboard_label_no'),
+            'classes': ('collapse',)
+        }),
+        ('Mouse Specifications', {
+            'fields': ('mouse_company_name', 'mouse_label_no'),
+            'classes': ('collapse',)
+        }),
+        ('Headphone Specifications', {
+            'fields': ('headphone_company_name', 'headphone_label_no'),
+            'classes': ('collapse',)
+        }),
+        ('Cost & Priority', {
+            'fields': ('estimated_cost', 'priority', 'status')
+        }),
+        ('Approval Details', {
+            'fields': ('approved_by', 'approved_date', 'rejection_reason')
+        }),
+        ('Order Details', {
+            'fields': ('order_date', 'expected_delivery_date', 'actual_delivery_date', 'vendor_name')
+        }),
+        ('System Information', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )

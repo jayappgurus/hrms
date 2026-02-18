@@ -68,13 +68,6 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'device' in request.resolver_match.url_name %}active{% endif %}"
-                            href="{% url 'employees:device_visibility' %}">
-                            <i class="bi bi-laptop"></i>
-                            <span>Devices</span>
-                        </a>
-                    </li>
 
                     <li class="nav-item">
                         <a class="nav-link {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name %}active{% endif %}"
@@ -109,7 +102,35 @@
                             </li>
                         </ul>
                     </li>
-
+                    <li class="nav-label">Inventory Management</li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'device' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:device_visibility' %}">
+                            <i class="bi bi-laptop"></i>
+                            <span>Device Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'system_detail' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:system_detail_list' %}">
+                            <i class="bi bi-pc-display-horizontal"></i>
+                            <span>System Details</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'mac_address' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:mac_address_list' %}">
+                            <i class="bi bi-hdd-network"></i>
+                            <span>MAC Address Details</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'system_requirement' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:system_requirement_list' %}">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span>System Requirements</span>
+                        </a>
+                    </li>
                     <li class="nav-label">Recruitment</li>
                     <li class="nav-item">
                         <a class="nav-link {% if 'job' in request.resolver_match.url_name or 'candidate' in request.resolver_match.url_name %}active{% endif %}"

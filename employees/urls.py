@@ -8,6 +8,7 @@ from . import views_job_application as views_job_app
 from . import views_csv
 from . import views_notifications
 from . import views_salary
+from . import views_system
 
 app_name = 'employees'
 
@@ -121,4 +122,25 @@ urlpatterns = [
     # Notifications & Messages
     path('notifications/create/', views_notifications.create_notification, name='create_notification'),
     path('messages/create/', views_notifications.create_message, name='create_message'),
+
+    # System Management
+    # System Details
+    path('system/details/', views_system.SystemDetailListView.as_view(), name='system_detail_list'),
+    path('system/details/add/', views_system.SystemDetailCreateView.as_view(), name='system_detail_add'),
+    path('system/details/<int:pk>/edit/', views_system.SystemDetailUpdateView.as_view(), name='system_detail_edit'),
+    path('system/details/<int:pk>/delete/', views_system.SystemDetailDeleteView.as_view(), name='system_detail_delete'),
+    
+    # MAC Address Management
+    path('system/mac-addresses/', views_system.MacAddressListView.as_view(), name='mac_address_list'),
+    path('system/mac-addresses/add/', views_system.MacAddressCreateView.as_view(), name='mac_address_add'),
+    path('system/mac-addresses/<int:pk>/edit/', views_system.MacAddressUpdateView.as_view(), name='mac_address_edit'),
+    path('system/mac-addresses/<int:pk>/delete/', views_system.MacAddressDeleteView.as_view(), name='mac_address_delete'),
+    
+    # System Requirements
+    path('system/requirements/', views_system.SystemRequirementListView.as_view(), name='system_requirement_list'),
+    path('system/requirements/add/', views_system.SystemRequirementCreateView.as_view(), name='system_requirement_add'),
+    path('system/requirements/<int:pk>/edit/', views_system.SystemRequirementUpdateView.as_view(), name='system_requirement_edit'),
+    path('system/requirements/<int:pk>/delete/', views_system.SystemRequirementDeleteView.as_view(), name='system_requirement_delete'),
+    path('system/requirements/<int:pk>/approve/', views_system.approve_system_requirement, name='approve_system_requirement'),
+    path('system/requirements/<int:pk>/reject/', views_system.reject_system_requirement, name='reject_system_requirement'),
 ]

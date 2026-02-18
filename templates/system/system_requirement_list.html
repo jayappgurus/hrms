@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+    }
+
+    .stats-icon.primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    }
+
+    .stats-icon.warning {
+        background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+    }
+
+    .stats-icon.success {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    }
+
+    .search-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 24px;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .table-card .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background-color: #f8faff;
+        border-bottom: 2px solid var(--border-color);
+        color: var(--text-main);
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 16px;
+    }
+
+    .table tbody td {
+        padding: 16px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8faff;
+    }
+
+    .badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 12px;
+    }
+
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .empty-state i {
+        font-size: 64px;
+        color: var(--text-muted);
+        opacity: 0.5;
+        margin-bottom: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-clipboard-check me-2" style="color: var(--primary);"></i>{{ title }}
+            </h2>
+            <p class="text-muted mb-0">Track and manage system purchase requests</p>
+        </div>
+        <a href="{% url 'employees:system_requirement_add' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Add Requirement
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon bg-blue-light text-primary">
+                        <i class="bi bi-list-check"></i>
+                    </div>
+                    <div class="ms-3 flex-grow-1">
+                        <p class="text-muted mb-1 small">Total Requirements</p>
+                        <h3 class="mb-0">{{ total_requirements }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card" style="border-left-color: var(--success);">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon text-success" style="background: rgba(16, 185, 129, 0.1);">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="ms-3 flex-grow-1">
+                        <p class="text-muted mb-1 small">Approved</p>
+                        <h3 class="mb-0">{{ approved_requirements }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card" style="border-left-color: var(--warning);">
+                <div class="d-flex align-items-center">
+                    <div class="stats-icon text-warning" style="background: rgba(245, 158, 11, 0.1);">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div class="ms-3 flex-grow-1">
+                        <p class="text-muted mb-1 small">Pending</p>
+                        <h3 class="mb-0">{{ pending_requirements }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="search-card">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Employee or description..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="approved" {% if status == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="ordered" {% if status == 'ordered' %}selected{% endif %}>Ordered</option>
+                    <option value="received" {% if status == 'received' %}selected{% endif %}>Received</option>
+                    <option value="allocated" {% if status == 'allocated' %}selected{% endif %}>Allocated</option>
+                    <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Priority</label>
+                <select name="priority" class="form-select">
+                    <option value="">All Priority</option>
+                    <option value="low" {% if priority == 'low' %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if priority == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if priority == 'high' %}selected{% endif %}>High</option>
+                    <option value="urgent" {% if priority == 'urgent' %}selected{% endif %}>Urgent</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search me-1"></i>Search
+                </button>
+                <a href="{% url 'employees:system_requirement_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Requirements Table -->
+    <div class="table-card">
+        {% if requirements %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Requested By</th>
+                        <th>Requirement Types</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requirements %}
+                    <tr>
+                        <td>
+                            <div>
+                                <strong>{{ req.requested_by.full_name }}</strong><br>
+                                <small class="text-muted">{{ req.requested_by.employee_code }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            {% for type in req.get_requirement_types_list %}
+                            <span class="badge bg-info me-1">
+                                <i class="bi bi-{% if type == 'cpu' %}cpu{% elif type == 'screen' %}display{% elif type == 'keyboard' %}keyboard{% elif type == 'mouse' %}mouse{% elif type == 'headphone' %}headphones{% endif %} me-1"></i>
+                                {% if type == 'cpu' %}CPU
+                                {% elif type == 'screen' %}Monitor
+                                {% elif type == 'keyboard' %}Keyboard
+                                {% elif type == 'mouse' %}Mouse
+                                {% elif type == 'headphone' %}Headphone
+                                {% endif %}
+                            </span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if req.priority == 'urgent' %}
+                            <span class="badge bg-danger">Urgent</span>
+                            {% elif req.priority == 'high' %}
+                            <span class="badge bg-warning">High</span>
+                            {% elif req.priority == 'medium' %}
+                            <span class="badge bg-info">Medium</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Low</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if req.status == 'pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% elif req.status == 'approved' %}
+                            <span class="badge bg-success">Approved</span>
+                            {% elif req.status == 'ordered' %}
+                            <span class="badge bg-primary">Ordered</span>
+                            {% elif req.status == 'received' %}
+                            <span class="badge bg-info">Received</span>
+                            {% elif req.status == 'allocated' %}
+                            <span class="badge bg-success">Allocated</span>
+                            {% elif req.status == 'rejected' %}
+                            <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ req.created_at|date:"d M Y" }}</small>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                {% if req.status == 'pending' and user.profile.can_manage_system %}
+                                <a href="{% url 'employees:approve_system_requirement' req.pk %}" class="btn btn-outline-success btn-action" title="Approve">
+                                    <i class="bi bi-check-lg"></i>
+                                </a>
+                                <a href="{% url 'employees:reject_system_requirement' req.pk %}" class="btn btn-outline-danger btn-action" title="Reject">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'employees:system_requirement_edit' req.pk %}" class="btn btn-outline-primary btn-action" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% if user.profile.can_manage_system %}
+                                <a href="{% url 'employees:system_requirement_delete' req.pk %}" class="btn btn-outline-danger btn-action" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="p-3 border-top">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if priority %}&priority={{ priority }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if priority %}&priority={{ priority }}{% endif %}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if priority %}&priority={{ priority }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if priority %}&priority={{ priority }}{% endif %}">Last</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h5 class="text-muted mb-3">No system requirements found</h5>
+            <p class="text-muted mb-4">Start by adding your first requirement</p>
+            <a href="{% url 'employees:system_requirement_add' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Add First Requirement
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
