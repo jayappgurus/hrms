@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}Trainee/Intern Evaluations - HRMS Portal{% endblock %}
+
+{% block page_title %}Trainee/Intern Evaluations{% endblock %}
+
+{% block content %}
+<div class="card mb-4 border-0 shadow-sm" style="border-radius: 12px;">
+    <div class="card-body p-4">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Employee Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="employee_name" class="form-control border-start-0" placeholder="Search..."
+                        value="{{ request.GET.employee_name }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Department</label>
+                <select name="department" class="form-select">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if request.GET.department == dept.id|stringformat:"i" %}selected{% endif %}>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    {% for status_val, status_label in status_choices %}
+                    <option value="{{ status_val }}" {% if request.GET.status == status_val %}selected{% endif %}>
+                        {{ status_label }}</option>
+                    {% endfor %}
+                    <option value="overdue" {% if request.GET.status == 'overdue' %}selected{% endif %}>Overdue</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small fw-bold text-muted">Cycle</label>
+                <select name="cycle" class="form-select">
+                    <option value="">All</option>
+                    <option value="1" {% if request.GET.cycle == '1' %}selected{% endif %}>1st</option>
+                    <option value="2" {% if request.GET.cycle == '2' %}selected{% endif %}>2nd</option>
+                    <option value="3" {% if request.GET.cycle == '3' %}selected{% endif %}>3rd</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Date Range (Period)</label>
+                <div class="input-group">
+                    <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
+                    <span class="input-group-text">-</span>
+                    <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
+                </div>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                    <i class="bi bi-filter"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px;">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Employee Code</th>
+                    <th>Employee Name</th>
+                    <th>Type</th>
+                    <th>Cycle No.</th>
+                    <th>Evaluation Period</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Assigned Manager</th>
+                    <th class="text-end pe-4">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for eval in evaluations %}
+                <tr>
+                    <td class="ps-4 fw-medium text-primary">{{ eval.employee.employee_code }}</td>
+                    <td>
+                        <div class="fw-bold">{{ eval.employee.full_name }}</div>
+                        <small class="text-muted">{{ eval.employee.department.name }}</small>
+                    </td>
+                    <td>
+                        <span class="badge rounded-pill bg-light text-dark border">
+                            {% if eval.employee.period_type == 'trainee' %}Trainee{% else %}Intern{% endif %}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-secondary rounded-pill">Cycle {{ eval.cycle_number }}</span></td>
+                    <td>
+                        <small class="d-block fw-medium">{{ eval.period_start|date:"d M Y" }}</small>
+                        <small class="text-muted">to {{ eval.period_end|date:"d M Y" }}</small>
+                    </td>
+                    <td>
+                        <span class="{% if eval.is_overdue %}text-danger fw-bold{% else %}text-muted{% endif %} small">
+                            {{ eval.due_date|date:"d M Y" }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if eval.status == 'approved' %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3">Approved</span>
+                        {% elif eval.status == 'submitted_manager' %}
+                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-3">Submitted (Manager)</span>
+                        {% elif eval.status == 'submitted_hr' %}
+                        <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3">Submitted (HR)</span>
+                        {% elif eval.status == 'pending' %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3">
+                            Pending {% if eval.is_overdue %}(Overdue){% endif %}
+                        </span>
+                        {% elif eval.status == 'rejected' %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3">Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-xs me-2">
+                                <span class="avatar-title rounded-circle bg-light text-primary small">
+                                    {% if eval.assigned_manager %}
+                                        {{ eval.assigned_manager.get_full_name|default:eval.assigned_manager.username|slice:":1"|upper }}
+                                    {% else %}
+                                        ?
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <small class="fw-medium">
+                                {% if eval.assigned_manager %}
+                                    {{ eval.assigned_manager.get_full_name|default:eval.assigned_manager.username }}
+                                {% else %}
+                                    Not Assigned
+                                {% endif %}
+                            </small>
+                        </div>
+                    </td>
+                    <td class="text-end pe-4">
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'employees:evaluation_detail' eval.pk %}" class="btn btn-sm btn-light border shadow-sm px-3">
+                                <i class="bi bi-eye text-primary me-1"></i> View
+                            </a>
+                            {% if eval.status in 'pending,rejected' %}
+                                {% if user and user.profile %}
+                                    {% if user.profile.role in 'admin,hr,director' %}
+                                        <a href="{% url 'employees:evaluation_detail' eval.pk %}" class="btn btn-sm btn-outline-primary border shadow-sm px-3">
+                                            <i class="bi bi-pencil text-primary me-1"></i> Edit
+                                        </a>
+                                    {% elif user.profile.role == 'manager' and eval.assigned_manager == user %}
+                                        <a href="{% url 'employees:evaluation_detail' eval.pk %}" class="btn btn-sm btn-outline-primary border shadow-sm px-3">
+                                            <i class="bi bi-pencil text-primary me-1"></i> Edit
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center py-5">
+                        <div class="text-muted">
+                            <i class="bi bi-journal-x fs-1 d-block mb-3"></i>
+                            <h5 class="fw-bold">No {{ evaluation_type|lower }} evaluations found</h5>
+                            <p class="small">Try adjusting your filters or search terms.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <div class="text-muted small">
+        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} evaluations
+    </div>
+    <nav>
+        <ul class="pagination mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
+<style>
+    .avatar-xs {
+        height: 24px;
+        width: 24px;
+    }
+
+    .avatar-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        font-weight: 600;
+    }
+
+    .bg-success-subtle {
+        background-color: #d1e7dd !important;
+    }
+
+    .bg-warning-subtle {
+        background-color: #fff3cd !important;
+    }
+
+    .bg-danger-subtle {
+        background-color: #f8d7da !important;
+    }
+
+    .bg-info-subtle {
+        background-color: #cff4fc !important;
+    }
+
+    .bg-primary-subtle {
+        background-color: #cfe2ff !important;
+    }
+</style>
+{% endblock %}

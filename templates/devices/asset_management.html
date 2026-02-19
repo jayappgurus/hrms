@@ -1,0 +1,1022 @@
+{% extends 'base.html' %}
+
+{% block title %}Asset Management - HRMS Portal{% endblock %}
+
+{% block page_title %}Asset Management{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">
+            <i class="bi bi-laptop text-primary"></i>
+            Asset Management
+        </h1>
+        <p class="page-subtitle">Manage device requests and allocations</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="modern-card bg-primary text-white">
+            <div class="modern-card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-2">Pending Requests</h6>
+                        <h3 class="mb-0">{{ pending_requests.count }}</h3>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-clock-history fs-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="modern-card bg-success text-white">
+            <div class="modern-card-body position-relative">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-2">Approved Requests</h6>
+                        <h3 class="mb-0">{{ approved_requests.count }}</h3>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-check-circle fs-2"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showApprovedRequestsModal()">
+                        <i class="bi bi-three-dots-vertical me-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="modern-card bg-warning text-white">
+            <div class="modern-card-body position-relative">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-2">Allocated Devices</h6>
+                        <h3 class="mb-0">{{ allocated_requests.count }}</h3>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-person-check fs-2"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showAllocatedDevicesModal()">
+                        <i class="bi bi-three-dots-vertical me-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+        <div class="modern-card bg-info text-white">
+            <div class="modern-card-body position-relative">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-2">Return Requests</h6>
+                        <h3 class="mb-0">{{ return_requests.count }}</h3>
+                    </div>
+                    <div class="ms-3">
+                        <i class="bi bi-arrow-return-left fs-2"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showReturnRequestsModal()">
+                        <i class="bi bi-three-dots-vertical me-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Content -->
+<div class="tab-content" id="requestTabContent">
+    <!-- Pending Requests -->
+    <div class="tab-pane fade show active" id="pending" role="tabpanel">
+        <div class="modern-card">
+            <div class="modern-card-header">
+                <h5 class="modern-card-title">
+                    <i class="bi bi-clock-history"></i>
+                    Pending Device Requests
+                </h5>
+            </div>
+            <div class="modern-card-body p-0">
+                {% if pending_requests %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Device Type</th>
+                                <th>Priority</th>
+                                <th>Required Date</th>
+                                <th>Request Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in pending_requests %}
+                            <tr>
+                                <td data-label="Employee">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="employee-avatar"
+                                            style="width: 32px; height: 32px; font-size: 12px;">
+                                            {{ req.employee.full_name|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.employee.full_name }}</div>
+                                            <small class="text-muted">{{ req.employee.employee_code }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Device Type">
+                                    <span class="badge bg-light text-dark">
+                                        {{ req.get_device_type_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Priority">
+                                    {% if req.priority == 'urgent' %}
+                                    <span class="status-badge danger">Urgent</span>
+                                    {% elif req.priority == 'high' %}
+                                    <span class="status-badge warning">High</span>
+                                    {% elif req.priority == 'medium' %}
+                                    <span class="status-badge info">Medium</span>
+                                    {% else %}
+                                    <span class="status-badge success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Required Date">{{ req.required_date|date:"M d, Y" }}</td>
+                                <td data-label="Request Date">{{ req.request_date|date:"M d, Y" }}</td>
+                                <td data-label="Actions" class="text-end">
+                                    <div class="table-actions justify-content-end">
+                                        <button type="button" class="action-icon-btn info"
+                                            onclick="viewRequestDetails({{ req.id }})" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button type="button" class="action-icon-btn success"
+                                            onclick="approveRequest({{ req.id }})" title="Approve">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                        <button type="button" class="action-icon-btn danger"
+                                            onclick="rejectRequest({{ req.id }})" title="Reject">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Pending Requests</h3>
+                    <p class="empty-state-text">All device requests have been processed.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Approved Requests -->
+    <div class="tab-pane fade" id="approved" role="tabpanel">
+        <div class="modern-card">
+            <div class="modern-card-header">
+                <h5 class="modern-card-title">
+                    <i class="bi bi-check-circle"></i>
+                    Approved Device Requests
+                </h5>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="showApprovedRequestsModal()">
+                    <i class="bi bi-list-ul me-2"></i>View All in Modal
+                </button>
+            </div>
+            <div class="modern-card-body p-0">
+                {% if approved_requests %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Device Type</th>
+                                <th>Priority</th>
+                                <th>Approved Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in approved_requests %}
+                            <tr>
+                                <td data-label="Employee">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="employee-avatar"
+                                            style="width: 32px; height: 32px; font-size: 12px;">
+                                            {{ req.employee.full_name|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.employee.full_name }}</div>
+                                            <small class="text-muted">{{ req.employee.employee_code }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Device Type">
+                                    <span class="badge bg-light text-dark">
+                                        {{ req.get_device_type_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Priority">
+                                    {% if req.priority == 'urgent' %}
+                                    <span class="status-badge danger">Urgent</span>
+                                    {% elif req.priority == 'high' %}
+                                    <span class="status-badge warning">High</span>
+                                    {% elif req.priority == 'medium' %}
+                                    <span class="status-badge info">Medium</span>
+                                    {% else %}
+                                    <span class="status-badge success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Approved Date">{{ req.approved_date|date:"M d, Y" }}</td>
+                                <td data-label="Actions" class="text-end">
+                                    <div class="table-actions justify-content-end">
+                                        <button type="button" class="action-icon-btn primary"
+                                            onclick="allocateDevice({{ req.id }})" title="Allocate Device">
+                                            <i class="bi bi-laptop"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Approved Requests</h3>
+                    <p class="empty-state-text">No requests have been approved yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Allocated Devices -->
+    <div class="tab-pane fade" id="allocated" role="tabpanel">
+        <div class="modern-card">
+            <div class="modern-card-header">
+                <h5 class="modern-card-title">
+                    <i class="bi bi-person-check"></i>
+                    Allocated Devices
+                </h5>
+            </div>
+            <div class="modern-card-body p-0">
+                {% if allocated_requests %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Requested Type</th>
+                                <th>Allocated Device</th>
+                                <th>Allocated Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in allocated_requests %}
+                            <tr>
+                                <td data-label="Employee">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="employee-avatar"
+                                            style="width: 32px; height: 32px; font-size: 12px;">
+                                            {{ req.employee.full_name|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.employee.full_name }}</div>
+                                            <small class="text-muted">{{ req.employee.employee_code }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Requested Type">
+                                    <span class="badge bg-light text-dark">
+                                        {{ req.get_device_type_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Allocated Device">
+                                    {% if req.device %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="info-icon">
+                                            <i class="bi bi-{{ req.device.device_type }}"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.device.device_name }}</div>
+                                            <small class="text-muted">{{ req.device.serial_number }}</small>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">Not allocated</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Allocated Date">{{ req.allocated_date|date:"M d, Y" }}</td>
+                                <td data-label="Actions" class="text-end">
+                                    <div class="table-actions justify-content-end">
+                                        {% if req.return_requested_date %}
+                                        <button type="button" class="action-icon-btn warning"
+                                            onclick="approveReturn({{ req.id }})" title="Approve Return">
+                                            <i class="bi bi-arrow-return-left"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-person-check"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Allocated Devices</h3>
+                    <p class="empty-state-text">No devices have been allocated yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Requests -->
+    <div class="tab-pane fade" id="returns" role="tabpanel">
+        <div class="modern-card">
+            <div class="modern-card-header">
+                <h5 class="modern-card-title">
+                    <i class="bi bi-arrow-return-left"></i>
+                    Device Return Requests
+                </h5>
+            </div>
+            <div class="modern-card-body p-0">
+                {% if return_requests %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Requested Type</th>
+                                <th>Allocated Device</th>
+                                <th>Return Requested</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in return_requests %}
+                            <tr>
+                                <td data-label="Employee">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="employee-avatar"
+                                            style="width: 32px; height: 32px; font-size: 12px;">
+                                            {{ req.employee.full_name|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.employee.full_name }}</div>
+                                            <small class="text-muted">{{ req.employee.employee_code }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Requested Type">
+                                    <span class="badge bg-light text-dark">
+                                        {{ req.get_device_type_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Allocated Device">
+                                    {% if req.device %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="info-icon">
+                                            <i class="bi bi-{{ req.device.device_type }}"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.device.device_name }}</div>
+                                            <small class="text-muted">{{ req.device.serial_number }}</small>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">Not allocated</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Return Requested">{{ req.return_requested_date|date:"M d, Y" }}</td>
+                                <td data-label="Actions" class="text-end">
+                                    <div class="table-actions justify-content-end">
+                                        <button type="button" class="action-icon-btn success"
+                                            onclick="approveReturn({{ req.id }})" title="Approve Return">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-arrow-return-left"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Return Requests</h3>
+                    <p class="empty-state-text">No employees have requested device returns.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Allocated Devices List -->
+<div class="modal fade" id="allocatedDevicesModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-person-check text-warning me-2"></i>
+                    Allocated Devices
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                {% if allocated_requests %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Requested Type</th>
+                                <th>Allocated Device</th>
+                                <th>Allocated Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in allocated_requests %}
+                            <tr>
+                                <td data-label="Employee">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="employee-avatar"
+                                            style="width: 32px; height: 32px; font-size: 12px;">
+                                            {{ req.employee.full_name|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.employee.full_name }}</div>
+                                            <small class="text-muted">{{ req.employee.employee_code }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Requested Type">
+                                    <span class="badge bg-light text-dark">
+                                        {{ req.get_device_type_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Allocated Device">
+                                    {% if req.device %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="info-icon">
+                                            <i class="bi bi-{{ req.device.device_type }}"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.device.device_name }}</div>
+                                            <small class="text-muted">{{ req.device.serial_number }}</small>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">Not allocated</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Allocated Date">{{ req.allocated_date|date:"M d, Y" }}</td>
+                                <td data-label="Actions" class="text-end">
+                                    <div class="table-actions justify-content-end">
+                                        <button type="button" class="action-icon-btn info"
+                                            onclick="requestDeviceReturn({{ req.id }})" title="Request Return">
+                                            <i class="bi bi-arrow-return-left"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-person-check"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Allocated Devices</h3>
+                    <p class="empty-state-text">No devices have been allocated yet.</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Return Requests List -->
+<div class="modal fade" id="returnRequestsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-arrow-return-left text-info me-2"></i>
+                    Return Requests
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                {% if return_requests %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Requested Type</th>
+                                <th>Allocated Device</th>
+                                <th>Return Requested</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in return_requests %}
+                            <tr>
+                                <td data-label="Employee">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="employee-avatar"
+                                            style="width: 32px; height: 32px; font-size: 12px;">
+                                            {{ req.employee.full_name|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.employee.full_name }}</div>
+                                            <small class="text-muted">{{ req.employee.employee_code }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Requested Type">
+                                    <span class="badge bg-light text-dark">
+                                        {{ req.get_device_type_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Allocated Device">
+                                    {% if req.device %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="info-icon">
+                                            <i class="bi bi-{{ req.device.device_type }}"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.device.device_name }}</div>
+                                            <small class="text-muted">{{ req.device.serial_number }}</small>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-muted">Not allocated</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Return Requested">{{ req.return_requested_date|date:"M d, Y" }}</td>
+                                <td data-label="Actions" class="text-end">
+                                    <div class="table-actions justify-content-end">
+                                        <button type="button" class="action-icon-btn success"
+                                            onclick="approveReturn({{ req.id }})" title="Approve Return">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-arrow-return-left"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Return Requests</h3>
+                    <p class="empty-state-text">No employees have requested device returns.</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Approved Requests List -->
+<div class="modal fade" id="approvedRequestsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle text-success me-2"></i>
+                    Approved Device Requests
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                {% if approved_requests %}
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Device Type</th>
+                                <th>Priority</th>
+                                <th>Approved Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in approved_requests %}
+                            <tr>
+                                <td data-label="Employee">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="employee-avatar"
+                                            style="width: 32px; height: 32px; font-size: 12px;">
+                                            {{ req.employee.full_name|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ req.employee.full_name }}</div>
+                                            <small class="text-muted">{{ req.employee.employee_code }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Device Type">
+                                    <span class="badge bg-light text-dark">
+                                        {{ req.get_device_type_display }}
+                                    </span>
+                                </td>
+                                <td data-label="Priority">
+                                    {% if req.priority == 'urgent' %}
+                                    <span class="status-badge danger">Urgent</span>
+                                    {% elif req.priority == 'high' %}
+                                    <span class="status-badge warning">High</span>
+                                    {% elif req.priority == 'medium' %}
+                                    <span class="status-badge info">Medium</span>
+                                    {% else %}
+                                    <span class="status-badge success">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Approved Date">{{ req.approved_date|date:"M d, Y" }}</td>
+                                <td data-label="Actions" class="text-end">
+                                    <div class="table-actions justify-content-end">
+                                        <button type="button" class="action-icon-btn primary"
+                                            onclick="allocateDevice({{ req.id }})" title="Allocate Device">
+                                            <i class="bi bi-laptop"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Approved Requests</h3>
+                    <p class="empty-state-text">No requests have been approved yet.</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Request Details -->
+<div class="modal fade" id="requestDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Device Request Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="requestDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Approve Confirmation -->
+<div class="modal fade" id="approveConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to <strong>approve</strong> this device request?</p>
+                <input type="hidden" id="approveRequestId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmApproveBtn" onclick="confirmApproval()">Yes,
+                    Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Reject with Reason -->
+<div class="modal fade" id="rejectReasonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reject Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rejectRequestId">
+                <div class="mb-3">
+                    <label for="rejectionReason" class="form-label">Reason for Rejection <span
+                            class="text-danger">*</span></label>
+                    <textarea id="rejectionReason" class="form-control" rows="3"
+                        placeholder="Enter rejection reason..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmRejection()">Yes, Reject</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Device Allocation -->
+<div class="modal fade" id="allocateDeviceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Allocate Device</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="allocateDeviceForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="allocateRequestId" name="request_id">
+                    <div class="modern-form-group">
+                        <label for="deviceSelect" class="modern-form-label">Select Device</label>
+                        <select id="deviceSelect" name="device_id" class="modern-form-control modern-form-select"
+                            required>
+                            <option value="">Choose a device...</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmAllocation()">Allocate Device</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showApprovedRequestsModal() {
+        new bootstrap.Modal(document.getElementById('approvedRequestsModal')).show();
+    }
+
+    function showAllocatedDevicesModal() {
+        new bootstrap.Modal(document.getElementById('allocatedDevicesModal')).show();
+    }
+
+    function showReturnRequestsModal() {
+        new bootstrap.Modal(document.getElementById('returnRequestsModal')).show();
+    }
+
+    function viewRequestDetails(requestId) {
+        fetch(`/device-request/${requestId}/details/`)
+            .then(response => response.json())
+            .then(data => {
+                const content = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Employee Information</h6>
+                        <p><strong>Name:</strong> ${data.employee_name}</p>
+                        <p><strong>Code:</strong> ${data.employee_code}</p>
+                        <p><strong>Department:</strong> ${data.department}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Request Details</h6>
+                        <p><strong>Device Type:</strong> ${data.device_type}</p>
+                        <p><strong>Priority:</strong> ${data.priority}</p>
+                        <p><strong>Required Date:</strong> ${data.required_date}</p>
+                        <p><strong>Request Date:</strong> ${data.request_date}</p>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Reason for Request</h6>
+                    <p>${data.reason}</p>
+                </div>
+            `;
+                document.getElementById('requestDetailsContent').innerHTML = content;
+                new bootstrap.Modal(document.getElementById('requestDetailsModal')).show();
+            });
+    }
+
+    function approveRequest(requestId) {
+        document.getElementById('approveRequestId').value = requestId;
+        new bootstrap.Modal(document.getElementById('approveConfirmModal')).show();
+    }
+
+    function confirmApproval() {
+        const requestId = document.getElementById('approveRequestId').value;
+        const btn = document.getElementById('confirmApproveBtn');
+        btn.disabled = true;
+        btn.textContent = 'Approving...';
+
+        fetch(`/device-request/${requestId}/approve/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                if (!response.ok) return response.text().then(text => { throw new Error(text) });
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = 'Yes, Approve';
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                btn.disabled = false;
+                btn.textContent = 'Yes, Approve';
+                console.error('Error:', error);
+                alert('System Error: ' + error.message);
+            });
+    }
+
+    function rejectRequest(requestId) {
+        document.getElementById('rejectRequestId').value = requestId;
+        document.getElementById('rejectionReason').value = '';
+        new bootstrap.Modal(document.getElementById('rejectReasonModal')).show();
+    }
+
+    function confirmRejection() {
+        const requestId = document.getElementById('rejectRequestId').value;
+        const reason = document.getElementById('rejectionReason').value.trim();
+        if (!reason) {
+            alert('Please provide a rejection reason.');
+            return;
+        }
+        fetch(`/device-request/${requestId}/reject/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+            .then(response => {
+                if (!response.ok) return response.text().then(text => { throw new Error(text) });
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('System Error: ' + error.message);
+            });
+    }
+
+    function allocateDevice(requestId) {
+        document.getElementById('allocateRequestId').value = requestId;
+
+        // Load available devices
+        fetch(`/device-request/${requestId}/available-devices/`)
+            .then(response => {
+                if (!response.ok) return response.text().then(text => { throw new Error(text) });
+                return response.json();
+            })
+            .then(data => {
+                const select = document.getElementById('deviceSelect');
+                select.innerHTML = '<option value="">Choose a device...</option>';
+                data.devices.forEach(device => {
+                    select.innerHTML += `<option value="${device.id}">${device.name} - ${device.serial_number}</option>`;
+                });
+            })
+            .catch(error => alert('Error loading devices: ' + error.message));
+
+        new bootstrap.Modal(document.getElementById('allocateDeviceModal')).show();
+    }
+
+    function confirmAllocation() {
+        const requestId = document.getElementById('allocateRequestId').value;
+        const deviceId = document.getElementById('deviceSelect').value;
+
+        if (!deviceId) {
+            alert('Please select a device');
+            return;
+        }
+
+        fetch(`/device-request/${requestId}/allocate/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ device_id: deviceId })
+        })
+            .then(response => {
+                if (!response.ok) return response.text().then(text => { throw new Error(text) });
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('System Error: ' + error.message);
+            });
+    }
+
+    function approveReturn(requestId) {
+        const notes = prompt('Any return notes? (optional)');
+        fetch(`/device-request/${requestId}/approve-return/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ notes: notes || '' })
+        })
+            .then(response => {
+                if (!response.ok) return response.text().then(text => { throw new Error(text) });
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('System Error: ' + error.message);
+            });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

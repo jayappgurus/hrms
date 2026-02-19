@@ -9,10 +9,22 @@ from . import views_csv
 from . import views_notifications
 from . import views_salary
 from . import views_system
-
+from . import views_performance
+from . import views_api
+from . import views_assignment
 app_name = 'employees'
-
 urlpatterns = [
+     
+    # Performance Evaluation
+    path('performance/evaluations/', views_performance.EvaluationDashboardView.as_view(), name='evaluation_dashboard'),
+    path('performance/trainee-intern-evaluations/', views_performance.TraineeInternEvaluationDashboardView.as_view(), name='trainee_intern_evaluation_dashboard'),
+    path('performance/probation-evaluations/', views_performance.ProbationEvaluationDashboardView.as_view(), name='probation_evaluation_dashboard'),
+    path('performance/evaluation/<int:pk>/', views_performance.EvaluationDetailView.as_view(), name='evaluation_detail'),
+    path('performance/evaluation/<int:pk>/submit/', views_performance.submit_evaluation, name='submit_evaluation'),
+    path('performance/evaluation/<int:pk>/approve/', views_performance.approve_evaluation, name='approve_evaluation'),
+    path('performance/evaluation/<int:pk>/reject/', views_performance.reject_evaluation, name='reject_evaluation'),
+    path('performance/evaluation/<int:pk>/assign-manager/', views_assignment.assign_manager, name='evaluation_assign_manager'),
+
     # Salary & Increment Details
     path('employee/<int:pk>/salary/', views_salary.SalaryDetailsView.as_view(), name='salary_details'),
     path('employee/<int:pk>/increments/', views_salary.IncrementDetailsView.as_view(), name='increment_details'),
@@ -21,6 +33,7 @@ urlpatterns = [
 
     # Registration
     path('register/', views_auth.EmployeeRegistrationView.as_view(), name='register'),
+
     # Dashboard and API
     path('', views.DashboardView.as_view(), name='dashboard'),
     path('api/calendar-events/', views.CalendarEventsView.as_view(), name='calendar_events'),
@@ -33,6 +46,7 @@ urlpatterns = [
     path('api/designations/', views.DesignationAPIView.as_view(), name='designations_api'),
 
     # Employee Management
+
     path('employees/', views.EmployeeListView.as_view(), name='employee_list'),
     path('employees/add/', views.EmployeeCreateView.as_view(), name='employee_add'),
     path('employee/<int:pk>/', views.EmployeeDetailView.as_view(), name='employee_detail'),
@@ -58,7 +72,22 @@ urlpatterns = [
     path('devices/<int:pk>/allocate/', views.allocate_device, name='allocate_device'),
     path('devices/<int:pk>/return/', views.return_device, name='return_device'),
 
+    # Device Request Management
+    path('device-request/add/', views.DeviceRequestCreateView.as_view(), name='device_request_add'),
+    path('asset-management/', views.asset_management, name='asset_management'),
+    path('device-request/<int:request_id>/details/', views.device_request_details, name='device_request_details'),
+    path('device-request/<int:request_id>/approve/', views.approve_device_request, name='approve_device_request'),
+    path('device-request/<int:request_id>/reject/', views.reject_device_request, name='reject_device_request'),
+    path('device-request/<int:request_id>/available-devices/', views.get_available_devices, name='get_available_devices'),
+    path('device-request/<int:request_id>/allocate/', views.allocate_device_to_request, name='allocate_device_to_request'),
+    path('device-request/<int:request_id>/request-return/', views.request_device_return, name='request_device_return'),
+    path('device-request/<int:request_id>/approve-return/', views.approve_device_return, name='approve_device_return'),
+
+    # API Endpoints
+    path('api/available-devices/<str:device_type>/', views_api.api_available_devices, name='api_available_devices'),
+
     # Leave & Holiday Management
+
     path('holidays/', views.PublicHolidayListView.as_view(), name='public_holidays'),
     path('holidays/add/', views.PublicHolidayCreateView.as_view(), name='public_holiday_add'),
     path('holidays/bulk-delete/', views.bulk_delete_public_holidays, name='bulk_delete_public_holidays'),
@@ -70,7 +99,6 @@ urlpatterns = [
     path('holidays/export-csv/', views_csv.export_public_holidays_csv, name='export_public_holidays_csv'),
     path('holidays/import-csv/', views_csv.import_public_holidays_csv, name='import_public_holidays_csv'),
     path('holidays/sample-csv/', views_csv.download_public_holiday_sample_csv, name='download_public_holiday_sample_csv'),
-
     path('leave-types/', views.LeaveTypeListView.as_view(), name='leave_types'),
     path('leave-types/add/', views.LeaveTypeCreateView.as_view(), name='leave_type_add'),
     path('leave-types/<int:pk>/', views.LeaveTypeDetailView.as_view(), name='leave_type_detail'),
@@ -104,7 +132,6 @@ urlpatterns = [
     path('jobs/export-csv/', views_csv.export_job_descriptions_csv, name='export_job_descriptions_csv'),
     path('jobs/import-csv/', views_csv.import_job_descriptions_csv, name='import_job_descriptions_csv'),
     path('jobs/sample-csv/', views_csv.download_job_description_sample_csv, name='download_job_description_sample_csv'),
-
     path('jobs/apply/', views_job_app.add_job_application_view, name='add_job_application'),
     path('jobs/application/success/', views_job_app.job_application_success_view, name='job_application_success'),
     path('candidates/', views_job.JobApplicationListView.as_view(), name='candidate_list'),
@@ -115,7 +142,6 @@ urlpatterns = [
     path('candidates/<int:application_id>/interview/add/', views_job.add_interview, name='add_interview'),
     path('interview/<int:interview_id>/edit/', views_job.edit_interview, name='edit_interview'),
     path('interview/<int:interview_id>/delete/', views_job.delete_interview, name='delete_interview'),
-
     path('candidates/interview/', views_job.InterviewScheduleView.as_view(), name='interview_schedule'),
     path('openings/', views_job.CurrentOpeningsView.as_view(), name='current_openings'),
 
@@ -124,18 +150,21 @@ urlpatterns = [
     path('messages/create/', views_notifications.create_message, name='create_message'),
 
     # System Management
+
     # System Details
     path('system/details/', views_system.SystemDetailListView.as_view(), name='system_detail_list'),
     path('system/details/add/', views_system.SystemDetailCreateView.as_view(), name='system_detail_add'),
+    path('system/details/<int:pk>/', views_system.SystemDetailDetailView.as_view(), name='system_detail_view'),
     path('system/details/<int:pk>/edit/', views_system.SystemDetailUpdateView.as_view(), name='system_detail_edit'),
     path('system/details/<int:pk>/delete/', views_system.SystemDetailDeleteView.as_view(), name='system_detail_delete'),
-    
+
     # MAC Address Management
     path('system/mac-addresses/', views_system.MacAddressListView.as_view(), name='mac_address_list'),
     path('system/mac-addresses/add/', views_system.MacAddressCreateView.as_view(), name='mac_address_add'),
+    path('system/mac-addresses/<int:pk>/', views_system.MacAddressDetailView.as_view(), name='mac_address_view'),
     path('system/mac-addresses/<int:pk>/edit/', views_system.MacAddressUpdateView.as_view(), name='mac_address_edit'),
     path('system/mac-addresses/<int:pk>/delete/', views_system.MacAddressDeleteView.as_view(), name='mac_address_delete'),
-    
+
     # System Requirements
     path('system/requirements/', views_system.SystemRequirementListView.as_view(), name='system_requirement_list'),
     path('system/requirements/add/', views_system.SystemRequirementCreateView.as_view(), name='system_requirement_add'),
@@ -143,4 +172,6 @@ urlpatterns = [
     path('system/requirements/<int:pk>/delete/', views_system.SystemRequirementDeleteView.as_view(), name='system_requirement_delete'),
     path('system/requirements/<int:pk>/approve/', views_system.approve_system_requirement, name='approve_system_requirement'),
     path('system/requirements/<int:pk>/reject/', views_system.reject_system_requirement, name='reject_system_requirement'),
+
 ]
+

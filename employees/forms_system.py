@@ -108,6 +108,7 @@ class SystemRequirementForm(forms.ModelForm):
         ('keyboard', 'Keyboard'),
         ('mouse', 'Mouse'),
         ('headphone', 'Headphone'),
+        ('other', 'Other'),
     ]
     
     requirement_types = forms.MultipleChoiceField(
@@ -121,11 +122,12 @@ class SystemRequirementForm(forms.ModelForm):
         model = SystemRequirement
         fields = [
             'requested_by', 'requested_for', 'requirement_types',
-            'cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor', 'cpu_label_no',
-            'screen_company_name', 'screen_label_no', 'screen_size',
-            'keyboard_company_name', 'keyboard_label_no',
-            'mouse_company_name', 'mouse_label_no',
-            'headphone_company_name', 'headphone_label_no',
+            'cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor',
+            'screen_company_name', 'screen_size',
+            'keyboard_company_name',
+            'mouse_company_name',
+            'headphone_company_name',
+            'other_device_name', 'other_specification',
             'estimated_cost', 'priority', 'status',
             'order_date', 'expected_delivery_date', 'vendor_name'
         ]
@@ -138,24 +140,19 @@ class SystemRequirementForm(forms.ModelForm):
             'cpu_storage': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 512GB SSD'}),
             'cpu_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Dell, HP'}),
             'cpu_processor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Intel i7'}),
-            'cpu_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label number'}),
             
             # Screen Fields
             'screen_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Dell, LG'}),
-            'screen_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label number'}),
             'screen_size': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 24 inch'}),
             
             # Keyboard Fields
             'keyboard_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Logitech'}),
-            'keyboard_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label number'}),
             
             # Mouse Fields
             'mouse_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Logitech'}),
-            'mouse_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label number'}),
             
             # Headphone Fields
             'headphone_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Logitech'}),
-            'headphone_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label number'}),
             
             'estimated_cost': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
             'priority': forms.Select(attrs={'class': 'form-select'}),
@@ -163,6 +160,10 @@ class SystemRequirementForm(forms.ModelForm):
             'order_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'expected_delivery_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'vendor_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Vendor/supplier name'}),
+            
+            # Other Device Fields
+            'other_device_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Printer, Scanner, etc.'}),
+            'other_specification': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Detailed specifications...'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -179,11 +180,12 @@ class SystemRequirementForm(forms.ModelForm):
         
         # All specification fields are optional initially
         spec_fields = [
-            'cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor', 'cpu_label_no',
-            'screen_company_name', 'screen_label_no', 'screen_size',
-            'keyboard_company_name', 'keyboard_label_no',
-            'mouse_company_name', 'mouse_label_no',
-            'headphone_company_name', 'headphone_label_no',
+            'cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor',
+            'screen_company_name', 'screen_size',
+            'keyboard_company_name',
+            'mouse_company_name',
+            'headphone_company_name',
+            'other_device_name', 'other_specification',
         ]
         for field in spec_fields:
             self.fields[field].required = False
@@ -216,6 +218,12 @@ class SystemRequirementForm(forms.ModelForm):
         if 'headphone' in requirement_types:
             if not cleaned_data.get('headphone_company_name'):
                 raise forms.ValidationError('Headphone company name is required when Headphone is selected.')
+        
+        if 'other' in requirement_types:
+            if not cleaned_data.get('other_device_name'):
+                raise forms.ValidationError('Device name is required when Other is selected.')
+            if not cleaned_data.get('other_specification'):
+                raise forms.ValidationError('Specification is required when Other is selected.')
         
         return cleaned_data
     

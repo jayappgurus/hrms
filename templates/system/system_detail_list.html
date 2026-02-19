@@ -99,12 +99,6 @@
         text-align: center;
     }
 
-    .empty-state i {
-        font-size: 64px;
-        color: var(--text-muted);
-        opacity: 0.5;
-        margin-bottom: 16px;
-    }
 </style>
 {% endblock %}
 
@@ -267,6 +261,9 @@
                         </td>
                         <td class="text-end">
                             <div class="btn-group btn-group-sm">
+                                <a href="{% url 'employees:system_detail_view' system.pk %}" class="btn btn-outline-info btn-action" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                                 <a href="{% url 'employees:system_detail_edit' system.pk %}" class="btn btn-outline-primary btn-action" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>

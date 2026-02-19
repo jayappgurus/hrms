@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from .models import SystemDetail, MacAddress, SystemRequirement, Employee
@@ -107,6 +107,18 @@ class SystemDetailDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+@method_decorator([login_required, it_admin_required], name='dispatch')
+class SystemDetailDetailView(LoginRequiredMixin, DetailView):
+    model = SystemDetail
+    template_name = 'system/system_detail_view.html'
+    context_object_name = 'system'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'System Details'
+        return context
+
+
 # MacAddress Views
 
 @method_decorator([login_required, it_admin_required], name='dispatch')
@@ -136,6 +148,18 @@ class MacAddressListView(LoginRequiredMixin, ListView):
         context['total_macs'] = MacAddress.objects.count()
         context['active_macs'] = MacAddress.objects.count()  # All are active now
         context['search'] = self.request.GET.get('search', '')
+        return context
+
+
+@method_decorator([login_required, it_admin_required], name='dispatch')
+class MacAddressDetailView(LoginRequiredMixin, DetailView):
+    model = MacAddress
+    template_name = 'system/mac_address_view.html'
+    context_object_name = 'mac'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'MAC Address Details'
         return context
 
 

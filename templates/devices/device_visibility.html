@@ -140,6 +140,11 @@
                                     <span class="d-none d-md-inline ms-1">History</span>
                                 </button>
                                 {% if device.status == 'available' %}
+                                <!-- <a href="{% url 'employees:device_request_add' %}" class="btn btn-sm btn-success"
+                                    title="Request Device">
+                                    <i class="bi bi-person-plus"></i>
+                                    <span class="d-none d-md-inline ms-1">Request</span>
+                                </a> -->
                                 <a href="{% url 'employees:allocate_device' device.pk %}" class="btn btn-sm btn-success"
                                     title="Allocate Device">
                                     <i class="bi bi-person-plus"></i>

@@ -9,14 +9,16 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">
-            <i class="bi bi-{% if form.instance.pk %}pencil-square{% else %}laptop{% endif %} text-primary"></i>
-            {% if form.instance.pk %}Edit Device{% else %}Add New Device{% endif %}
+            <i
+                class="bi bi-{% if form.instance.pk %}pencil-square{% else %}laptop{% endif %} text-primary"></i>
+            {% if form.instance.pk %}Edit Device{% endif %}{% if not form.instance.pk %}Add New Device{% endif %}
         </h1>
         <p class="page-subtitle">
-            {% if form.instance.pk %}Update device information{% else %}Register a new device in the inventory{% endif %}
+            {% if form.instance.pk %}Update device information{% endif %}{% if not form.instance.pk %}Register a new device in inventory{% endif %}
         </p>
     </div>
-    <a href="{% url 'employees:device_list' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'employees:device_list' %}"
+        class="btn btn-outline-secondary">
         <i class="bi bi-arrow-left me-2"></i>Back to List
     </a>
 </div>
@@ -30,38 +32,51 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.device_name.label }}</label>
+                        <label class="modern-form-label required">
+                            {{ form.device_name.label }}
+                        </label>
                         {{ form.device_name }}
                         {% if form.device_name.errors %}
-                        <div class="text-danger small mt-1">{{ form.device_name.errors.0 }}</div>
+                        <div class="text-danger small mt-1">
+                            {{ form.device_name.errors.0 }}
+                        </div>
                         {% endif %}
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="modern-form-group">
-                        <label class="modern-form-label required">{{ form.device_type.label }}</label>
+                        <label class="modern-form-label required">
+                            {{ form.device_type.label }}
+                        </label>
                         {{ form.device_type }}
                         {% if form.device_type.errors %}
-                        <div class="text-danger small mt-1">{{ form.device_type.errors.0 }}</div>
+                        <div class="text-danger small mt-1">
+                            {{ form.device_type.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.serial_number.label }}</label>
+                        <label class="modern-form-label">
+                            {{ form.serial_number.label }}
+                        </label>
                         {{ form.serial_number }}
                         {% if form.serial_number.errors %}
-                        <div class="text-danger small mt-1">{{ form.serial_number.errors.0 }}</div>
+                        <div class="text-danger small mt-1">
+                            {{ form.serial_number.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.purchase_date.label }}</label>
-                        {{ form.purchase_date }}
+                        <label class="modern-form-label required">{{ form.purchase_date.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-calendar"></i></span>
+                            {{ form.purchase_date }}
+                        </div>
                         {% if form.purchase_date.errors %}
                         <div class="text-danger small mt-1">{{ form.purchase_date.errors.0 }}</div>
                         {% endif %}
@@ -70,7 +85,8 @@
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-4">
-                <a href="{% url 'employees:device_list' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'employees:device_list' %}"
+                    class="btn btn-outline-secondary">
                     <i class="bi bi-x-circle me-2"></i>Cancel
                 </a>
                 <button type="submit" class="btn btn-primary">

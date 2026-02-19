@@ -98,13 +98,6 @@
         padding: 60px 20px;
         text-align: center;
     }
-
-    .empty-state i {
-        font-size: 64px;
-        color: var(--text-muted);
-        opacity: 0.5;
-        margin-bottom: 16px;
-    }
 </style>
 {% endblock %}
 
@@ -282,7 +275,7 @@
                                     <i class="bi bi-x-lg"></i>
                                 </a>
                                 {% endif %}
-                                <a href="{% url 'employees:system_requirement_edit' req.pk %}" class="btn btn-outline-primary btn-action" title="Edit">
+                                <a href="{% url 'employees:system_requirement_edit' req.pk %}" class="btn btn-outline-secondary btn-action" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 {% if user.profile.can_manage_system %}

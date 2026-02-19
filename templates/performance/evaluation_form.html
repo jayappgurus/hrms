@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+
+{% block title %}Evaluation Form - {{ evaluation.employee.full_name }}{% endblock %}
+
+{% block page_title %}Performance Evaluation Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Section 1: Employee Info (Read-Only) -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-person-badge me-2"></i>Employee Information</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <label class="small text-muted mb-1 d-block text-uppercase letter-spacing-1">Employee
+                            Code</label>
+                        <span class="fw-bold text-dark fs-6">{{ evaluation.employee.employee_code }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small text-muted mb-1 d-block text-uppercase letter-spacing-1">Employee
+                            Name</label>
+                        <span class="fw-bold text-dark fs-6">{{ evaluation.employee.full_name }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small text-muted mb-1 d-block text-uppercase letter-spacing-1">Department</label>
+                        <span class="fw-bold text-dark fs-6">{{ evaluation.employee.department.name }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small text-muted mb-1 d-block text-uppercase letter-spacing-1">Joining
+                            Date</label>
+                        <span class="fw-bold text-dark fs-6">{{ evaluation.employee.joining_date|date:"d M Y" }}</span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small text-muted mb-1 d-block text-uppercase letter-spacing-1">Training/Probation
+                            Start</label>
+                        <span class="fw-bold text-dark fs-6">
+                            {% if evaluation.training_start_date %}
+                                {{ evaluation.training_start_date|date:"d M Y" }}
+                            {% else %}
+                                {{ evaluation.employee.joining_date|date:"d M Y" }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small text-muted mb-1 d-block text-uppercase letter-spacing-1">Cycle
+                            Number</label>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 fs-6">Cycle
+                            {{ evaluation.cycle_number }}</span>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="small text-muted mb-1 d-block text-uppercase letter-spacing-1">Evaluation
+                            Period</label>
+                        <span class="fw-bold text-dark fs-6">
+                            <i class="bi bi-calendar3 me-2 text-muted"></i>
+                            {{ evaluation.period_start|date:"d M Y" }} — {{ evaluation.period_end|date:"d M Y" }}
+                        </span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="small text-muted mb-1 d-block text-uppercase letter-spacing-1">Status</label>
+                        {% if evaluation.status == 'approved' %}
+                        <span class="badge bg-success text-white px-3 rounded-pill">Approved</span>
+                        {% elif evaluation.status == 'pending' %}
+                        <span class="badge bg-warning text-dark px-3 rounded-pill">Pending</span>
+                        {% elif evaluation.status == 'rejected' %}
+                        <span class="badge bg-danger text-white px-3 rounded-pill">Rejected</span>
+                        {% else %}
+                        <span class="badge bg-info text-dark px-3 rounded-pill">
+                            {{ evaluation.get_status_display }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1.5: Manager Assignment -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-person-badge-fill me-2"></i>Manager Assignment</h5>
+                {% if user.profile.role in 'admin,hr,director' %}
+                <a href="{% url 'employees:evaluation_assign_manager' evaluation.pk %}" class="btn btn-sm btn-outline-primary border-0">
+                    <i class="bi bi-pencil-square me-1"></i>Assign Manager
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body p-4">
+                {% if evaluation.assigned_manager %}
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm me-3">
+                            <span class="avatar-title rounded-circle bg-primary text-white">
+                                {{ evaluation.assigned_manager.get_full_name|default:evaluation.assigned_manager.username|slice:":1"|upper }}
+                            </span>
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ evaluation.assigned_manager.get_full_name|default:evaluation.assigned_manager.username }}</div>
+                            <small class="text-muted">{{ evaluation.assigned_manager.email }}</small>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning border-0 mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <span class="fw-medium">No manager assigned</span>
+                        {% if user.profile.role in 'admin,hr,director' %}
+                        <br><small class="text-muted">Click "Assign Manager" to assign a manager to this evaluation.</small>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section 2: Evaluation Form -->
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+            <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-clipboard-check me-2"></i>Evaluation Details</h5>
+                {% if not can_edit %}
+                <span class="badge bg-light text-muted border"><i class="bi bi-lock-fill me-1"></i>Read Only</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-4">
+                {% if can_edit %}
+                <form id="evaluationForm" method="post" action="{% url 'employees:submit_evaluation' evaluation.pk %}">
+                    {% csrf_token %}
+                    <div class="alert alert-primary border-0 shadow-sm mb-4 d-flex align-items-center"
+                        style="border-radius: 10px;">
+                        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                        <div>
+                            <strong class="d-block">Form Placeholder</strong>
+                            <span class="small">The specific evaluation fields will be added once finalized. Please
+                                provide overall comments for now.</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Overall Performance & Comments <span
+                                class="text-danger">*</span></label>
+                        <textarea name="comments" class="form-control" rows="6"
+                            placeholder="Document the employee's performance, strengths, and areas for improvement..."
+                            required></textarea>
+                        <div class="form-text mt-2">Maximum 2000 characters.</div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+                        <button type="button" class="btn btn-light px-4 border" onclick="history.back()">Cancel</button>
+                        <button type="submit" class="btn btn-primary px-4 py-2 shadow-sm" id="submitBtn">
+                            <i class="bi bi-send me-2"></i>Submit Evaluation
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="evaluation-display">
+                    <div class="p-5 text-center bg-light rounded-4 mb-4 border border-dashed">
+                        <div class="mb-3">
+                            <i class="bi bi-file-earmark-lock2 fs-1 text-muted"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark">Form Locked</h6>
+                        <p class="text-muted small px-md-5 mb-0">
+                            This evaluation has been submitted or completed. Modification is only allowed during the
+                            Pending or Rejected stages by authorized personnel.
+                        </p>
+                    </div>
+
+                    {% if evaluation.submitted_at %}
+                    <div class="row g-4 pt-2">
+                        <div class="col-12">
+                            <h6 class="fw-bold text-muted small text-uppercase mb-3">Submitted Evaluation Data</h6>
+                            <div class="p-4 bg-white border rounded-3 shadow-xs">
+                                <label class="small text-muted fw-bold d-block mb-2">PERFORMANCE COMMENTS:</label>
+                                <div class="text-dark" style="white-space: pre-wrap;">
+                                    {{ evaluation.form_data.comments|default:"No comments were recorded in this cycle." }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Actions & Audit Log -->
+        <div class="sticky-top" style="top: 20px;">
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; overflow: hidden;">
+                <div class="card-header bg-primary text-white border-0 py-3 px-4">
+                    <h5 class="fw-bold mb-0 fs-6"><i class="bi bi-lightning-fill me-2"></i>Managerial Actions</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if user.profile.role in 'admin,hr,director' %}
+                    {% if evaluation.status == 'submitted_manager' or evaluation.status == 'submitted_hr' %}
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-success py-2 fw-bold shadow-sm" data-bs-toggle="modal"
+                            data-bs-target="#approveModal">
+                            <i class="bi bi-patch-check me-2"></i>Approve Evaluation
+                        </button>
+                        <button class="btn btn-outline-danger py-2 fw-bold" data-bs-toggle="modal"
+                            data-bs-target="#rejectModal">
+                            <i class="bi bi-x-octagon me-2"></i>Reject & Request Revision
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-2">
+                        <i class="bi bi-check2-circle text-success fs-2 mb-2 d-block"></i>
+                        <span class="text-muted small">Current status does not require approval actions.</span>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-2">
+                        <i class="bi bi-shield-lock text-muted fs-2 mb-2 d-block"></i>
+                        <span class="text-muted small">Approval actions are restricted to HR and Administration.</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0 text-muted small text-uppercase letter-spacing-1">Activity & History</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="audit-timeline">
+                        {% for log in audit_logs %}
+                        <div class="timeline-item">
+                            <div
+                                class="timeline-marker {% if log.action == 'Approved' %}bg-success{% elif log.action == 'Rejected' %}bg-danger{% elif log.action == 'Submitted' %}bg-primary{% else %}bg-secondary{% endif %}">
+                            </div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="fw-bold small text-dark">{{ log.action }}</span>
+                                    <small class="text-muted" style="font-size: 10px;">
+                                        {{ log.timestamp|date:"d M, H:i" }}</small>
+                                </div>
+                                <p class="small text-muted mb-1">{{ log.details }}</p>
+                                {% if log.user %}
+                                <div class="d-flex align-items-center mt-1">
+                                    <span class="badge bg-light text-primary border-0 p-0 small">
+                                        <i class="bi bi-person-circle me-1"></i>
+                                        {{ log.user.get_full_name|default:log.user.username }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <p class="text-muted small mb-0">No activity recorded yet.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Approval/Rejection -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+            <div class="modal-body p-5 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="fw-bold">Confirm Approval</h4>
+                <p class="text-muted mb-4 px-4">You are about to approve the performance evaluation for <strong>
+                    {{ evaluation.employee.full_name }}</strong> for cycle {{ evaluation.cycle_number }}. This action
+                    cannot be undone.</p>
+
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light px-4 border" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{% url 'employees:approve_evaluation' evaluation.pk %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success px-5 fw-bold">Approve Now</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+            <div class="modal-header border-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Reject
+                    Evaluation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'employees:reject_evaluation' evaluation.pk %}" method="post">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <p class="small text-muted mb-4">Provide a clear reason for the rejection. This will be sent back to
+                        the manager for review and resubmission.</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Reason for Rejection <span
+                                class="text-danger">*</span></label>
+                        <textarea name="rejection_reason" class="form-control" rows="4" required
+                            placeholder="E.g., Missing performance metrics, insufficient details in comments..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light px-4 border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger px-4 fw-bold">Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .letter-spacing-1 {
+        letter-spacing: 0.5px;
+    }
+
+    .shadow-xs {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .avatar-sm {
+        height: 40px;
+        width: 40px;
+    }
+
+    .avatar-title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        font-weight: 600;
+    }
+
+    .audit-timeline {
+        position: relative;
+        padding-left: 15px;
+    }
+
+    .audit-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        bottom: 5px;
+        width: 1.5px;
+        background: #f1f3f5;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 25px;
+    }
+
+    .timeline-marker {
+        position: absolute;
+        left: -20px;
+        top: 6px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #f1f3f5;
+    }
+
+    .timeline-content {
+        padding-left: 10px;
+    }
+
+    .timeline-content p {
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}

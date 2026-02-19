@@ -102,34 +102,61 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-label">Inventory Management</li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'performance' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:evaluation_dashboard' %}">
+                            <i class="bi bi-graph-up-arrow"></i>
+                            <span>Performance</span>
+                            <i class="bi bi-chevron-down nav-arrow"></i>
+                        </a>
+                        <ul class="sub-menu {% if 'performance' in request.resolver_match.url_name %}show{% endif %}">
+                            <li class="mt-2"><a href="{% url 'employees:evaluation_dashboard' %}"
+                                    class="{% if request.resolver_match.url_name == 'evaluation_dashboard' %}active{% endif %}">All
+                                    Evaluations</a></li>
+                            <li class="mt-2"><a href="{% url 'employees:trainee_intern_evaluation_dashboard' %}"
+                                    class="{% if request.resolver_match.url_name == 'trainee_intern_evaluation_dashboard' %}active{% endif %}">Trainee/Intern
+                                    Evaluations</a></li>
+                            <li class="mt-2"><a href="{% url 'employees:probation_evaluation_dashboard' %}"
+                                    class="{% if request.resolver_match.url_name == 'probation_evaluation_dashboard' %}active{% endif %}">Probation
+                                    Evaluations</a></li>
+                        </ul>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link {% if 'device' in request.resolver_match.url_name %}active{% endif %}"
                             href="{% url 'employees:device_visibility' %}">
                             <i class="bi bi-laptop"></i>
-                            <span>Device Management</span>
+                            <span>Inventory Management</span>
+                            <i class="bi bi-chevron-down nav-arrow"></i>
                         </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'system_detail' in request.resolver_match.url_name %}active{% endif %}"
-                            href="{% url 'employees:system_detail_list' %}">
-                            <i class="bi bi-pc-display-horizontal"></i>
-                            <span>System Details</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'mac_address' in request.resolver_match.url_name %}active{% endif %}"
-                            href="{% url 'employees:mac_address_list' %}">
-                            <i class="bi bi-hdd-network"></i>
-                            <span>MAC Address Details</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if 'system_requirement' in request.resolver_match.url_name %}active{% endif %}"
-                            href="{% url 'employees:system_requirement_list' %}">
-                            <i class="bi bi-clipboard-check"></i>
-                            <span>System Requirements</span>
-                        </a>
+                        <ul class="sub-menu {% if 'device' in request.resolver_match.url_name %}show{% endif %}">
+                            <li class="mt-2"><a
+                                    class="{% if 'device' in request.resolver_match.url_name %}active{% endif %}"
+                                    href="{% url 'employees:device_visibility' %}">
+                                    <span>Assets Management</span>
+                                </a></li>
+                            <!-- {% if user.is_superuser or user.is_staff %}
+                            <li class="mt-2"><a
+                                    class="{% if 'asset_management' in request.resolver_match.url_name %}active{% endif %}"
+                                    href="{% url 'employees:asset_management' %}">
+                                    <span>Device Requests</span>
+                                </a></li>
+                            {% endif %} -->
+                            <li class="mt-2"><a
+                                    class="{% if 'system_detail' in request.resolver_match.url_name %}active{% endif %}"
+                                    href="{% url 'employees:system_detail_list' %}">
+                                    <span>System Details</span>
+                                </a></li>
+                            <li class="mt-2"><a
+                                    class="{% if 'mac_address' in request.resolver_match.url_name %}active{% endif %}"
+                                    href="{% url 'employees:mac_address_list' %}">
+                                    <span>MAC Address Details</span>
+                                </a></li>
+                            <li class="mt-2"><a
+                                    class="{% if 'system_requirement' in request.resolver_match.url_name %}active{% endif %}"
+                                    href="{% url 'employees:system_requirement_list' %}">
+                                    <span>System Requirements</span>
+                                </a></li>
+                        </ul>
                     </li>
                     <li class="nav-label">Recruitment</li>
                     <li class="nav-item">
@@ -302,26 +329,6 @@
 
             <!-- Page Content -->
             <main class="main-content">
-                <!-- Messages -->
-                {% if messages %}
-                <div class="container-fluid px-0 mb-4">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm mb-3 d-flex align-items-center"
-                        role="alert"
-                        style="border-radius: 12px; background: {% if message.tags == 'success' %}#d1e7dd{% elif message.tags == 'danger' %}#f8d7da{% else %}#cfe2ff{% endif %};">
-                        <div class="flex-shrink-0 me-3">
-                            <i
-                                class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-success{% elif message.tags == 'danger' %}bi-exclamation-octagon-fill text-danger{% else %}bi-info-circle-fill text-primary{% endif %} fs-4"></i>
-                        </div>
-                        <div class="flex-grow-1 text-dark fw-medium">
-                            {{ message }}
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
                 <!-- Page Header -->
                 {% if request.resolver_match.url_name == 'dashboard' %}
                 <div class="page-header">

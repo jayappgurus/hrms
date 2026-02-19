@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MAC Address Details{% endblock %}
+
+{% block page_title %}MAC Address Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">MAC Address Information</h5>
+                    <div class="btn-group">
+                        <a href="{% url 'employees:mac_address_edit' mac.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i> Edit
+                        </a>
+                        <a href="{% url 'employees:mac_address_list' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Basic Information</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td width="150"><strong>MAC Address:</strong></td>
+                                    <td><span class="mac-address">{{ mac.mac_address }}</span></td>
+                                </tr>
+                                {% if mac.employee %}
+                                <tr>
+                                    <td><strong>Assigned Employee:</strong></td>
+                                    <td>
+                                        <a href="{% url 'employees:employee_detail' mac.employee.pk %}">
+                                            {{ mac.employee.full_name }} ({{ mac.employee.employee_code }})
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Department:</strong></td>
+                                    <td>{{ mac.employee.department.name|default:"-" }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td><strong>Assigned Employee:</strong></td>
+                                    <td><span class="text-muted">Not assigned</span></td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td><strong>Created Date:</strong></td>
+                                    <td>{{ mac.created_at|date:"d M Y, h:i A" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Last Updated:</strong></td>
+                                    <td>{{ mac.updated_at|date:"d M Y, h:i A" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-3">Additional Information</h6>
+                            <div class="alert alert-info">
+                                <h6><i class="bi bi-info-circle me-2"></i>About MAC Addresses</h6>
+                                <p class="mb-0">A MAC (Media Access Control) address is a unique identifier assigned to network interfaces for communications on the physical network segment.</p>
+                            </div>
+                            {% if mac.employee %}
+                            <div class="alert alert-success">
+                                <h6><i class="bi bi-check-circle me-2"></i>Assignment Status</h6>
+                                <p class="mb-0">This MAC address is currently assigned to <strong>{{ mac.employee.full_name }}</strong>.</p>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning">
+                                <h6><i class="bi bi-exclamation-triangle me-2"></i>Assignment Status</h6>
+                                <p class="mb-0">This MAC address is currently unassigned and available for allocation.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.mac-address {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    background-color: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}

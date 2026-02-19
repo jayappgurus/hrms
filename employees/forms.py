@@ -2,7 +2,7 @@ from django import forms
 from datetime import date
 from django.core.validators import RegexValidator, EmailValidator
 from django.contrib.auth.models import User
-from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday
+from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday, DeviceRequest
 
 class EmergencyContactForm(forms.ModelForm):
     class Meta:
@@ -586,3 +586,35 @@ class PaySlipGenerationForm(forms.Form):
         # Sort in reverse to show latest year first
         year_choices.sort(key=lambda x: x[0], reverse=True)
         self.fields['year'].choices = year_choices
+
+class DeviceRequestForm(forms.ModelForm):
+    class Meta:
+        model = DeviceRequest
+        fields = ['device_type', 'device', 'priority', 'required_date', 'reason']
+        widgets = {
+            'device_type': forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select'}),
+            'device': forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select'}),
+            'priority': forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select'}),
+            'required_date': forms.DateInput(attrs={
+                'class': 'form-control modern-form-control',
+                'type': 'date',
+                'placeholder': 'YYYY-MM-DD'
+            }),
+            'reason': forms.Textarea(attrs={
+                'class': 'form-control modern-form-control',
+                'rows': '4',
+                'placeholder': 'Please provide a detailed reason for your device request...'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Custom choices for device_type with placeholder
+        self.fields['device_type'].choices = [('', 'Select Device Type (General Category)...')] + list(self.fields['device_type'].choices)[1:]
+        self.fields['device_type'].required = False
+        
+        # Filter available devices and set placeholder
+        from .models import Device
+        self.fields['device'].queryset = Device.objects.filter(status='available')
+        self.fields['device'].empty_label = "Select specific available unit (Optional)..."
+        self.fields['device'].required = False
