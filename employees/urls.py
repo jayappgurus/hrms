@@ -85,6 +85,11 @@ urlpatterns = [
 
     # API Endpoints
     path('api/available-devices/<str:device_type>/', views_api.api_available_devices, name='api_available_devices'),
+    path('api/employees/', views_api.api_employees_list, name='api_employees_list'),
+    path('api/employees/<int:employee_id>/', views_api.api_employee_detail, name='api_employee_detail'),
+    path('api/departments/', views_api.api_departments, name='api_departments'),
+    path('api/designations/', views_api.api_designations, name='api_designations'),
+    path('api/employees/stats/', views_api.api_employee_stats, name='api_employee_stats'),
 
     # Leave & Holiday Management
 
