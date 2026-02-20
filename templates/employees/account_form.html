@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account - HRMS Portal{% endblock %}
+
+{% block page_title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">Create New Account</h4>
+            <p class="text-muted mb-0">Add a new account credential to the system</p>
+        </div>
+        <div>
+            <a href="{% url 'employees:account_management' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Accounts
+            </a>
+        </div>
+    </div>
+
+    <!-- Create Form -->
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="card-body p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Email Password</label>
+                        <div class="input-group">
+                            {{ form.email_password }}
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('email_password')">
+                                <i class="bi bi-eye" id="email_password_toggle"></i>
+                            </button>
+                        </div>
+                        {% if form.email_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.email_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Teams</label>
+                        {{ form.teams }}
+                        {% if form.teams.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.teams.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Teams Password</label>
+                        <div class="input-group">
+                            {{ form.teams_password }}
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('teams_password')">
+                                <i class="bi bi-eye" id="teams_password_toggle"></i>
+                            </button>
+                        </div>
+                        {% if form.teams_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.teams_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Basecamp Password</label>
+                        <div class="input-group">
+                            {{ form.basecamp_password }}
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('basecamp_password')">
+                                <i class="bi bi-eye" id="basecamp_password_toggle"></i>
+                            </button>
+                        </div>
+                        {% if form.basecamp_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.basecamp_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">System Password</label>
+                        <div class="input-group">
+                            {{ form.system_password }}
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('system_password')">
+                                <i class="bi bi-eye" id="system_password_toggle"></i>
+                            </button>
+                        </div>
+                        {% if form.system_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.system_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">GitHub</label>
+                        {{ form.github }}
+                        {% if form.github.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.github.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">GitHub Password</label>
+                        <div class="input-group">
+                            {{ form.github_password }}
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('github_password')">
+                                <i class="bi bi-eye" id="github_password_toggle"></i>
+                            </button>
+                        </div>
+                        {% if form.github_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.github_password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">Notes</label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.notes.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                {{ form.is_active.label }}
+                            </label>
+                        </div>
+                        {% if form.is_active.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.is_active.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i>Create Account
+                            </button>
+                            <a href="{% url 'employees:account_management' %}" class="btn btn-outline-secondary shadow-sm">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.input-group {
+    position: relative;
+}
+
+.input-group .btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 10;
+    border-radius: 0 4px 4px 0;
+}
+
+.form-control {
+    padding-right: 50px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn {
+    transition: all 0.2s ease-in-out;
+    border-radius: 8px;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.form-check-input {
+    border-radius: 4px;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.small {
+    font-size: 0.875rem;
+}
+</style>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const toggle = document.getElementById(fieldId + '_toggle');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        toggle.classList.remove('bi-eye');
+        toggle.classList.add('bi-eye-slash');
+    } else {
+        field.type = 'password';
+        toggle.classList.remove('bi-eye-slash');
+        toggle.classList.add('bi-eye');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize password visibility toggles
+    const passwordFields = ['email_password', 'teams_password', 'basecamp_password', 'system_password', 'github_password'];
+    passwordFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        const toggle = document.getElementById(fieldId + '_toggle');
+        if (field && toggle) {
+            field.type = 'password';
+            toggle.classList.remove('bi-eye-slash');
+            toggle.classList.add('bi-eye');
+        }
+    });
+});
+</script>
+{% endblock %}

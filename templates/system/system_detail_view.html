@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}System Details - {{ system.cpu_company_name }} {{ system.cpu_processor }}{% endblock %}
+
+{% block page_title %}System Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">System Details</h4>
+            <p class="text-muted mb-0">View complete system allocation details</p>
+        </div>
+        <div>
+            <a href="{% url 'employees:system_detail_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to List
+            </a>
+            {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'employees:system_detail_edit' system.id %}" class="btn btn-primary ms-2">
+                <i class="bi bi-pencil me-2"></i>Edit
+            </a>
+            <a href="{% url 'employees:system_detail_delete' system.id %}" class="btn btn-danger ms-2">
+                <i class="bi bi-trash me-2"></i>Delete
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- System Overview Card -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="flex-shrink-0">
+                            {% if system.system_type == 'windows' %}
+                                <div class="bg-primary bg-opacity-10 icon-square">
+                                    <i class="bi bi-windows text-primary fs-4"></i>
+                                </div>
+                            {% elif system.system_type == 'mac' %}
+                                <div class="bg-secondary bg-opacity-10 icon-square">
+                                    <i class="bi bi-apple text-secondary fs-4"></i>
+                                </div>
+                            {% else %}
+                                <div class="bg-info bg-opacity-10 icon-square">
+                                    <i class="bi bi-pc-display text-info fs-4"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title mb-1">{{ system.cpu_company_name }} {{ system.cpu_processor }}</h5>
+                            <p class="text-muted mb-0">
+                                {% if system.system_type %}{{ system.system_type|title }} System{% endif %}
+                                {% if system.is_active %}
+                                    <span class="badge bg-success ms-2">Allocated</span>
+                                {% else %}
+                                    <span class="badge bg-warning ms-2">Non-allocated</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Employee Information -->
+                    {% if system.employee %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Employee Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Name:</strong> {{ system.employee.full_name }}</p>
+                                <p class="mb-2"><strong>Employee Code:</strong> {{ system.employee.employee_code }}</p>
+                                <p class="mb-2"><strong>Department:</strong> 
+                                    {% if system.department %}{{ system.department.name }}{% else %}-{% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Allocated Date:</strong> {{ system.allocated_date|date:"d M Y" }}</p>
+                                <p class="mb-2"><strong>Allocated By:</strong> 
+                                    {% if system.allocated_by %}{{ system.allocated_by.get_full_name }}{% else %}-{% endif %}
+                                </p>
+                                {% if not system.is_active and system.return_date %}
+                                <p class="mb-2"><strong>Return Date:</strong> {{ system.return_date|date:"d M Y" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- CPU Details -->
+                    {% if system.system_type == 'windows' %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">CPU Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>RAM:</strong> {{ system.cpu_ram|default:"-" }}</p>
+                                <p class="mb-2"><strong>Storage:</strong> {{ system.cpu_storage|default:"-" }}</p>
+                                <p class="mb-2"><strong>Company:</strong> {{ system.cpu_company_name|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Processor:</strong> {{ system.cpu_processor|default:"-" }}</p>
+                                <p class="mb-2"><strong>Label No:</strong> {{ system.cpu_label_no|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- MAC Address Details -->
+                    {% if system.system_type == 'mac' %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">MAC Address Details</h6>
+                        <p class="mb-2"><strong>MAC Address:</strong> 
+                            <code>{{ system.mac_address|default:"-" }}</code>
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Screen Details -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Screen Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Company:</strong> {{ system.screen_company_name|default:"-" }}</p>
+                                <p class="mb-2"><strong>Label No:</strong> {{ system.screen_label_no|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Size:</strong> {{ system.screen_size|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Peripherals -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Peripherals</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Keyboard:</strong> {{ system.keyboard_company_name|default:"-" }} 
+                                    {% if system.keyboard_label_no %}({{ system.keyboard_label_no }}){% endif %}
+                                </p>
+                                <p class="mb-2"><strong>Mouse:</strong> {{ system.mouse_company_name|default:"-" }}
+                                    {% if system.mouse_label_no %}({{ system.mouse_label_no }}){% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                {% if system.has_headphone %}
+                                <p class="mb-2"><strong>Headphone:</strong> {{ system.headphone_company_name|default:"-" }}
+                                    {% if system.headphone_label_no %}({{ system.headphone_label_no }}){% endif %}
+                                </p>
+                                {% endif %}
+                                {% if system.has_extender %}
+                                <p class="mb-2"><strong>Extender:</strong> {{ system.extender_name|default:"-" }}
+                                    {% if system.extender_label %}({{ system.extender_label }}){% endif %}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    {% if system.notes %}
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-3">Additional Notes</h6>
+                        <p class="mb-0">{{ system.notes|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h6 class="card-title mb-4">System Status</h6>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Allocation Status</span>
+                            {% if system.is_active %}
+                                <span class="badge bg-success">Allocated</span>
+                            {% else %}
+                                <span class="badge bg-warning">Non-allocated</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">System Type</span>
+                            {% if system.system_type %}
+                                <span class="badge bg-info">{{ system.system_type|title }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Created</span>
+                            <span class="text-muted">{{ system.created_at|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Last Updated</span>
+                            <span class="text-muted">{{ system.updated_at|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+
+                    {% if system.employee %}
+                    <div class="mt-4 pt-4 border-top">
+                        <h6 class="text-muted mb-3">Quick Actions</h6>
+                        <div class="d-grid gap-2">
+                            {% if system.is_active %}
+                            <a href="#" class="btn btn-warning btn-sm">
+                                <i class="bi bi-arrow-return-left me-2"></i>Return System
+                            </a>
+                            {% else %}
+                            <a href="#" class="btn btn-success btn-sm">
+                                <i class="bi bi-check-circle me-2"></i>Allocate System
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

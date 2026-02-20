@@ -16,9 +16,9 @@
                         value="{{ request.GET.employee_name }}">
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="form-label small fw-bold text-muted">Department</label>
-                <select name="department" class="form-select">
+                <select name="department" class="form-select modern-form-control modern-form-select">
                     <option value="">All Departments</option>
                     {% for dept in departments %}
                     <option value="{{ dept.id }}" {% if request.GET.department == dept.id|stringformat:"i" %}selected{% endif %}>{{ dept.name }}</option>
@@ -27,7 +27,7 @@
             </div>
             <div class="col-md-2">
                 <label class="form-label small fw-bold text-muted">Status</label>
-                <select name="status" class="form-select">
+                <select name="status" class="form-select modern-form-control modern-form-select">
                     <option value="">All Status</option>
                     {% for status_val, status_label in status_choices %}
                     <option value="{{ status_val }}" {% if request.GET.status == status_val %}selected{% endif %}>
@@ -36,27 +36,22 @@
                     <option value="overdue" {% if request.GET.status == 'overdue' %}selected{% endif %}>Overdue</option>
                 </select>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
                 <label class="form-label small fw-bold text-muted">Cycle</label>
-                <select name="cycle" class="form-select">
+                <select name="cycle" class="fform-select modern-form-control modern-form-select">
                     <option value="">All</option>
                     <option value="1" {% if request.GET.cycle == '1' %}selected{% endif %}>1st</option>
                     <option value="2" {% if request.GET.cycle == '2' %}selected{% endif %}>2nd</option>
                     <option value="3" {% if request.GET.cycle == '3' %}selected{% endif %}>3rd</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <label class="form-label small fw-bold text-muted">Date Range (Period)</label>
-                <div class="input-group">
-                    <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
-                    <span class="input-group-text">-</span>
-                    <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
-                </div>
-            </div>
-            <div class="col-md-1 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100 shadow-sm">
-                    <i class="bi bi-filter"></i>
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary flex-fill shadow-sm">
+                    <i class="bi bi-filter"></i> Filter
                 </button>
+                <a href="?" class="btn btn-outline-secondary flex-fill shadow-sm">
+                    <i class="bi bi-arrow-clockwise"></i> Reset
+                </a>
             </div>
         </form>
     </div>

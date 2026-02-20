@@ -4,10 +4,20 @@ from django.contrib.auth.models import User
 
 
 class SystemDetailForm(forms.ModelForm):
+    system_type = forms.ChoiceField(
+        choices=[('windows', 'Windows'), ('mac', 'MAC')],
+        widget=forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_system_type'}),
+        initial='windows'
+    )
+    is_active = forms.ChoiceField(
+        choices=[(True, 'Allocated'), (False, 'Non-allocated')],
+        widget=forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_is_active'})
+    )
+    
     class Meta:
         model = SystemDetail
         fields = [
-            'employee', 'department', 'cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor', 'cpu_label_no',
+            'system_type', 'employee', 'department', 'macaddress', 'cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor', 'cpu_label_no',
             'screen_company_name', 'screen_label_no', 'screen_size',
             'keyboard_company_name', 'keyboard_label_no',
             'mouse_company_name', 'mouse_label_no',
@@ -18,6 +28,7 @@ class SystemDetailForm(forms.ModelForm):
         widgets = {
             'employee': forms.Select(attrs={'class': 'form-select', 'id': 'id_employee'}),
             'department': forms.Select(attrs={'class': 'form-select', 'id': 'id_department'}),
+            'macaddress': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '00:1B:44:11:3A:B7', 'id': 'mac_address_field'}),
             'cpu_ram': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 16GB DDR4'}),
             'cpu_storage': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 512GB SSD'}),
             'cpu_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Dell, HP'}),
@@ -41,8 +52,6 @@ class SystemDetailForm(forms.ModelForm):
             'has_extender': forms.Select(choices=[(False, 'No'), (True, 'Yes')], attrs={'class': 'form-select', 'id': 'id_has_extender'}),
             'extender_label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label'}),
             'extender_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Name'}),
-            
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -51,6 +60,9 @@ class SystemDetailForm(forms.ModelForm):
         self.fields['department'].required = False
         # Remove readonly to allow submission, but keep it visually readonly with JavaScript
         self.fields['department'].widget.attrs['style'] = 'background-color: #e9ecef;'
+        
+        # Make macaddress not required
+        self.fields['macaddress'].required = False
         
         # Make headphone fields not required initially
         self.fields['headphone_company_name'].required = False
@@ -64,6 +76,14 @@ class SystemDetailForm(forms.ModelForm):
         cleaned_data = super().clean()
         has_headphone = cleaned_data.get('has_headphone')
         has_extender = cleaned_data.get('has_extender')
+        macaddress = cleaned_data.get('macaddress')
+        
+        # Validate MAC address format if provided
+        if macaddress:
+            import re
+            mac_pattern = r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$'
+            if not re.match(mac_pattern, macaddress):
+                self.add_error('macaddress', 'Enter a valid MAC address (e.g., 00:1B:44:11:3A:B7)')
         
         # Validate headphone fields if has_headphone is True
         if has_headphone:
@@ -157,8 +177,8 @@ class SystemRequirementForm(forms.ModelForm):
             'estimated_cost': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
             'priority': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
-            'order_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'expected_delivery_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'order_date': forms.DateInput(attrs={'class': 'form-control input modern-form-control','placeholder': 'DD/MM/YYYY', 'type': 'date'}),
+            'expected_delivery_date': forms.DateInput(attrs={'class': 'form-control input modern-form-control','placeholder': 'DD/MM/YYYY', 'type': 'date'}),
             'vendor_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Vendor/supplier name'}),
             
             # Other Device Fields

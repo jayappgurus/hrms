@@ -2,7 +2,7 @@ from django import forms
 from datetime import date
 from django.core.validators import RegexValidator, EmailValidator
 from django.contrib.auth.models import User
-from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday, DeviceRequest
+from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday, DeviceRequest, AccountManagement
 
 class EmergencyContactForm(forms.ModelForm):
     class Meta:
@@ -68,17 +68,17 @@ class EmployeeForm(forms.ModelForm):
             'joining_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'placeholder': 'YYYY-MM-DD'
+                'placeholder': 'DD/MM/YYYY'
             }),
             'probation_end_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'placeholder': 'YYYY-MM-DD'
+                'placeholder': 'DD/MM/YYYY'
             }),
             'relieving_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'placeholder': 'YYYY-MM-DD'
+                'placeholder': 'DD/MM/YYYY'
             }),
             'employment_status': forms.Select(attrs={'class': 'form-select'}),
             'current_ctc': forms.NumberInput(attrs={
@@ -115,13 +115,13 @@ class EmployeeForm(forms.ModelForm):
             'date_of_birth': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'placeholder': 'YYYY-MM-DD'
+                'placeholder': 'DD/MM/YYYY'
             }),
             'marital_status': forms.Select(attrs={'class': 'form-select'}),
             'anniversary_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'placeholder': 'YYYY-MM-DD'
+                'placeholder': 'DD/MM/YYYY'
             }),
             'highest_qualification': forms.Select(attrs={
                 'class': 'form-select'
@@ -413,12 +413,14 @@ class LeaveApplicationForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'id': 'id_start_date'
+                'id': 'id_start_date',
+                'placeholder': 'DD/MM/YYYY'
             }),
             'end_date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'id': 'id_end_date'
+                'id': 'id_end_date',
+                'placeholder': 'DD/MM/YYYY'
             }),
             'reason': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -504,7 +506,7 @@ class PublicHolidayForm(forms.ModelForm):
             'date': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date',
-                'placeholder': 'YYYY-MM-DD'
+                'placeholder': 'DD/MM/YYYY'
             }),
             'year': forms.NumberInput(attrs={
                 'class': 'modern-form-control',
@@ -618,3 +620,77 @@ class DeviceRequestForm(forms.ModelForm):
         self.fields['device'].queryset = Device.objects.filter(status='available')
         self.fields['device'].empty_label = "Select specific available unit (Optional)..."
         self.fields['device'].required = False
+
+
+class AccountManagementForm(forms.ModelForm):
+    """
+    Form for managing account credentials
+    """
+    class Meta:
+        model = AccountManagement
+        fields = [
+            'name', 'email', 'email_password', 'teams', 'teams_password',
+            'basecamp_password', 'system_password', 'github', 'github_password',
+            'notes', 'is_active'
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter account holder name or service name'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter email address'
+            }),
+            'email_password': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter email password'
+            }),
+            'teams': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter Microsoft Teams username'
+            }),
+            'teams_password': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter Microsoft Teams password'
+            }),
+            'basecamp_password': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter Basecamp password'
+            }),
+            'system_password': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter system/login password'
+            }),
+            'github': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter GitHub username'
+            }),
+            'github_password': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter GitHub password'
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Enter any additional notes'
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add help text to fields
+        self.fields['name'].help_text = "Account holder name or service name"
+        self.fields['email'].help_text = "Email address associated with the account"
+        self.fields['email_password'].help_text = "Email account password"
+        self.fields['teams'].help_text = "Microsoft Teams username or identifier"
+        self.fields['teams_password'].help_text = "Microsoft Teams password"
+        self.fields['basecamp_password'].help_text = "Basecamp account password"
+        self.fields['system_password'].help_text = "System/login password"
+        self.fields['github'].help_text = "GitHub username"
+        self.fields['github_password'].help_text = "GitHub password"
+        self.fields['notes'].help_text = "Additional notes or comments"
+        self.fields['is_active'].help_text = "Whether this account is currently active"

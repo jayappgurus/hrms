@@ -327,13 +327,30 @@ class CurrentOpeningsView(LoginRequiredMixin, ListView):
     paginate_by = 9
 
     def get_queryset(self):
-        return JobDescription.objects.filter(
+        queryset = JobDescription.objects.filter(
             status='active'
-        ).select_related('designation', 'department').order_by('-created_at')
+        ).select_related('designation', 'department')
+        
+        # Apply filters
+        department = self.request.GET.get('department')
+        if department:
+            queryset = queryset.filter(department_id=department)
+        
+        employment_type = self.request.GET.get('employment_type')
+        if employment_type:
+            queryset = queryset.filter(employment_type=employment_type)
+        
+        experience_level = self.request.GET.get('experience_level')
+        if experience_level:
+            queryset = queryset.filter(experience_level=experience_level)
+        
+        return queryset.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['total_openings'] = self.get_queryset().count()
+        context['total_openings'] = JobDescription.objects.filter(status='active').count()
+        context['departments'] = Department.objects.all().order_by('name')
+        context['job_form'] = JobDescriptionForm()
         return context
 
 #     ====== INTERVIEW MANAGEMENT VIEWS     ======

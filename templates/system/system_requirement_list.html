@@ -168,7 +168,7 @@
             </div>
             <div class="col-md-3">
                 <label class="form-label small text-muted">Status</label>
-                <select name="status" class="form-select">
+                <select name="status" class="form-select modern-form-control modern-form-select">
                     <option value="">All Status</option>
                     <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
                     <option value="approved" {% if status == 'approved' %}selected{% endif %}>Approved</option>
@@ -180,7 +180,7 @@
             </div>
             <div class="col-md-2">
                 <label class="form-label small text-muted">Priority</label>
-                <select name="priority" class="form-select">
+                <select name="priority" class="form-select modern-form-control modern-form-select">
                     <option value="">All Priority</option>
                     <option value="low" {% if priority == 'low' %}selected{% endif %}>Low</option>
                     <option value="medium" {% if priority == 'medium' %}selected{% endif %}>Medium</option>

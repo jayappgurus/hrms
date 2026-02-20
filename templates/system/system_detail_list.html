@@ -139,7 +139,7 @@
                         <i class="bi bi-check-circle"></i>
                     </div>
                     <div class="ms-3 flex-grow-1">
-                        <p class="text-muted mb-1 small">Active Systems</p>
+                        <p class="text-muted mb-1 small">Allocated Systems</p>
                         <h3 class="mb-0">{{ active_systems }}</h3>
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                         <i class="bi bi-arrow-return-left"></i>
                     </div>
                     <div class="ms-3 flex-grow-1">
-                        <p class="text-muted mb-1 small">Returned Systems</p>
+                        <p class="text-muted mb-1 small">Non-allocated Systems</p>
                         <h3 class="mb-0">{{ total_systems|add:"-"|add:active_systems }}</h3>
                     </div>
                 </div>
@@ -169,10 +169,10 @@
             </div>
             <div class="col-md-3">
                 <label class="form-label small text-muted">Status</label>
-                <select name="status" class="form-select">
+                <select name="status" class="form-select modern-form-control modern-form-select">
                     <option value="">All Status</option>
-                    <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
-                    <option value="returned" {% if status == 'returned' %}selected{% endif %}>Returned</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>Allocated</option>
+                    <option value="returned" {% if status == 'returned' %}selected{% endif %}>Non-allocated</option>
                 </select>
             </div>
             <div class="col-md-4 text-end">
@@ -194,7 +194,6 @@
                 <thead>
                     <tr>
                         <th>Employee</th>
-                        <th>Department</th>
                         <th>CPU Details</th>
                         <th>Screen</th>
                         <th>Peripherals</th>
@@ -207,17 +206,27 @@
                     {% for system in systems %}
                     <tr>
                         <td>
-                            <div>
-                                <strong>{{ system.employee.full_name }}</strong><br>
-                                <small class="text-muted">{{ system.employee.employee_code }}</small>
+                            <div class="d-flex align-items-center">
+                                <div class="employee-avatar-square me-3">
+                                    {%if system.system_type == "windows" %}
+                                        <i class="bi bi-windows fs-4"></i>
+                                    {% elif system.system_type == "mac" %}
+                                        <i class="bi bi-apple fs-4"></i>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <strong>{{ system.employee.full_name }}</strong><br>
+                                    <small class="text-muted">{{ system.employee.employee_code }}</small>
+                                    <br>
+                                    {% if system.department %}
+                                    <span class="badge bg-info">{{ system.department.name }}</span>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </div>
                             </div>
-                        </td>
-                        <td>
-                            {% if system.department %}
-                            <span class="badge bg-info">{{ system.department.name }}</span>
-                            {% else %}
-                            <span class="text-muted">-</span>
-                            {% endif %}
                         </td>
                         <td>
                             <div>
@@ -251,9 +260,9 @@
                         </td>
                         <td>
                             {% if system.is_active %}
-                            <span class="badge bg-success">Active</span>
+                            <span class="badge bg-success">Allocated</span>
                             {% else %}
-                            <span class="badge bg-warning">Returned</span>
+                            <span class="badge bg-warning">Non-allocated</span>
                             {% if system.return_date %}
                             <br><small class="text-muted">{{ system.return_date|date:"d M Y" }}</small>
                             {% endif %}
@@ -264,7 +273,7 @@
                                 <a href="{% url 'employees:system_detail_view' system.pk %}" class="btn btn-outline-info btn-action" title="View">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{% url 'employees:system_detail_edit' system.pk %}" class="btn btn-outline-primary btn-action" title="Edit">
+                                <a href="{% url 'employees:system_detail_edit' system.pk %}" class="btn btn-outline-secondary btn-action" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <a href="{% url 'employees:system_detail_delete' system.pk %}" class="btn btn-outline-danger btn-action" title="Delete">

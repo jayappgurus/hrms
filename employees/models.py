@@ -1230,7 +1230,20 @@ class SystemDetail(models.Model):
 
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True, related_name='system_details')
 
-    
+    system_type = models.CharField(
+        max_length=10,
+        choices=[('windows', 'Windows'), ('mac', 'MAC')],
+        default='windows',
+        help_text="Type of system (Windows or MAC)"
+    )
+
+    # MAC Address (Optional)
+    macaddress = models.CharField(
+        max_length=17,
+        blank=True,
+        null=True,
+        help_text="MAC Address (e.g., 00:1B:44:11:3A:B7)"
+    )
 
     # CPU Details
 
@@ -1676,3 +1689,30 @@ class DeviceRequest(models.Model):
 
     def __str__(self):
         return f"{self.employee.full_name} - {self.get_device_type_display()} ({self.get_status_display()})"
+
+
+class AccountManagement(models.Model):
+    """
+    Model to store various account credentials and access information
+    """
+    name = models.CharField(max_length=100, help_text="Account holder name or service name")
+    email = models.EmailField(help_text="Email address associated with the account")
+    email_password = models.CharField(max_length=255, help_text="Email account password")
+    teams = models.CharField(max_length=255, blank=True, help_text="Microsoft Teams username or identifier")
+    teams_password = models.CharField(max_length=255, blank=True, help_text="Microsoft Teams password")
+    basecamp_password = models.CharField(max_length=255, blank=True, help_text="Basecamp account password")
+    system_password = models.CharField(max_length=255, help_text="System/login password")
+    github = models.CharField(max_length=255, blank=True, help_text="GitHub username")
+    github_password = models.CharField(max_length=255, blank=True, help_text="GitHub password")
+    notes = models.TextField(blank=True, help_text="Additional notes or comments")
+    is_active = models.BooleanField(default=True, help_text="Whether this account is currently active")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Account Management"
+        verbose_name_plural = "Account Management"
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} - {self.email}"

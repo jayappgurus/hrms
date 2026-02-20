@@ -197,8 +197,8 @@
                         </div>
 
                         <div class="col-md-2">
-                            <select name="department" class="form-control">
-                                <option value>All Departments</option>
+                            <select name="department" class="form-select modern-form-control modern-form-select">
+                                <option value="">All Departments</option>
                                 {% for department in departments %}
                                 <option value="{{ department.id }}" {% if request.GET.department == department.id|stringformat:'s' %}selected{% endif %}>
                                     {{ department.name }}
@@ -208,23 +208,27 @@
                         </div>
 
                         <div class="col-md-2">
-                            <select name="employment_type" class="form-control">
-                                <option value>All Types</option>
+                            <select name="employment_type" class="form-select modern-form-control modern-form-select">
+                                <option value="">All Types</option>
                                 {% for value, label in job_form.fields.employment_type.choices %}
+                                {% if value %}
                                 <option value="{{ value }}" {% if request.GET.employment_type == value %}selected{% endif %}>
                                     {{ label }}
                                 </option>
+                                {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
 
                         <div class="col-md-2">
-                            <select name="experience_level" class="form-control">
-                                <option value>All Levels</option>
+                            <select name="experience_level" class="form-select modern-form-control modern-form-select">
+                                <option value="">All Levels</option>
                                 {% for value, label in job_form.fields.experience_level.choices %}
+                                {% if value %}
                                 <option value="{{ value }}" {% if request.GET.experience_level == value %}selected{% endif %}>
                                     {{ label }}
                                 </option>
+                                {% endif %}
                                 {% endfor %}
                             </select>
                         </div>

@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Management - HRMS Portal{% endblock %}
+
+{% block page_title %}Account Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">Account Credentials Management</h4>
+            <p class="text-muted mb-0">Manage and store various account credentials and access information</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'employees:account_create' %}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i>Add New Account
+            </a>
+            <div class="dropdown">
+                <button type="button" class="btn btn-outline-secondary shadow-sm p-2" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <button type="button" class="btn btn-outline-success shadow-sm w-100" data-bs-toggle="modal" data-bs-target="#importModal">
+                            <i class="bi bi-upload me-2"></i>Import CSV
+                        </button>
+                    </li>
+                    <li class="mt-2">
+                        <a href="{% url 'employees:account_export_csv' %}" class="btn btn-outline-info shadow-sm w-100">
+                            <i class="bi bi-download me-2"></i>Export CSV
+                        </a>
+                    </li>
+                    <li class="mt-2">
+                        <a href="{% url 'employees:account_sample_csv' %}" class="btn btn-outline-warning shadow-sm w-100">
+                            <i class="bi bi-file-earmark-text me-2"></i>Sample CSV
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="mt-2">
+                        <button type="button" class="btn btn-outline-success shadow-sm w-100" onclick="deleteSelected()">
+                            <i class="bi bi-trash me-2"></i>Delete Selected
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card mb-4 border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3">
+                <div class="col-md-10">
+                    <label class="form-label small fw-bold text-muted">Search Accounts</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" name="search" class="form-control border-start-0" 
+                               placeholder="Search by name, email, teams, or github..." 
+                               value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Accounts Table -->
+    <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                <label class="form-check-label" for="selectAll"></label>
+                            </div>
+                        </th>
+                        <th class="ps-4">Name</th>
+                        <th>Teams</th>
+                        <th>GitHub</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for account in accounts %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="form-check">
+                                <input class="form-check-input account-checkbox" type="checkbox" name="selected_accounts" value="{{ account.pk }}" onchange="updateBulkActions()">
+                                <label class="form-check-label" for="account_{{ account.pk }}"></label>
+                            </div>
+                        </td>
+                        <td class="ps-4">
+                            <div class="fw-bold">{{ account.name }}</div>
+                            {% if account.notes %}
+                            <small class="text-muted">{{ account.notes|truncatechars:50 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if account.teams %}
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-microsoft-teams text-muted me-2"></i>
+                                <span>{{ account.teams }}</span>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if account.github %}
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-github text-muted me-2"></i>
+                                <span>{{ account.github }}</span>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if account.is_active %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3">
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3">
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ account.created_at|date:"d M Y" }}</small>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'employees:account_edit' account.pk %}" 
+                                   class="btn btn-sm btn-outline-primary border shadow-sm px-3">
+                                    <i class="bi bi-pencil text-primary me-1"></i> Edit
+                                </a>
+                                <a href="{% url 'employees:account_delete' account.pk %}" 
+                                   class="btn btn-sm btn-outline-danger border shadow-sm px-3"
+                                   onclick="return confirmDelete('{{ account.name }}')">
+                                    <i class="bi bi-trash text-danger me-1"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="bi bi-shield-lock fs-1 d-block mb-3"></i>
+                                <h5 class="fw-bold">No accounts found</h5>
+                                <p class="small">Start by adding your first account credential.</p>
+                                <a href="{% url 'employees:account_create' %}" class="btn btn-primary mt-2">
+                                    <i class="bi bi-plus-circle me-2"></i>Add First Account
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div class="text-muted small">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} accounts
+        </div>
+        <nav>
+            <ul class="pagination mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Import CSV Modal -->
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-upload me-2"></i>Import Accounts from CSV
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>CSV Format:</strong> Please ensure your CSV file has the following columns in order:
+                    <br>Name, Email, Email Password, Teams, Teams Password, Basecamp Password, System Password, GitHub, GitHub Password, Notes
+                </div>
+                
+                <form method="post" enctype="multipart/form-data" id="importForm" action="{% url 'employees:account_import_csv' %}">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Select CSV File</label>
+                            <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+                            <div class="help-text small text-muted mt-1">
+                                Only CSV files are allowed. Maximum file size: 10MB
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="skip_duplicates" id="skipDuplicates">
+                                <label class="form-check-label" for="skipDuplicates">
+                                    Skip duplicate accounts (based on email)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-success" onclick="document.getElementById('importForm').submit()">
+                    <i class="bi bi-upload me-2"></i>Import Accounts
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.d-flex.gap-2 > * {
+    margin-right: 0.5rem;
+}
+
+.d-flex.gap-2 > *:last-child {
+    margin-right: 0;
+}
+
+.modal-lg {
+    max-width: 600px;
+}
+
+.help-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle file validation
+    const fileInput = document.querySelector('input[name="csv_file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file extension
+                if (!file.name.toLowerCase().endsWith('.csv')) {
+                    alert('Please select a CSV file.');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Check file size (10MB limit)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File size must be less than 10MB.');
+                    e.target.value = '';
+                    return;
+                }
+            }
+        });
+    }
+});
+
+function confirmDelete(accountName) {
+    if (confirm(`Are you sure you want to delete the account for "${accountName}"?\n\nThis action cannot be undone and will permanently remove all account credentials.`)) {
+        return true;
+    }
+    return false;
+}
+
+function toggleSelectAll() {
+    const checkboxes = document.querySelectorAll('.account-checkbox');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const isChecked = selectAllCheckbox.checked;
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+    });
+    
+    // Update select all checkbox state
+    updateBulkActions();
+}
+
+function deselectAll() {
+    const checkboxes = document.querySelectorAll('.account-checkbox');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    selectAllCheckbox.checked = false;
+    updateBulkActions();
+}
+
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.account-checkbox:checked');
+    const deleteBtn = document.querySelector('[onclick="deleteSelected()"]');
+    const exportBtn = document.querySelector('[onclick="exportSelected()"]');
+    
+    // Enable/disable bulk actions based on selection
+    if (checkboxes.length > 0) {
+        deleteBtn.disabled = false;
+        exportBtn.disabled = false;
+    } else {
+        deleteBtn.disabled = true;
+        exportBtn.disabled = true;
+    }
+}
+
+function deleteSelected() {
+    const checkboxes = document.querySelectorAll('.account-checkbox:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('Please select at least one account to delete.');
+        return;
+    }
+    
+    const accountNames = Array.from(checkboxes).map(cb => {
+        const row = cb.closest('tr');
+        const nameCell = row.querySelector('.fw-bold');
+        return nameCell ? nameCell.textContent.trim() : '';
+    }).filter(name => name);
+    
+    if (accountNames.length > 0) {
+        const namesList = accountNames.join(', ');
+        if (confirm(`Are you sure you want to delete the following accounts?\n\n${namesList}\n\nThis action cannot be undone and will permanently remove all account credentials.`)) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "employees:account_bulk_delete" %}';
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            // Add selected account IDs
+            checkboxes.forEach(checkbox => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'selected_accounts';
+                input.value = checkbox.value;
+                form.appendChild(input);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
+
+function exportSelected() {
+    const checkboxes = document.querySelectorAll('.account-checkbox:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('Please select at least one account to export.');
+        return;
+    }
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "employees:account_bulk_export" %}';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // Add selected account IDs
+    checkboxes.forEach(checkbox => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'selected_accounts';
+        input.value = checkbox.value;
+        form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize bulk actions state
+    updateBulkActions();
+});
+</script>
+{% endblock %}

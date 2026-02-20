@@ -69,7 +69,7 @@
 
                             <div class="mb-3">
                                 <label for="role" class="form-label">Role</label>
-                                <select name="role" id="role" class="form-select" required>
+                                <select name="role" id="role" class="form-select modern-form-control modern-form-select" required>
                                     <option value="">Select Role</option>
                                     {% for role_value, role_label in role_choices %}
                                         <option value="{{ role_value }}">{{ role_label }}</option>
@@ -79,7 +79,7 @@
 
                             <div class="mb-3">
                                 <label for="department" class="form-label">Department</label>
-                                <select name="department" id="department" class="form-select">
+                                <select name="department" id="department" class="form-select modern-form-control modern-form-select">
                                     <option value="">Select Department</option>
                                     {% for dept in departments %}
                                         <option value="{{ dept.id }}">{{ dept.name }}</option>

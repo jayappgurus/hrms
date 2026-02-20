@@ -53,11 +53,20 @@
                                         {% endif %}
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.system_type.id_for_label }}" class="form-label">System Type <span class="text-danger">*</span></label>
+                                        {{ form.system_type }}
+                                        {% if form.system_type.errors %}
+                                        <div class="text-danger small mt-1">{{ form.system_type.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- CPU Details -->
-                        <div class="form-section mb-4">
+                        <!-- CPU Details (Windows Only) -->
+                        <div class="form-section mb-4" id="cpu-details-section">
                             <div class="form-section-header mb-3">
                                 <div class="form-section-icon">
                                     <i class="bi bi-cpu"></i>
@@ -101,12 +110,22 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="{{ form.cpu_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
                                         {{ form.cpu_label_no }}
                                         {% if form.cpu_label_no.errors %}
                                         <div class="text-danger small mt-1">{{ form.cpu_label_no.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6" id="mac-details-section" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="mac_address_field" class="form-label">MAC Address <span class="text-danger">*</span></label>
+                                        {{ form.macaddress }}
+                                        <small class="form-text text-muted">Format: 00:1B:44:11:3A:B7</small>
+                                        {% if form.macaddress.errors %}
+                                        <div class="text-danger small mt-1">{{ form.macaddress.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -294,14 +313,13 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="col-md-12">
-                                        <div class="mb-3">
-                                            <div class="form-check">
-                                                {{ form.is_active }}
-                                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                                    Is Active
-                                                </label>
-                                            </div>
+                                    <div class="col-md-3">
+                                        <div class="modern-form-group">
+                                            <label for="{{ form.is_active.id_for_label }}" class="modern-form-label">Allocation Status</label>
+                                            {{ form.is_active }}
+                                            {% if form.is_active.errors %}
+                                            <div class="text-danger small mt-1">{{ form.is_active.errors.0 }}</div>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -330,10 +348,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const extenderFields = document.getElementById('extenderFields');
     const employeeSelect = document.getElementById('id_employee');
     const departmentSelect = document.getElementById('id_department');
+    const systemTypeSelect = document.getElementById('id_system_type');
 
     // Make department field readonly
     departmentSelect.setAttribute('readonly', 'readonly');
     departmentSelect.style.pointerEvents = 'none';
+
+    // Initialize system type fields
+    toggleSystemTypeFields();
+
+    // Add event listener for system type change
+    systemTypeSelect.addEventListener('change', toggleSystemTypeFields);
 
     // Employee data with departments
     const employeeData = {
@@ -363,6 +388,23 @@ document.addEventListener('DOMContentLoaded', function() {
             departmentSelect.value = '';
             departmentSelect.setAttribute('readonly', 'readonly');
             departmentSelect.style.pointerEvents = 'none';
+        }
+    }
+
+    // Toggle system type fields
+    function toggleSystemTypeFields() {
+        const systemType = document.getElementById('id_system_type').value;
+        const macDetails = document.getElementById('mac-details-section');
+        const cpuCompanyNameField = document.getElementById('id_cpu_company_name');
+        
+        if (systemType === 'windows') {
+            macDetails.style.display = 'none';
+            // Clear CPU company name for Windows (user can set it manually)
+            cpuCompanyNameField.value = '';
+        } else if (systemType === 'mac') {
+            macDetails.style.display = 'block';
+            // Set CPU company name to "Mac" for MAC systems
+            cpuCompanyNameField.value = 'Mac';
         }
     }
 

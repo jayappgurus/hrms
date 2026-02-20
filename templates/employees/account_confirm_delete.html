@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Account - HRMS Portal{% endblock %}
+
+{% block page_title %}Delete Account{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                <div class="card-body p-5">
+                    <div class="text-center">
+                        <div class="mb-4">
+                            <div class="bg-danger bg-opacity-10 rounded-circle p-4 d-inline-block">
+                                <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
+                            </div>
+                        </div>
+                        
+                        <h4 class="fw-bold mb-3">Confirm Account Deletion</h4>
+                        
+                        <p class="text-muted mb-4">
+                            Are you sure you want to delete the account for <strong>{{ account.name }}</strong>?
+                        </p>
+                        
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-shield-exclamation me-2"></i>
+                            <strong>Warning:</strong> This action cannot be undone and will permanently remove all account credentials.
+                        </div>
+                        
+                        <div class="account-details bg-light p-3 rounded mb-4">
+                            <h6 class="fw-bold mb-2">Account Details:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Email:</strong><br>
+                                    <code>{{ account.email }}</code>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Teams:</strong><br>
+                                    {{ account.teams|default:"-" }}
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>GitHub:</strong><br>
+                                    {{ account.github|default:"-" }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Status:</strong><br>
+                                    {% if account.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <form method="post" action="{% url 'employees:account_delete' account.pk %}" class="mt-4">
+                            {% csrf_token %}
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-trash me-2"></i>Delete Account
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-danger.bg-opacity-10 {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.account-details {
+    border-left: 4px solid #dee2e6;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn {
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.d-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+</style>
+{% endblock %}

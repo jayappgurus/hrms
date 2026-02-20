@@ -13,16 +13,13 @@
             {% if form.instance.pk %}Edit Holiday{% else %}Add Holiday{% endif %}
         </h1>
         <p class="page-subtitle">
-            {% if form.instance.pk %}Update holiday information{% else %}Add a new public holiday to the calendar{%
-            endif %}
+            {% if form.instance.pk %}Update holiday information{% else %}Add a new public holiday to the calendar{% endif %}
         </p>
     </div>
     <a href="{% url 'employees:public_holidays' %}" class="btn btn-outline-secondary">
         <i class="bi bi-arrow-left me-2"></i>Back to Holidays
     </a>
 </div>
-
-<!-- Holiday Form -->
 <div class="modern-card">
     <div class="modern-card-body">
         <form method="post" id="holidayForm">
@@ -127,7 +124,6 @@
         const dayInput = document.querySelector('[name="day"]');
         const yearInput = document.querySelector('[name="year"]');
 
-        // Auto-calculate day and year when date changes
         if (dateInput) {
             dateInput.addEventListener('change', function () {
                 if (this.value) {
@@ -140,16 +136,12 @@
                         dayInput.value = dayName;
                         console.log('Day set to:', dayName);
                     }
-
-                    // Auto-set year from date (always update)
                     if (yearInput) {
                         yearInput.value = date.getFullYear();
                         console.log('Year set to:', date.getFullYear());
                     }
                 }
             });
-
-            // Also listen to input event for better responsiveness
             dateInput.addEventListener('input', function () {
                 if (this.value) {
                     const date = new Date(this.value);
@@ -167,8 +159,6 @@
                     }
                 }
             });
-
-            // Trigger change event on page load if date has value
             if (dateInput.value) {
                 dateInput.dispatchEvent(new Event('change'));
             }

@@ -12,6 +12,8 @@ from . import views_system
 from . import views_performance
 from . import views_api
 from . import views_assignment
+from . import views_account_management
+from . import views_system_management
 app_name = 'employees'
 urlpatterns = [
      
@@ -177,6 +179,27 @@ urlpatterns = [
     path('system/requirements/<int:pk>/delete/', views_system.SystemRequirementDeleteView.as_view(), name='system_requirement_delete'),
     path('system/requirements/<int:pk>/approve/', views_system.approve_system_requirement, name='approve_system_requirement'),
     path('system/requirements/<int:pk>/reject/', views_system.reject_system_requirement, name='reject_system_requirement'),
+
+    # Account Management
+    path('account-management/', views_account_management.account_management, name='account_management'),
+    path('account-management/create/', views_account_management.account_create, name='account_create'),
+    path('account-management/<int:pk>/edit/', views_account_management.account_edit, name='account_edit'),
+    path('account-management/<int:pk>/delete/', views_account_management.account_delete, name='account_delete'),
+    path('account-management/import/', views_account_management.account_import_csv, name='account_import_csv'),
+    path('account-management/export/', views_account_management.account_export_csv, name='account_export_csv'),
+    path('account-management/sample/', views_account_management.account_sample_csv, name='account_sample_csv'),
+    path('account-management/bulk-delete/', views_account_management.account_bulk_delete, name='account_bulk_delete'),
+    path('account-management/bulk-export/', views_account_management.account_bulk_export, name='account_bulk_export'),
+
+    # System Management Dashboard
+    path('system-management/', views_system_management.system_management, name='system_management'),
+    path('api/system-details/', views_system_management.get_system_details, name='api_system_details'),
+    path('api/employees-for-assignment/', views_system_management.get_employees_for_assignment, name='api_employees_for_assignment'),
+    path('api/assign-system/', views_system_management.assign_system, name='api_assign_system'),
+    path('api/mac-systems-assignments/', views_system_management.get_mac_systems_assignments, name='api_mac_systems_assignments'),
+    path('api/windows-systems-assignments/', views_system_management.get_windows_systems_assignments, name='api_windows_systems_assignments'),
+    path('export/mac-systems-csv/', views_system_management.export_mac_systems_csv, name='export_mac_systems_csv'),
+    path('export/windows-systems-csv/', views_system_management.export_windows_systems_csv, name='export_windows_systems_csv'),
 
 ]
 

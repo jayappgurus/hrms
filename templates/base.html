@@ -146,17 +146,31 @@
                                     href="{% url 'employees:system_detail_list' %}">
                                     <span>System Details</span>
                                 </a></li>
-                            <li class="mt-2"><a
+                            <!-- <li class="mt-2"><a
                                     class="{% if 'mac_address' in request.resolver_match.url_name %}active{% endif %}"
                                     href="{% url 'employees:mac_address_list' %}">
                                     <span>MAC Address Details</span>
-                                </a></li>
+                                </a></li> -->
                             <li class="mt-2"><a
                                     class="{% if 'system_requirement' in request.resolver_match.url_name %}active{% endif %}"
                                     href="{% url 'employees:system_requirement_list' %}">
                                     <span>System Requirements</span>
                                 </a></li>
                         </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'system_management' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:system_management' %}">
+                            <i class="bi bi-hdd-network"></i>
+                            <span>System Management</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'account_management' in request.resolver_match.url_name %}active{% endif %}"
+                            href="{% url 'employees:account_management' %}">
+                            <i class="bi bi-person"></i>
+                            <span>Account Management</span>
+                        </a>
                     </li>
                     <li class="nav-label">Recruitment</li>
                     <li class="nav-item">

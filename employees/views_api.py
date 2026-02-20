@@ -189,8 +189,8 @@ def api_employee_detail(request, employee_id):
             leave_applications_data.append({
                 'id': leave.id,
                 'leave_type': leave.leave_type.name,
-                'start_date': leave.start_date.isoformat(),
-                'end_date': leave.end_date.isoformat(),
+                'start_date': leave.start_date.strftime('%Y-%m-%d'),
+                'end_date': leave.end_date.strftime('%Y-%m-%d'),
                 'total_days': float(leave.total_days),
                 'status': leave.status,
                 'reason': leave.reason[:100] + '...' if len(leave.reason) > 100 else leave.reason,
@@ -242,9 +242,9 @@ def api_employee_detail(request, employee_id):
                 'name': employee.designation.name,
                 'description': employee.designation.description
             } if employee.designation else None,
-            'joining_date': employee.joining_date.isoformat(),
-            'probation_end_date': employee.probation_end_date.isoformat() if employee.probation_end_date else None,
-            'relieving_date': employee.relieving_date.isoformat() if employee.relieving_date else None,
+            'joining_date': employee.joining_date.strftime('%d/%m/%Y'),
+            'probation_end_date': employee.probation_end_date.strftime('%d/%m/%Y') if employee.probation_end_date else None,
+            'relieving_date': employee.relieving_date.strftime('%d/%m/%Y') if employee.relieving_date else None,
             'employment_status': employee.employment_status,
             'current_ctc': float(employee.current_ctc),
             'salary_structure': employee.salary_structure,
@@ -256,10 +256,10 @@ def api_employee_detail(request, employee_id):
                 'permanent_address': employee.permanent_address
             },
             'personal_info': {
-                'date_of_birth': employee.date_of_birth.isoformat(),
+                'date_of_birth': employee.date_of_birth.strftime('%d/%m/%Y'),
                 'age': employee.age,
                 'marital_status': employee.marital_status,
-                'anniversary_date': employee.anniversary_date.isoformat() if employee.anniversary_date else None
+                'anniversary_date': employee.anniversary_date.strftime('%d/%m/%Y') if employee.anniversary_date else None
             },
             'professional_info': {
                 'highest_qualification': employee.highest_qualification,

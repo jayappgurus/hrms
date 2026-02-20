@@ -272,19 +272,29 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label required-field">{{ form.start_date.label }}</label>
-                    {{ form.start_date }}
-                    {% if form.start_date.errors %}
-                    <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
-                    {% endif %}
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.start_date.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            {{ form.start_date }}
+                        </div>
+                        {% if form.start_date.errors %}
+                        <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label required-field">{{ form.end_date.label }}</label>
-                    {{ form.end_date }}
-                    {% if form.end_date.errors %}
-                    <div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>
-                    {% endif %}
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.end_date.label }}</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            {{ form.end_date }}
+                        </div>
+                        {% if form.end_date.errors %}
+                        <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="col-md-12">
