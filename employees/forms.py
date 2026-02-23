@@ -2,7 +2,7 @@ from django import forms
 from datetime import date
 from django.core.validators import RegexValidator, EmailValidator
 from django.contrib.auth.models import User
-from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday, DeviceRequest, AccountManagement
+from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday, DeviceRequest, AccountManagement, Device
 
 class EmergencyContactForm(forms.ModelForm):
     class Meta:
@@ -83,7 +83,9 @@ class EmployeeForm(forms.ModelForm):
             'employment_status': forms.Select(attrs={'class': 'form-select'}),
             'current_ctc': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Current CTC'
+                'placeholder': 'Enter monthly CTC (e.g., 45000)',
+                'step': '0.01',
+                'min': '0'
             }),
             'salary_structure': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -351,14 +353,11 @@ class UserProfileForm(forms.ModelForm):
 class LeaveTypeForm(forms.ModelForm):
     class Meta:
         model = LeaveType
-        fields = ['name', 'leave_type', 'max_days_per_year', 'duration_type', 'is_paid', 'requires_document', 'description', 'is_active']
+        fields = ['name', 'max_days_per_year', 'duration_type', 'is_paid', 'requires_document', 'description', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter leave type name'
-            }),
-            'leave_type': forms.Select(attrs={
-                'class': 'form-control',
             }),
             'max_days_per_year': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -385,7 +384,6 @@ class LeaveTypeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].label = 'Leave Type Name'
-        self.fields['leave_type'].label = 'Leave Type Category'
         self.fields['max_days_per_year'].label = 'Maximum Days Per Year'
         self.fields['is_paid'].label = 'Paid Leave'
         self.fields['requires_document'].label = 'Document Required'
@@ -620,6 +618,71 @@ class DeviceRequestForm(forms.ModelForm):
         self.fields['device'].queryset = Device.objects.filter(status='available')
         self.fields['device'].empty_label = "Select specific available unit (Optional)..."
         self.fields['device'].required = False
+
+
+class DeviceForm(forms.ModelForm):
+    """
+    Form for Device model
+    """
+    class Meta:
+        model = Device
+        fields = ['device_type', 'device_name', 'serial_number', 'purchase_date', 'warranty_details']
+        widgets = {
+            'device_type': forms.Select(attrs={
+                'class': 'form-select modern-form-control modern-form-select'
+            }),
+            'device_name': forms.TextInput(attrs={
+                'class': 'form-control modern-form-control',
+                'placeholder': 'Enter device name'
+            }),
+            'serial_number': forms.TextInput(attrs={
+                'class': 'form-control modern-form-control',
+                'placeholder': 'Enter serial number'
+            }),
+            'purchase_date': forms.DateInput(attrs={
+                'class': 'form-control modern-form-control',
+                'type': 'date'
+            }),
+            'warranty_details': forms.Textarea(attrs={
+                'class': 'form-control modern-form-control',
+                'rows': 3,
+                'placeholder': 'Enter warranty details (optional)'
+            })
+        }
+
+
+class DeviceUpdateForm(forms.ModelForm):
+    """
+    Form for Device model (Update)
+    """
+    class Meta:
+        model = Device
+        fields = ['device_type', 'device_name', 'serial_number', 'purchase_date', 'warranty_details', 'status']
+        widgets = {
+            'device_type': forms.Select(attrs={
+                'class': 'form-select modern-form-control modern-form-select'
+            }),
+            'device_name': forms.TextInput(attrs={
+                'class': 'form-control modern-form-control',
+                'placeholder': 'Enter device name'
+            }),
+            'serial_number': forms.TextInput(attrs={
+                'class': 'form-control modern-form-control',
+                'placeholder': 'Enter serial number'
+            }),
+            'purchase_date': forms.DateInput(attrs={
+                'class': 'form-control modern-form-control',
+                'type': 'date'
+            }),
+            'warranty_details': forms.Textarea(attrs={
+                'class': 'form-control modern-form-control',
+                'rows': 3,
+                'placeholder': 'Enter warranty details (optional)'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-select modern-form-control modern-form-select'
+            })
+        }
 
 
 class AccountManagementForm(forms.ModelForm):

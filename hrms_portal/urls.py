@@ -30,4 +30,6 @@ urlpatterns = [
     path('accounts/logout/', custom_logout, name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('employees.urls')),
+    path('salary/', include('salary.urls')),
+    path('leave/', include('employees.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

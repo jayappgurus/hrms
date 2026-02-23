@@ -20,7 +20,7 @@
     </a>
 </div>
 
-<form method="post" id="jobForm" enctype="multipart/form-data" data-designations="{{ all_designations|safe }}">
+<form method="post" id="jobForm" enctype="multipart/form-data" data-designations="{{ all_designations|safe }}" data-validate data-validate-url="{% url 'employees:validate_job_description' %}"></form>
     {% csrf_token %}
 
     <!-- Basic Information -->
@@ -96,7 +96,7 @@
 
                 <div class="col-md-3">
                     <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.location.label }}</label>
+                        <label class="modern-form-label required">{{ form.location.label }}</label>
                         {{ form.location }}
                         {% if form.location.errors %}
                         <div class="text-danger small mt-1">{{ form.location.errors.0 }}</div>
@@ -126,7 +126,7 @@
 
                 <div class="col-md-3">
                     <div class="modern-form-group">
-                        <label class="modern-form-label">{{ form.work_mode.label }}</label>
+                        <label class="modern-form-label required">{{ form.work_mode.label }}</label>
                         {{ form.work_mode }}
                         {% if form.work_mode.errors %}
                         <div class="text-danger small mt-1">{{ form.work_mode.errors.0 }}</div>
@@ -295,24 +295,6 @@
         const jobForm = document.getElementById('jobForm');
         if (jobForm) {
             jobForm.addEventListener('submit', function (e) {
-                // Basic validation
-                const title = document.querySelector('[name="title"]');
-                const jobDescription = document.querySelector('[name="job_description"]');
-
-                if (!title || !title.value.trim()) {
-                    e.preventDefault();
-                    showWarning('Please enter a job title', 'Validation Error');
-                    title.focus();
-                    return false;
-                }
-
-                if (!jobDescription || !jobDescription.value.trim()) {
-                    e.preventDefault();
-                    showWarning('Please enter a job description', 'Validation Error');
-                    jobDescription.focus();
-                    return false;
-                }
-
                 // Show loading state
                 const submitBtn = document.querySelector('button[type="submit"]');
                 if (submitBtn) {

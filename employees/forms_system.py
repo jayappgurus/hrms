@@ -1,5 +1,5 @@
 from django import forms
-from .models import SystemDetail, MacAddress, SystemRequirement, Employee
+from .models import SystemDetail, SystemRequirement, Employee
 from django.contrib.auth.models import User
 
 
@@ -26,8 +26,8 @@ class SystemDetailForm(forms.ModelForm):
             'is_active'
         ]
         widgets = {
-            'employee': forms.Select(attrs={'class': 'form-select', 'id': 'id_employee'}),
-            'department': forms.Select(attrs={'class': 'form-select', 'id': 'id_department'}),
+            'employee': forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_employee'}),
+            'department': forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_department'}),
             'macaddress': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '00:1B:44:11:3A:B7', 'id': 'mac_address_field'}),
             'cpu_ram': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 16GB DDR4'}),
             'cpu_storage': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 512GB SSD'}),
@@ -45,11 +45,11 @@ class SystemDetailForm(forms.ModelForm):
             'mouse_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Logitech'}),
             'mouse_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique asset number'}),
             
-            'has_headphone': forms.Select(choices=[(False, 'No'), (True, 'Yes')], attrs={'class': 'form-select', 'id': 'id_has_headphone'}),
+            'has_headphone': forms.Select(choices=[(False, 'No'), (True, 'Yes')], attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_has_headphone'}),
             'headphone_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company name'}),
             'headphone_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label number'}),
             
-            'has_extender': forms.Select(choices=[(False, 'No'), (True, 'Yes')], attrs={'class': 'form-select', 'id': 'id_has_extender'}),
+            'has_extender': forms.Select(choices=[(False, 'No'), (True, 'Yes')], attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_has_extender'}),
             'extender_label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label'}),
             'extender_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Name'}),
         }
@@ -102,23 +102,6 @@ class SystemDetailForm(forms.ModelForm):
         return cleaned_data
 
 
-class MacAddressForm(forms.ModelForm):
-    class Meta:
-        model = MacAddress
-        fields = ['employee', 'mac_address']
-        widgets = {
-            'employee': forms.Select(attrs={'class': 'form-select'}),
-            'mac_address': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '00:1B:44:11:3A:B7',
-                'pattern': '([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})'
-            }),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['employee'].queryset = Employee.objects.filter(employment_status='active')
-        self.fields['employee'].required = True
 
 
 class SystemRequirementForm(forms.ModelForm):

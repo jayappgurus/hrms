@@ -4,8 +4,8 @@ from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 from django.utils.html import format_html
 from .models import (
     Department, Designation, EmergencyContact, Employee, EmployeeDocument, 
-    UserProfile, PublicHoliday, Notification, Message,
-    SystemDetail, MacAddress, SystemRequirement
+    UserProfile, PublicHoliday,
+    SystemDetail, SystemRequirement
 )
 from .decorators import role_required
 
@@ -258,22 +258,7 @@ class PublicHolidayAdmin(admin.ModelAdmin):
         }),
     )
 
-@admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
-    list_display = ('title', 'notification_type', 'created_by', 'created_at', 'is_active', 'target_all')
-    list_filter = ('notification_type', 'is_active', 'target_all', 'created_at')
-    search_fields = ('title', 'message')
-    filter_horizontal = ('target_users',)
-    readonly_fields = ('created_at',)
-
-@admin.register(Message)
-class MessageAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'sender', 'created_at', 'target_all')
-    list_filter = ('target_all', 'created_at')
-    search_fields = ('subject', 'body')
-    filter_horizontal = ('target_users',)
-    readonly_fields = ('created_at',)
-
+    
 
 # System Management Models
 
@@ -312,23 +297,6 @@ class SystemDetailAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(MacAddress)
-class MacAddressAdmin(admin.ModelAdmin):
-    list_display = ('employee', 'mac_address', 'created_at')
-    list_filter = ('created_at',)
-    search_fields = ('employee__full_name', 'employee__employee_code', 'mac_address')
-    readonly_fields = ('created_at', 'updated_at')
-    ordering = ('-created_at',)
-
-    fieldsets = (
-        ('MAC Address Information', {
-            'fields': ('employee', 'mac_address')
-        }),
-        ('System Information', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
 
 
 @admin.register(SystemRequirement)

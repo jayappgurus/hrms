@@ -82,7 +82,7 @@
         </div>
     </div>
 
-    <form method="post" id="interviewForm">
+    <form method="post" id="interviewForm" data-validate data-validate-url="{% url 'employees:validate_interview_schedule' %}">
         {% csrf_token %}
 
         <!-- Interview Details -->

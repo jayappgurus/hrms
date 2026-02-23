@@ -1,0 +1,548 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}User Management{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#bulkOperationModal">
+        <i class="bi bi-check2-square me-2"></i>Bulk Operations
+    </button>
+    <a href="{% url 'employees:user_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-2"></i>Add New User
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>{{ total_users }}</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon" style="background: #d4edda; color: #155724;">
+                    <i class="bi bi-person-check"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>{{ active_users }}</h3>
+                    <p>Active Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon" style="background: #f8d7da; color: #721c24;">
+                    <i class="bi bi-person-x"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>{{ inactive_users }}</h3>
+                    <p>Inactive Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-icon" style="background: #fff3cd; color: #856404;">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div class="stats-content">
+                    <h3>{{ staff_users }}</h3>
+                    <p>Staff Members</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search Users</label>
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Search by username, email, name..." 
+                           value="{{ search_query }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Role</label>
+                    <select name="role" class="form-select">
+                        <option value="">All Roles</option>
+                        {% for role_value, role_label in role_choices %}
+                            <option value="{{ role_value }}" {% if filters.role == role_value %}selected{% endif %}>
+                                {{ role_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Department</label>
+                    <select name="department" class="form-select">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if filters.department == dept.id|stringformat:"s" %}selected{% endif %}>
+                                {{ dept.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="active" {% if filters.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if filters.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-2"></i>Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-people me-2"></i>Users List
+                <span class="badge bg-secondary ms-2">{{ users|length }}</span>
+            </h5>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAll()">
+                    <i class="bi bi-check-all me-1"></i>Select All
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">
+                    <i class="bi bi-x-square me-1"></i>Deselect All
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th width="40">
+                                <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                            </th>
+                            <th>User</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selected_users" value="{{ user.id }}" 
+                                       class="user-checkbox" onchange="updateSelectAll()">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="employee-avatar">
+                                        {% if user.profile.employee.profile_picture %}
+                                            <img src="{{ user.profile.employee.profile_picture.url }}" 
+                                                 alt="{{ user.get_full_name }}" 
+                                                 style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% else %}
+                                            {{ user.get_full_name|default:user.username|slice:":2"|upper }}
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ user.get_full_name|default:user.username }}</div>
+                                        <small class="text-muted">@{{ user.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <code class="text-primary">{{ user.username }}</code>
+                            </td>
+                            <td>{{ user.email|default:"—" }}</td>
+                            <td>
+                                {% if user.profile %}
+                                    {% if user.profile.role == 'admin' %}
+                                        <span class="status-badge danger">
+                                            <i class="bi bi-shield-fill-check"></i> Admin
+                                        </span>
+                                    {% elif user.profile.role == 'hr' %}
+                                        <span class="status-badge warning">
+                                            <i class="bi bi-person-badge"></i> HR
+                                        </span>
+                                    {% elif user.profile.role == 'manager' %}
+                                        <span class="status-badge primary">
+                                            <i class="bi bi-briefcase"></i> Manager
+                                        </span>
+                                    {% elif user.profile.role == 'employee' %}
+                                        <span class="status-badge info">
+                                            <i class="bi bi-person"></i> Employee
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge secondary">
+                                            <i class="bi bi-question-circle"></i> {{ user.profile.get_role_display }}
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="status-badge secondary">
+                                        <i class="bi bi-dash-circle"></i> No Role
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.profile and user.profile.department %}
+                                    <span class="badge bg-light text-dark">
+                                        {{ user.profile.department.name }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.is_active %}
+                                    <span class="status-badge success">
+                                        <i class="bi bi-check-circle"></i> Active
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge danger">
+                                        <i class="bi bi-x-circle"></i> Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ user.date_joined|date:"M d, Y" }}</small>
+                            </td>
+                            <td class="text-end">
+                                <div class="table-actions justify-content-end">
+                                    <a href="{% url 'employees:user_update' user.pk %}" 
+                                       class="action-icon-btn" title="Edit User">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    
+                                    {% if user.is_superuser %}
+                                        <span class="action-icon-btn disabled" title="Cannot delete superuser">
+                                            <i class="bi bi-shield-check"></i>
+                                        </span>
+                                    {% else %}
+                                        <a href="#" class="action-icon-btn danger"
+                                           onclick="confirmDelete({{ user.pk }}, '{{ user.username }}')" 
+                                           title="Delete User">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    {% endif %}
+                                    
+                                    <a href="#" class="action-icon-btn"
+                                       onclick="toggleUserStatus({{ user.pk }}, '{{ user.username }}', {% if user.is_active %}false{% else %}true{% endif %})" 
+                                       title="{% if user.is_active %}Deactivate{% else %}Activate{% endif %} User">
+                                        <i class="bi bi-{% if user.is_active %}pause{% else %}play{% endif %}"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4">
+                                <i class="bi bi-people fs-1 text-muted"></i>
+                                <p class="text-muted mt-2">No users found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Bulk Operations Modal -->
+<div class="modal fade" id="bulkOperationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-gear me-2"></i>Bulk Operations
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select an operation to perform on the selected users:</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-success" onclick="bulkOperation('activate')">
+                        <i class="bi bi-person-check me-2"></i>Activate Selected Users
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="bulkOperation('deactivate')">
+                        <i class="bi bi-person-x me-2"></i>Deactivate Selected Users
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="bulkOperation('delete')">
+                        <i class="bi bi-trash me-2"></i>Delete Selected Users
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-badge.danger { background: #dc2626; color: white; }
+.status-badge.warning { background: #d97706; color: white; }
+.status-badge.primary { background: #2563eb; color: white; }
+.status-badge.info { background: #0891b2; color: white; }
+.status-badge.success { background: #059669; color: white; }
+.status-badge.secondary { background: #6b7280; color: white; }
+
+.action-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    margin: 0 2px;
+    transition: all 0.2s;
+}
+
+.action-icon-btn:hover {
+    transform: translateY(-2px);
+}
+
+.action-icon-btn.danger {
+    background: #dc2626;
+    color: white;
+}
+
+.action-icon-btn.danger:hover {
+    background: #b91c1c;
+}
+
+.action-icon-btn:not(.danger) {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.action-icon-btn:not(.danger):hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.action-icon-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.table-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.pagination .page-link {
+    color: var(--primary);
+    border-color: var(--border-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+</style>
+
+<script>
+// Selection functions
+function selectAll() {
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updateSelectAll();
+}
+
+function deselectAll() {
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    updateSelectAll();
+}
+
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+}
+
+function updateSelectAll() {
+    const allCheckboxes = document.querySelectorAll('.user-checkbox');
+    const checkedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    
+    selectAllCheckbox.checked = allCheckboxes.length === checkedCheckboxes.length;
+    selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+}
+
+// User operations
+function confirmDelete(userId, username) {
+    if (confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `{% url 'employees:user_delete' 0 %}`.replace('0', userId);
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfField = document.createElement('input');
+            csrfField.type = 'hidden';
+            csrfField.name = 'csrfmiddlewaretoken';
+            csrfField.value = csrfToken.value;
+            form.appendChild(csrfField);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function toggleUserStatus(userId, username, activate) {
+    const action = activate ? 'activate' : 'deactivate';
+    if (confirm(`Are you sure you want to ${action} user "${username}"?`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `{% url 'employees:user_toggle_status' 0 %}`.replace('0', userId);
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfField = document.createElement('input');
+            csrfField.type = 'hidden';
+            csrfField.name = 'csrfmiddlewaretoken';
+            csrfField.value = csrfToken.value;
+            form.appendChild(csrfField);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Bulk operations
+function bulkOperation(action) {
+    const selectedUsers = document.querySelectorAll('.user-checkbox:checked');
+    
+    if (selectedUsers.length === 0) {
+        alert('Please select at least one user to perform bulk operations.');
+        return;
+    }
+    
+    const actionText = action === 'activate' ? 'activate' : action === 'deactivate' ? 'deactivate' : 'delete';
+    const confirmMessage = `Are you sure you want to ${actionText} ${selectedUsers.length} selected user(s)?`;
+    
+    if (confirm(confirmMessage)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "employees:user_bulk_operation" %}';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfField = document.createElement('input');
+            csrfField.type = 'hidden';
+            csrfField.name = 'csrfmiddlewaretoken';
+            csrfField.value = csrfToken.value;
+            form.appendChild(csrfField);
+        }
+        
+        // Add action
+        const actionField = document.createElement('input');
+        actionField.type = 'hidden';
+        actionField.name = 'action';
+        actionField.value = action;
+        form.appendChild(actionField);
+        
+        // Add selected user IDs
+        selectedUsers.forEach(checkbox => {
+            const userField = document.createElement('input');
+            userField.type = 'hidden';
+            userField.name = 'selected_ids';
+            userField.value = checkbox.value;
+            form.appendChild(userField);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelectAll();
+});
+</script>
+{% endblock %}

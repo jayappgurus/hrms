@@ -14,7 +14,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" data-validate data-validate-url="{% url 'employees:validate_user_profile' %}">
                     {% csrf_token %}
 
                     <div class="row">

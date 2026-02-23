@@ -6,7 +6,6 @@ from . import views
 from . import views_auth
 from . import views_job_application as views_job_app
 from . import views_csv
-from . import views_notifications
 from . import views_salary
 from . import views_system
 from . import views_performance
@@ -14,6 +13,7 @@ from . import views_api
 from . import views_assignment
 from . import views_account_management
 from . import views_system_management
+from . import views_validation
 app_name = 'employees'
 urlpatterns = [
      
@@ -152,10 +152,7 @@ urlpatterns = [
     path('candidates/interview/', views_job.InterviewScheduleView.as_view(), name='interview_schedule'),
     path('openings/', views_job.CurrentOpeningsView.as_view(), name='current_openings'),
 
-    # Notifications & Messages
-    path('notifications/create/', views_notifications.create_notification, name='create_notification'),
-    path('messages/create/', views_notifications.create_message, name='create_message'),
-
+    
     # System Management
 
     # System Details
@@ -164,13 +161,6 @@ urlpatterns = [
     path('system/details/<int:pk>/', views_system.SystemDetailDetailView.as_view(), name='system_detail_view'),
     path('system/details/<int:pk>/edit/', views_system.SystemDetailUpdateView.as_view(), name='system_detail_edit'),
     path('system/details/<int:pk>/delete/', views_system.SystemDetailDeleteView.as_view(), name='system_detail_delete'),
-
-    # MAC Address Management
-    path('system/mac-addresses/', views_system.MacAddressListView.as_view(), name='mac_address_list'),
-    path('system/mac-addresses/add/', views_system.MacAddressCreateView.as_view(), name='mac_address_add'),
-    path('system/mac-addresses/<int:pk>/', views_system.MacAddressDetailView.as_view(), name='mac_address_view'),
-    path('system/mac-addresses/<int:pk>/edit/', views_system.MacAddressUpdateView.as_view(), name='mac_address_edit'),
-    path('system/mac-addresses/<int:pk>/delete/', views_system.MacAddressDeleteView.as_view(), name='mac_address_delete'),
 
     # System Requirements
     path('system/requirements/', views_system.SystemRequirementListView.as_view(), name='system_requirement_list'),
@@ -197,9 +187,26 @@ urlpatterns = [
     path('api/employees-for-assignment/', views_system_management.get_employees_for_assignment, name='api_employees_for_assignment'),
     path('api/assign-system/', views_system_management.assign_system, name='api_assign_system'),
     path('api/mac-systems-assignments/', views_system_management.get_mac_systems_assignments, name='api_mac_systems_assignments'),
+    path('show-mac-address/', views_system_management.show_mac_address, name='show_mac_address'),
+    path('api/update-system-status/', views_system_management.update_system_status, name='update_system_status'),
     path('api/windows-systems-assignments/', views_system_management.get_windows_systems_assignments, name='api_windows_systems_assignments'),
     path('export/mac-systems-csv/', views_system_management.export_mac_systems_csv, name='export_mac_systems_csv'),
     path('export/windows-systems-csv/', views_system_management.export_windows_systems_csv, name='export_windows_systems_csv'),
+
+    # Form Validation Endpoints
+    path('validate/employee/', views_validation.validate_employee_form, name='validate_employee'),
+    path('validate/leave-application/', views_validation.validate_leave_application_form, name='validate_leave_application'),
+    path('validate/public-holiday/', views_validation.validate_public_holiday_form, name='validate_public_holiday'),
+    path('validate/leave-type/', views_validation.validate_leave_type_form, name='validate_leave_type'),
+    path('validate/device-request/', views_validation.validate_device_request_form, name='validate_device_request'),
+    path('validate/account-management/', views_validation.validate_account_management_form, name='validate_account_management'),
+    path('validate/job-description/', views_validation.validate_job_description_form, name='validate_job_description'),
+    path('validate/job-application/', views_validation.validate_job_application_form, name='validate_job_application'),
+    path('validate/interview-schedule/', views_validation.validate_interview_schedule_form, name='validate_interview_schedule'),
+    path('validate/system-detail/', views_validation.validate_system_detail_form, name='validate_system_detail'),
+    path('validate/system-requirement/', views_validation.validate_system_requirement_form, name='validate_system_requirement'),
+    path('validate/user-create/', views_validation.validate_user_create_form, name='validate_user_create'),
+    path('validate/user-profile/', views_validation.validate_user_profile_form, name='validate_user_profile'),
 
 ]
 

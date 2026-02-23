@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -22,7 +23,7 @@
         <div class="col-lg-12 mx-auto">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <form method="post" id="systemDetailForm">
+                    <form method="post" id="systemDetailForm" data-validate data-validate-url="{% url 'employees:validate_system_detail' %}">
                         {% csrf_token %}
 
                         <!-- Employee Selection -->
@@ -34,29 +35,35 @@
                                 <h5 class="form-section-title">Employee Information</h5>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.employee.id_for_label }}" class="form-label">Employee <span class="text-danger">*</span></label>
-                                        {{ form.employee }}
+                                        <div class="{% if form.employee.errors %}is-invalid{% endif %}">
+                                            {{ form.employee }}
+                                        </div>
                                         {% if form.employee.errors %}
                                         <div class="text-danger small mt-1">{{ form.employee.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
-                                        {{ form.department }}
+                                        <div class="{% if form.department.errors %}is-invalid{% endif %}">
+                                            {{ form.department }}
+                                        </div>
                                         <small class="form-text text-muted">Auto-filled based on employee</small>
                                         {% if form.department.errors %}
                                         <div class="text-danger small mt-1">{{ form.department.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.system_type.id_for_label }}" class="form-label">System Type <span class="text-danger">*</span></label>
-                                        {{ form.system_type }}
+                                        <div class="{% if form.system_type.errors %}is-invalid{% endif %}">
+                                            {{ form.system_type }}
+                                        </div>
                                         {% if form.system_type.errors %}
                                         <div class="text-danger small mt-1">{{ form.system_type.errors.0 }}</div>
                                         {% endif %}
@@ -74,55 +81,67 @@
                                 <h5 class="form-section-title">CPU Details</h5>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.cpu_ram.id_for_label }}" class="form-label">RAM <span class="text-danger">*</span></label>
-                                        {{ form.cpu_ram }}
+                                        <div class="{% if form.cpu_ram.errors %}is-invalid{% endif %}">
+                                            {{ form.cpu_ram }}
+                                        </div>
                                         {% if form.cpu_ram.errors %}
                                         <div class="text-danger small mt-1">{{ form.cpu_ram.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.cpu_storage.id_for_label }}" class="form-label">Storage <span class="text-danger">*</span></label>
-                                        {{ form.cpu_storage }}
+                                        <div class="{% if form.cpu_storage.errors %}is-invalid{% endif %}">
+                                            {{ form.cpu_storage }}
+                                        </div>
                                         {% if form.cpu_storage.errors %}
                                         <div class="text-danger small mt-1">{{ form.cpu_storage.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.cpu_company_name.id_for_label }}" class="form-label">Company Name <span class="text-danger">*</span></label>
-                                        {{ form.cpu_company_name }}
+                                        <div class="{% if form.cpu_company_name.errors %}is-invalid{% endif %}">
+                                            {{ form.cpu_company_name }}
+                                        </div>
                                         {% if form.cpu_company_name.errors %}
                                         <div class="text-danger small mt-1">{{ form.cpu_company_name.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.cpu_processor.id_for_label }}" class="form-label">Processor <span class="text-danger">*</span></label>
-                                        {{ form.cpu_processor }}
+                                        <div class="{% if form.cpu_processor.errors %}is-invalid{% endif %}">
+                                            {{ form.cpu_processor }}
+                                        </div>
                                         {% if form.cpu_processor.errors %}
                                         <div class="text-danger small mt-1">{{ form.cpu_processor.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.cpu_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
-                                        {{ form.cpu_label_no }}
+                                        <div class="{% if form.cpu_label_no.errors %}is-invalid{% endif %}">
+                                            {{ form.cpu_label_no }}
+                                        </div>
                                         {% if form.cpu_label_no.errors %}
                                         <div class="text-danger small mt-1">{{ form.cpu_label_no.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6" id="mac-details-section" style="display: none;">
+                                <div class="col-md-4">
                                     <div class="mb-3">
-                                        <label for="mac_address_field" class="form-label">MAC Address <span class="text-danger">*</span></label>
-                                        {{ form.macaddress }}
+                                        <label for="mac_address_field" class="form-label">Physical Address(MAC)<span class="text-danger">*</span></label>
+                                        <div class="{% if form.macaddress.errors %}is-invalid{% endif %}">
+                                            {{ form.macaddress }}
+                                        </div>
                                         <small class="form-text text-muted">Format: 00:1B:44:11:3A:B7</small>
                                         {% if form.macaddress.errors %}
                                         <div class="text-danger small mt-1">{{ form.macaddress.errors.0 }}</div>
@@ -141,32 +160,42 @@
                                 <h5 class="form-section-title">Screen Details</h5>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.screen_company_name.id_for_label }}" class="form-label">Company Name <span class="text-danger">*</span></label>
-                                        {{ form.screen_company_name }}
+                                        <div class="{% if form.screen_company_name.errors %}is-invalid{% endif %}">
+                                            {{ form.screen_company_name }}
+                                        </div>
                                         {% if form.screen_company_name.errors %}
                                         <div class="text-danger small mt-1">{{ form.screen_company_name.errors.0 }}</div>
                                         {% endif %}
                                     </div>
-                                </div>
-                                <div class="col-md-6">
+                                        {% if form.screen_company_name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.screen_company_name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.screen_size.id_for_label }}" class="form-label">Size <span class="text-danger">*</span></label>
-                                        {{ form.screen_size }}
+                                        <div class="{% if form.screen_size.errors %}is-invalid{% endif %}">
+                                            {{ form.screen_size }}
+                                        </div>
                                         {% if form.screen_size.errors %}
                                         <div class="text-danger small mt-1">{{ form.screen_size.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.screen_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
-                                        {{ form.screen_label_no }}
+                                        <div class="{% if form.screen_label_no.errors %}is-invalid{% endif %}">
+                                            {{ form.screen_label_no }}
+                                        </div>
                                         {% if form.screen_label_no.errors %}
                                         <div class="text-danger small mt-1">{{ form.screen_label_no.errors.0 }}</div>
                                         {% endif %}
                                     </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -180,19 +209,23 @@
                                 <h5 class="form-section-title">Keyboard Details</h5>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.keyboard_company_name.id_for_label }}" class="form-label">Company Name <span class="text-danger">*</span></label>
-                                        {{ form.keyboard_company_name }}
+                                        <div class="{% if form.keyboard_company_name.errors %}is-invalid{% endif %}">
+                                            {{ form.keyboard_company_name }}
+                                        </div>
                                         {% if form.keyboard_company_name.errors %}
                                         <div class="text-danger small mt-1">{{ form.keyboard_company_name.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.keyboard_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
-                                        {{ form.keyboard_label_no }}
+                                        <div class="{% if form.keyboard_label_no.errors %}is-invalid{% endif %}">
+                                            {{ form.keyboard_label_no }}
+                                        </div>
                                         {% if form.keyboard_label_no.errors %}
                                         <div class="text-danger small mt-1">{{ form.keyboard_label_no.errors.0 }}</div>
                                         {% endif %}
@@ -210,7 +243,7 @@
                                 <h5 class="form-section-title">Mouse Details</h5>
                             </div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.mouse_company_name.id_for_label }}" class="form-label">Company Name <span class="text-danger">*</span></label>
                                         {{ form.mouse_company_name }}
@@ -219,7 +252,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.mouse_label_no.id_for_label }}" class="form-label">Label No. <span class="text-danger">*</span></label>
                                         {{ form.mouse_label_no }}
@@ -240,10 +273,10 @@
                                 <h5 class="form-section-title">Headphone Details</h5>
                             </div>
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.has_headphone.id_for_label }}" class="form-label">Has Headphone? <span class="text-danger">*</span></label>
-                                        {{ form.has_headphone }}
+                                        {{ form.has_headphone|add_class:"form-select modern-form-control modern-form-select" }}
                                         {% if form.has_headphone.errors %}
                                         <div class="text-danger small mt-1">{{ form.has_headphone.errors.0 }}</div>
                                         {% endif %}
@@ -252,7 +285,7 @@
                             </div>
                             <div id="headphoneFields" style="display: none;">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="{{ form.headphone_company_name.id_for_label }}" class="form-label">Company Name</label>
                                             {{ form.headphone_company_name }}
@@ -261,7 +294,7 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="{{ form.headphone_label_no.id_for_label }}" class="form-label">Label No.</label>
                                             {{ form.headphone_label_no }}
@@ -283,10 +316,10 @@
                                 <h5 class="form-section-title">Extender Details</h5>
                             </div>
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label for="{{ form.has_extender.id_for_label }}" class="form-label">Has Extender? <span class="text-danger">*</span></label>
-                                        {{ form.has_extender }}
+                                        {{ form.has_extender|add_class:"form-select modern-form-control modern-form-select" }}
                                         {% if form.has_extender.errors %}
                                         <div class="text-danger small mt-1">{{ form.has_extender.errors.0 }}</div>
                                         {% endif %}
@@ -295,7 +328,7 @@
                             </div>
                             <div id="extenderFields" style="display: none;">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="{{ form.extender_label.id_for_label }}" class="form-label">Label</label>
                                             {{ form.extender_label }}
@@ -304,7 +337,7 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="mb-3">
                                             <label for="{{ form.extender_name.id_for_label }}" class="form-label">Name</label>
                                             {{ form.extender_name }}
@@ -313,7 +346,7 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <div class="modern-form-group">
                                             <label for="{{ form.is_active.id_for_label }}" class="modern-form-label">Allocation Status</label>
                                             {{ form.is_active }}
@@ -327,7 +360,7 @@
                         </div>
 
                         <!-- Form Actions -->
-                        <div class="d-flex justify-content-end gap-2">
+                        <div class="d-flex justify-content-end gap-2 p-4 pt-0">
                             <a href="{% url 'employees:system_detail_list' %}" class="btn btn-outline-secondary">Cancel</a>
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle me-1"></i>{{ button_text }}
@@ -373,16 +406,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-fill department when employee is selected
     function updateDepartment() {
         const employeeId = employeeSelect.value;
+        console.log('=== Department Update ===');
+        console.log('Selected employee ID:', employeeId);
+        
         if (employeeId && employeeData[employeeId]) {
             const deptId = employeeData[employeeId].department_id;
-            // Temporarily enable the field to set value
+            console.log('Employee department ID:', deptId);
+            
+            // Temporarily enable field to set value
             departmentSelect.removeAttribute('readonly');
             departmentSelect.style.pointerEvents = 'auto';
             departmentSelect.value = deptId;
+            console.log('Department set to:', deptId);
+            
             // Make it readonly again
             departmentSelect.setAttribute('readonly', 'readonly');
             departmentSelect.style.pointerEvents = 'none';
         } else {
+            console.log('No employee selected or employee data not found');
             departmentSelect.removeAttribute('readonly');
             departmentSelect.style.pointerEvents = 'auto';
             departmentSelect.value = '';
@@ -393,54 +434,161 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle system type fields
     function toggleSystemTypeFields() {
-        const systemType = document.getElementById('id_system_type').value;
+        const systemType = systemTypeSelect ? systemTypeSelect.value : null;
+        console.log('=== System Type Toggle ===');
+        console.log('System type value:', systemType);
+        console.log('System type type:', typeof systemType);
+        
         const macDetails = document.getElementById('mac-details-section');
         const cpuCompanyNameField = document.getElementById('id_cpu_company_name');
         
+        if (!macDetails || !cpuCompanyNameField) {
+            console.error('Required elements not found!');
+            return;
+        }
+        
         if (systemType === 'windows') {
+            console.log('Hiding MAC details, clearing CPU company name');
             macDetails.style.display = 'none';
-            // Clear CPU company name for Windows (user can set it manually)
             cpuCompanyNameField.value = '';
         } else if (systemType === 'mac') {
+            console.log('Showing MAC details, setting CPU company name to Mac');
             macDetails.style.display = 'block';
-            // Set CPU company name to "Mac" for MAC systems
             cpuCompanyNameField.value = 'Mac';
+        } else {
+            console.log('Unknown system type, hiding MAC details');
+            macDetails.style.display = 'none';
+            cpuCompanyNameField.value = '';
         }
     }
 
     // Toggle headphone fields
     function toggleHeadphoneFields() {
-        if (hasHeadphoneSelect.value === 'True') {
+        const hasHeadphone = hasHeadphoneSelect ? hasHeadphoneSelect.value : null;
+        console.log('=== Headphone Toggle ===');
+        console.log('Headphone value:', hasHeadphone);
+        console.log('Headphone type:', typeof hasHeadphone);
+        
+        if (!headphoneFields) {
+            console.error('Headphone fields element not found!');
+            return;
+        }
+        
+        if (hasHeadphone === 'True' || hasHeadphone === true) {
+            console.log('Showing headphone fields');
             headphoneFields.style.display = 'block';
         } else {
+            console.log('Hiding headphone fields');
             headphoneFields.style.display = 'none';
         }
     }
 
     // Toggle extender fields
     function toggleExtenderFields() {
-        if (hasExtenderSelect.value === 'True') {
+        const hasExtender = hasExtenderSelect ? hasExtenderSelect.value : null;
+        console.log('=== Extender Toggle ===');
+        console.log('Extender value:', hasExtender);
+        console.log('Extender type:', typeof hasExtender);
+        
+        if (!extenderFields) {
+            console.error('Extender fields element not found!');
+            return;
+        }
+        
+        if (hasExtender === 'True' || hasExtender === true) {
+            console.log('Showing extender fields');
             extenderFields.style.display = 'block';
         } else {
+            console.log('Hiding extender fields');
             extenderFields.style.display = 'none';
         }
     }
 
     // Before form submission, enable department field so it gets submitted
     document.getElementById('systemDetailForm').addEventListener('submit', function(e) {
+        console.log('=== Form Submit ===');
         departmentSelect.removeAttribute('readonly');
         departmentSelect.style.pointerEvents = 'auto';
     });
 
     // Initial state
+    console.log('=== Initializing Form State ===');
     updateDepartment();
     toggleHeadphoneFields();
     toggleExtenderFields();
+    toggleSystemTypeFields();
 
     // Event listeners
-    employeeSelect.addEventListener('change', updateDepartment);
-    hasHeadphoneSelect.addEventListener('change', toggleHeadphoneFields);
-    hasExtenderSelect.addEventListener('change', toggleExtenderFields);
+    console.log('=== Adding Event Listeners ===');
+    if (employeeSelect) employeeSelect.addEventListener('change', updateDepartment);
+    if (hasHeadphoneSelect) hasHeadphoneSelect.addEventListener('change', toggleHeadphoneFields);
+    if (hasExtenderSelect) hasExtenderSelect.addEventListener('change', toggleExtenderFields);
+    if (systemTypeSelect) systemTypeSelect.addEventListener('change', toggleSystemTypeFields);
+    
+    console.log('=== All Event Listeners Added ===');
+    
+    // Form validation
+    const form = document.getElementById('systemDetailForm');
+    const validateUrl = form.getAttribute('data-validate-url');
+    
+    if (form && validateUrl) {
+        form.addEventListener('submit', function(e) {
+            console.log('=== Form Validation Triggered ===');
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            console.log('Form data to validate:', data);
+            
+            // Send validation request
+            fetch(validateUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                },
+                body: new URLSearchParams(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Validation result:', result);
+                if (result.valid) {
+                    // If valid, submit the form
+                    form.submit();
+                } else {
+                    // If invalid, show errors
+                    showValidationErrors(result.errors);
+                }
+            })
+            .catch(error => {
+                console.error('Validation error:', error);
+                // Fallback: submit form anyway
+                form.submit();
+            });
+        });
+    }
+    
+    function showValidationErrors(errors) {
+        // Clear previous errors
+        document.querySelectorAll('.text-danger').forEach(el => el.remove());
+        
+        // Show new errors
+        Object.keys(errors).forEach(field => {
+            const input = document.querySelector(`[name="${field}"]`);
+            if (input) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-danger small mt-1';
+                errorDiv.textContent = errors[field];
+                input.parentNode.appendChild(errorDiv);
+                input.classList.add('is-invalid');
+            }
+        });
+    }
 });
 </script>
 

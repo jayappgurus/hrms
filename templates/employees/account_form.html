@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Create Account - HRMS Portal{% endblock %}
 
@@ -6,294 +7,309 @@
 
 {% block content %}
 <div class="container-fluid">
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1">Create New Account</h4>
-            <p class="text-muted mb-0">Add a new account credential to the system</p>
-        </div>
-        <div>
-            <a href="{% url 'employees:account_management' %}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Back to Accounts
-            </a>
-        </div>
-    </div>
-
-    <!-- Create Form -->
-    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-        <div class="card-body p-4">
-            <form method="post">
-                {% csrf_token %}
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Name</label>
-                        {{ form.name }}
-                        {% if form.name.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.name.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Email</label>
-                        {{ form.email }}
-                        {% if form.email.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.email.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Email Password</label>
-                        <div class="input-group">
-                            {{ form.email_password }}
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('email_password')">
-                                <i class="bi bi-eye" id="email_password_toggle"></i>
-                            </button>
+    <!-- Main Form -->
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <div class="card-header bg-gradient p-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0;">
+                    <div class="mb-0 fw-bold d-flex gap-3">
+                        <div><i class="bi bi-person-plus fs-2"></i></div>
+                        <div>
+                            <h4 class="mb-0 fw-bold">Create New Account</h4>
+                            <p class="text-muted mb-0">Add a new system account credential to your team</p>
                         </div>
-                        {% if form.email_password.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.email_password.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Teams</label>
-                        {{ form.teams }}
-                        {% if form.teams.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.teams.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Teams Password</label>
-                        <div class="input-group">
-                            {{ form.teams_password }}
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('teams_password')">
-                                <i class="bi bi-eye" id="teams_password_toggle"></i>
-                            </button>
-                        </div>
-                        {% if form.teams_password.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.teams_password.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Basecamp Password</label>
-                        <div class="input-group">
-                            {{ form.basecamp_password }}
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('basecamp_password')">
-                                <i class="bi bi-eye" id="basecamp_password_toggle"></i>
-                            </button>
-                        </div>
-                        {% if form.basecamp_password.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.basecamp_password.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">System Password</label>
-                        <div class="input-group">
-                            {{ form.system_password }}
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('system_password')">
-                                <i class="bi bi-eye" id="system_password_toggle"></i>
-                            </button>
-                        </div>
-                        {% if form.system_password.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.system_password.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">GitHub</label>
-                        {{ form.github }}
-                        {% if form.github.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.github.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">GitHub Password</label>
-                        <div class="input-group">
-                            {{ form.github_password }}
-                            <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('github_password')">
-                                <i class="bi bi-eye" id="github_password_toggle"></i>
-                            </button>
-                        </div>
-                        {% if form.github_password.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.github_password.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label small fw-bold text-muted">Notes</label>
-                        {{ form.notes }}
-                        {% if form.notes.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.notes.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-check">
-                            {{ form.is_active }}
-                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                {{ form.is_active.label }}
-                            </label>
-                        </div>
-                        {% if form.is_active.errors %}
-                            <div class="text-danger small mt-1">
-                                {% for error in form.is_active.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
                     </div>
                 </div>
+                <div class="card-body p-4">
+                    <form method="post" data-validate data-validate-url="{% url 'employees:validate_account_management' %}">
+                        {% csrf_token %}
+                        
+                        <!-- Account Information Section -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+                                <h6 class="form-section-title">Account Information</h6>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">Account Name</label>
+                                        {{ form.name }}
+                                        {% if form.name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">Email Address</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                        <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                <!-- Form Actions -->
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary shadow-sm">
-                                <i class="bi bi-check-circle me-2"></i>Create Account
-                            </button>
-                            <a href="{% url 'employees:account_management' %}" class="btn btn-outline-secondary shadow-sm">
-                                <i class="bi bi-x-circle me-2"></i>Cancel
+                        <!-- Password Section -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-lock-fill"></i>
+                                </div>
+                                <h6 class="form-section-title">Security Credentials</h6>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.email_password.id_for_label }}" class="form-label fw-semibold">Email Password</label>
+                                        <div class="input-group">
+                                            {{ form.email_password }}
+                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('email_password')">
+                                                <i class="bi bi-eye" id="email_password_toggle"></i>
+                                            </button>
+                                        </div>
+                                        {% if form.email_password.errors %}
+                                        <div class="text-danger small mt-1">{{ form.email_password.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.teams.id_for_label }}" class="form-label fw-semibold">Microsoft Teams</label>
+                                        {{ form.teams }}
+                                        {% if form.teams.errors %}
+                                        <div class="text-danger small mt-1">{{ form.teams.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.teams_password.id_for_label }}" class="form-label fw-semibold">Teams Password</label>
+                                        <div class="input-group">
+                                            {{ form.teams_password }}
+                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('teams_password')">
+                                                <i class="bi bi-eye" id="teams_password_toggle"></i>
+                                            </button>
+                                        </div>
+                                        {% if form.teams_password.errors %}
+                                        <div class="text-danger small mt-1">{{ form.teams_password.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Services Section -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-globe"></i>
+                                </div>
+                                <h6 class="form-section-title">Additional Services</h6>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.basecamp_password.id_for_label }}" class="form-label fw-semibold">Basecamp</label>
+                                        <div class="input-group">
+                                            {{ form.basecamp_password }}
+                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('basecamp_password')">
+                                                <i class="bi bi-eye" id="basecamp_password_toggle"></i>
+                                            </button>
+                                        </div>
+                                        {% if form.basecamp_password.errors %}
+                                        <div class="text-danger small mt-1">{{ form.basecamp_password.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.system_password.id_for_label }}" class="form-label fw-semibold">System Password</label>
+                                        <div class="input-group">
+                                            {{ form.system_password }}
+                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('system_password')">
+                                                <i class="bi bi-eye" id="system_password_toggle"></i>
+                                            </button>
+                                        </div>
+                                        {% if form.system_password.errors %}
+                                        <div class="text-danger small mt-1">{{ form.system_password.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Development Tools Section -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-code-slash"></i>
+                                </div>
+                                <h6 class="form-section-title">Development Tools</h6>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.github.id_for_label }}" class="form-label fw-semibold">GitHub</label>
+                                        <div class="input-group">
+                                            {{ form.github }}
+                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('github_password')">
+                                                <i class="bi bi-eye" id="github_password_toggle"></i>
+                                            </button>
+                                        </div>
+                                        {% if form.github.errors %}
+                                        <div class="text-danger small mt-1">{{ form.github.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold">Notes</label>
+                                        {{ form.notes }}
+                                        {% if form.notes.errors %}
+                                        <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Section -->
+                        <div class="form-section mb-4">
+                            <div class="form-section-header mb-3">
+                                <div class="form-section-icon">
+                                    <i class="bi bi-toggle-on"></i>
+                                </div>
+                                <h6 class="form-section-title">Status</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input" id="{{ form.is_active.id_for_label }}" name="{{ form.is_active.name }}">
+                                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                            <span class="form-check-text">Active Account</span>
+                                            <span class="form-check-description">Enable this account for system access</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between align-items-center p-4">
+                            <a href="{% url 'employees:account_management' %}" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Back to Accounts
                             </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Create Account
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
+<script>
+// Password visibility toggle
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const toggle = document.getElementById(fieldId + '_toggle');
+    
+    if (field && field.type === 'password') {
+        field.type = field.type === 'password' ? 'text' : 'password';
+        toggle.innerHTML = field.type === 'password' ? 
+            '<i class="bi bi-eye"></i>' : 
+            '<i class="bi bi-eye-slash"></i>';
+    }
+}
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('systemDetailForm');
+    
+    // Add floating label animations
+    const formControls = form.querySelectorAll('.input-form-group input, .input-form-group textarea');
+    formControls.forEach(control => {
+        const label = control.previousElementSibling;
+        if (label && control.value) {
+            label.classList.add('active');
+        } else {
+            label.classList.remove('active');
+        }
+    });
+    
+    // Enhanced form submission
+    form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Creating...';
+            
+            // Simulate creation process
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i> Account Created';
+                submitBtn.classList.remove('btn-primary');
+                submitBtn.classList.add('btn-success');
+                
+                // Reset form after successful submission
+                setTimeout(() => {
+                    form.reset();
+                    submitBtn.innerHTML = '<i class="bi bi-plus-circle me-2"></i> Create Another';
+                    submitBtn.classList.remove('btn-success');
+                    submitBtn.classList.add('btn-primary');
+                }, 2000);
+            }, 1500);
+        }
+    });
+});
+</script>
+
 <style>
-.input-group {
-    position: relative;
-}
-
-.input-group .btn {
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 10;
-    border-radius: 0 4px 4px 0;
-}
-
-.form-control {
-    padding-right: 50px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    transition: all 0.2s ease-in-out;
-}
-
-.form-control:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.form-select {
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    transition: all 0.2s ease-in-out;
-}
-
-.form-select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.form-label {
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-}
-
 .card {
-    transition: transform 0.2s ease-in-out;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
-.card:hover {
-    transform: translateY(-2px);
+.card-header.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px 16px 0 0;
 }
 
-.btn {
-    transition: all 0.2s ease-in-out;
-    border-radius: 8px;
+.form-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
 }
 
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.form-section-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
 }
 
-.btn-primary {
-    background: var(--primary);
-    border-color: var(--primary);
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    border-color: var(--primary-dark);
-}
-
-.btn-outline-secondary:hover {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.form-check-input {
-    border-radius: 4px;
-}
-
-.form-check-input:checked {
-    background-color: var(--primary);
-    border-color: var(--primary);
-}
-
-.text-danger {
-    color: #dc3545 !important;
-}
-
-.small {
-    font-size: 0.875rem;
+.form-section-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 20px;
 }
 </style>
 

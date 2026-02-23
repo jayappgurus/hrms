@@ -319,12 +319,14 @@ function loadMacSystemsData() {
             if (data.success && data.mac_assignments && data.mac_assignments.length > 0) {
                 data.mac_assignments.forEach(assignment => {
                     const row = document.createElement('tr');
-                    const employeeDetailUrl = "{% url 'employees:employee_detail' 0 %}".replace('/0/', `/${assignment.employee_id}/`);
-                    const viewButton = assignment.employee_id 
-                        ? `<a href="${employeeDetailUrl}" class="btn btn-sm btn-primary">
+                    let viewButton = '<span class="text-muted">-</span>';
+                    
+                    if (assignment.employee_id && assignment.employee_id > 0) {
+                        const employeeDetailUrl = "{% url 'employees:employee_detail' 0 %}".replace('/0/', `/${assignment.employee_id}/`);
+                        viewButton = `<a href="${employeeDetailUrl}" class="btn btn-sm btn-primary">
                             <i class="bi bi-eye"></i> View
-                           </a>`
-                        : '<span class="text-muted">-</span>';
+                           </a>`;
+                    }
                     
                     row.innerHTML = `
                         <td><code>${assignment.mac_address}</code></td>
@@ -376,12 +378,14 @@ function loadWindowsSystemsData() {
             if (data.success && data.windows_assignments && data.windows_assignments.length > 0) {
                 data.windows_assignments.forEach(assignment => {
                     const row = document.createElement('tr');
-                    const employeeDetailUrl = "{% url 'employees:employee_detail' 0 %}".replace('/0/', `/${assignment.employee_id}/`);
-                    const viewButton = assignment.employee_id 
-                        ? `<a href="${employeeDetailUrl}" class="btn btn-sm btn-primary">
+                    let viewButton = '<span class="text-muted">-</span>';
+                    
+                    if (assignment.employee_id && assignment.employee_id > 0) {
+                        const employeeDetailUrl = "{% url 'employees:employee_detail' 0 %}".replace('/0/', `/${assignment.employee_id}/`);
+                        viewButton = `<a href="${employeeDetailUrl}" class="btn btn-sm btn-primary">
                             <i class="bi bi-eye"></i> View
-                           </a>`
-                        : '<span class="text-muted">-</span>';
+                           </a>`;
+                    }
                     
                     row.innerHTML = `
                         <td>${assignment.system_name || `System ${assignment.id}`}</td>

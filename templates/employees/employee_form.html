@@ -78,7 +78,7 @@
     </a>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="employeeForm" novalidate>
+<form method="post" enctype="multipart/form-data" id="employeeForm" novalidate data-validate data-validate-url="{% url 'employees:validate_employee' %}">
     {% csrf_token %}
 
     <!-- Core Employee Details -->
@@ -440,11 +440,17 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="modern-form-group">
-                    <label class="modern-form-label">{{ form.current_ctc.label }}</label>
+                    <label class="modern-form-label">
+                        <i class="bi bi-pencil-square text-primary me-1"></i>
+                        {{ form.current_ctc.label }}
+                    </label>
                     {{ form.current_ctc }}
                     {% if form.current_ctc.errors %}
                     <div class="text-danger small mt-1">{{ form.current_ctc.errors.0 }}</div>
                     {% endif %}
+                    <small class="form-help-text">
+                        <i class="bi bi-info-circle me-1"></i>Monthly CTC in INR (editable)
+                    </small>
                 </div>
             </div>
             <div class="col-md-8">
@@ -693,6 +699,35 @@
                 }
             }
         });
+    }
+
+    // CTC Field Enhancement - Visual feedback for editability
+    const ctcField = document.querySelector('[name="current_ctc"]');
+    if (ctcField) {
+        // Add focus effect
+        ctcField.addEventListener('focus', function() {
+            this.style.borderColor = '#4e73df';
+            this.style.boxShadow = '0 0 0 0.2rem rgba(78, 115, 223, 0.25)';
+        });
+        
+        ctcField.addEventListener('blur', function() {
+            this.style.borderColor = '';
+            this.style.boxShadow = '';
+        });
+        
+        // Format number with commas on blur
+        ctcField.addEventListener('blur', function() {
+            if (this.value) {
+                const value = parseFloat(this.value);
+                if (!isNaN(value)) {
+                    // Store the actual value
+                    this.dataset.actualValue = value;
+                }
+            }
+        });
+        
+        // Add tooltip on hover
+        ctcField.title = 'Click to edit monthly CTC amount';
     }
     });
 </script>

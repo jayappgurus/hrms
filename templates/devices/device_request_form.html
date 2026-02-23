@@ -28,7 +28,7 @@
                 </h5>
             </div>
             <div class="modern-card-body">
-                <form method="post" id="deviceRequestForm">
+                <form method="post" id="deviceRequestForm" data-validate data-validate-url="{% url 'employees:validate_device_request' %}">
                     {% csrf_token %}
                     <div class="row">
                         <div class="col-md-4">

@@ -19,35 +19,103 @@ if sys.version_info >= (3, 14):
     except ImportError:
         pass
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-change-in-production')
-
-# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = 'inbnvhm^mvim%1wcyh^5(xoq)36f^mbv79q*ua#oyglrji%)5b'
 DEBUG = True
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+}
+#             'format': '{levelname} {message}',
+#             'style': '{',
+#         },
+#         'detailed': {
+#             'format': '{asctime} [{name}] {levelname}: {message} - {pathname}:{lineno}',
+#             'style': '{',
+#         },
+#     },
+#     'handlers': {
+#         'file': {
+#             'level': 'ERROR',
+#             'class': 'logging.FileHandler',
+#             'filename': BASE_DIR / 'logs' / 'django_errors.log',
+#             'formatter': 'detailed',
+#         },
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'verbose',
+#         },
+#         'mail_admins': {
+#             'level': 'ERROR',
+#             'class': 'django.utils.log.AdminEmailHandler',
+#             'formatter': 'detailed',
+#         },
+#         'all_errors': {
+#             'level': 'WARNING',
+#             'class': 'logging.FileHandler',
+#             'filename': BASE_DIR / 'logs' / 'all_errors.log',
+#             'formatter': 'detailed',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file', 'console', 'all_errors'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#         'django.request': {
+#             'handlers': ['file', 'mail_admins', 'all_errors'],
+#             'level': 'ERROR',
+#             'propagate': False,
+#         },
+#         'employees': {
+#             'handlers': ['file', 'console', 'all_errors'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#         'salary': {
+#             'handlers': ['file', 'console', 'all_errors'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#         'corsheaders': {
+#             'handlers': ['file', 'console', 'all_errors'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#         'root': {
+#             'handlers': ['file', 'console', 'all_errors'],
+#             'level': 'WARNING',
+#         },
+#     },
+# }
+
+# Create logs directory if it doesn't exist
+# import os
+# os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
 ALLOWED_HOSTS = ['*']
 
-# Application definition
 INSTALLED_APPS = [
-    'jazzmin',  # Must be before django.contrib.admin
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
     'employees',
+    'salary',
     "corsheaders",
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",   # must be first
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -70,7 +138,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'employees.context_processors.notifications_and_messages',
             ],
         },
     },
@@ -78,9 +145,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'hrms_portal.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-# For development MySQL
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -94,9 +158,6 @@ DATABASES = {
         }
     }
 }
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -112,28 +173,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Messages framework
@@ -211,7 +264,6 @@ JAZZMIN_SETTINGS = {
     },
 }
 
-# Email Settings - Mailtrap SMTP for Development
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_PORT = 587

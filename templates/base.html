@@ -146,11 +146,6 @@
                                     href="{% url 'employees:system_detail_list' %}">
                                     <span>System Details</span>
                                 </a></li>
-                            <!-- <li class="mt-2"><a
-                                    class="{% if 'mac_address' in request.resolver_match.url_name %}active{% endif %}"
-                                    href="{% url 'employees:mac_address_list' %}">
-                                    <span>MAC Address Details</span>
-                                </a></li> -->
                             <li class="mt-2"><a
                                     class="{% if 'system_requirement' in request.resolver_match.url_name %}active{% endif %}"
                                     href="{% url 'employees:system_requirement_list' %}">
@@ -194,23 +189,6 @@
                         </ul>
                     </li>
 
-                    {% if user.is_staff or user.is_superuser %}
-                    <li class="nav-label">Communications</li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'create_notification' %}active{% endif %}"
-                            href="{% url 'employees:create_notification' %}">
-                            <i class="bi bi-bell"></i>
-                            <span>Send Notification</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'create_message' %}active{% endif %}"
-                            href="{% url 'employees:create_message' %}">
-                            <i class="bi bi-envelope"></i>
-                            <span>Send Message</span>
-                        </a>
-                    </li>
-                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -231,73 +209,7 @@
                 </div>
 
                 <div class="header-right">
-                    <!-- Notifications -->
-                    <div class="dropdown">
-                        <button class="header-btn" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-bell"></i>
-                            {% if unread_notifications_count > 0 %}
-                            <span class="badge bg-danger">{{ unread_notifications_count }}</span>
-                            {% endif %}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end notification-dropdown">
-                            <li class="dropdown-header">Notifications</li>
-                            {% if unread_notifications %}
-                            {% for notification in unread_notifications %}
-                            <li><a class="dropdown-item" href="#">
-                                    <div class="notification-item">
-                                        <i
-                                            class="bi {{ notification.icon }} text-{{ notification.notification_type }}"></i>
-                                        <div class="notification-content">
-                                            <p>{{ notification.title }}</p>
-                                            <small>{{ notification.created_at|timesince }} ago</small>
-                                        </div>
-                                    </div>
-                                </a></li>
-                            {% endfor %}
-                            {% else %}
-                            <li><a class="dropdown-item text-center text-muted">No new notifications</a></li>
-                            {% endif %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item text-center" href="#">View all notifications</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Messages -->
-                    <div class="dropdown">
-                        <button class="header-btn" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-envelope"></i>
-                            {% if unread_messages_count > 0 %}
-                            <span class="badge bg-danger">{{ unread_messages_count }}</span>
-                            {% endif %}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end message-dropdown">
-                            <li class="dropdown-header">Messages</li>
-                            {% if unread_messages %}
-                            {% for message in unread_messages %}
-                            <li><a class="dropdown-item" href="#">
-                                    <div class="message-item">
-                                        <div class="message-avatar">{{
-                                            message.sender.get_full_name|slice:":2"|upper|default:message.sender.username|slice:":2"|upper
-                                            }}</div>
-                                        <div class="message-content">
-                                            <p>{{ message.sender.get_full_name|default:message.sender.username }}</p>
-                                            <small>{{ message.subject|truncatewords:5 }}</small>
-                                        </div>
-                                    </div>
-                                </a></li>
-                            {% endfor %}
-                            {% else %}
-                            <li><a class="dropdown-item text-center text-muted">No new messages</a></li>
-                            {% endif %}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item text-center" href="#">View all messages</a></li>
-                        </ul>
-                    </div>
-
+                    
                     <!-- User Profile -->
                     <div class="dropdown">
                         <button class="user-profile-btn" type="button" data-bs-toggle="dropdown">
@@ -325,6 +237,8 @@
                             <i class="bi bi-chevron-down"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
+                            {% if user.is_superuser or user.is_staff %}
+                            {% else %}
                             <li>
                                 <a class="dropdown-item" href="{% url 'employees:my_profile' %}">
                                     <i class="bi bi-person me-2"></i>Profile
@@ -333,7 +247,8 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                            {% endif %}
+                            <li><a class="dropdown-item text-danger p-0" href="{% url 'logout' %}">
                                     <i class="bi bi-box-arrow-right me-2"></i>Logout
                                 </a></li>
                         </ul>
@@ -364,7 +279,7 @@
         </div>
     </div>
 
-    <!-- Modern Alert/Confirm Modal -->
+    <!-- Enhanced Modern Alert/Confirm Modal -->
     <div class="modern-modal" id="modernAlertModal">
         <div class="modern-modal-backdrop"></div>
         <div class="modern-modal-dialog">
@@ -373,15 +288,51 @@
                     <div class="modern-modal-icon" id="modalIcon">
                         <i class="bi bi-info-circle"></i>
                     </div>
-                    <h5 class="modern-modal-title" id="modalTitle">Confirm Action</h5>
+                    <div class="modern-modal-title-section">
+                        <h5 class="modern-modal-title" id="modalTitle">Confirm Action</h5>
+                        <small class="modern-modal-subtitle" id="modalSubtitle">Please review before proceeding</small>
+                    </div>
+                    <button type="button" class="modern-modal-close" id="modalCloseBtn">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
                 <div class="modern-modal-body">
-                    <p id="modalMessage">Are you sure you want to proceed?</p>
+                    <div class="modern-modal-message" id="modalMessage">
+                        Are you sure you want to proceed?
+                    </div>
+                    <div class="modern-modal-details" id="modalDetails" style="display: none;">
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Type:</span>
+                                <span class="detail-value" id="modalType">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ID:</span>
+                                <span class="detail-value" id="modalId">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Status:</span>
+                                <span class="detail-value" id="modalStatus">-</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modern-modal-footer">
-                    <button type="button" class="btn btn-secondary modern-btn-secondary"
-                        id="modalCancel">Cancel</button>
-                    <button type="button" class="btn btn-primary modern-btn-primary" id="modalConfirm">Confirm</button>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary modern-btn-secondary" id="modalCancel">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary modern-btn-primary" id="modalConfirm">
+                            <i class="bi bi-check-circle me-2"></i>Confirm
+                        </button>
+                    </div>
+                    <div class="modal-progress" id="modalProgress" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small class="progress-text">Processing...</small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -742,6 +693,10 @@
             });
         });
     </script>
+    
+    <!-- AJAX Form Validation -->
+    <script src="{% static 'js/form-validation.js' %}"></script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 

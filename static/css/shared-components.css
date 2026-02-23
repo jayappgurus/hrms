@@ -124,7 +124,50 @@
     margin-top: 6px;
     display: block;
 }
+.input-group:has(.is-invalid) .input-group-text {
+    border-color: var(--bs-form-invalid-border-color);
+    border-width: 1px 1px 1px 1px;
+}
+.input-group:has(.is-invalid) .modern-form-control {
+    border-color: var(--bs-form-invalid-border-color);
+    border-width: 1px 1px 1px 1px;
+    border-top-right-radius: 0.375rem !important;
+    border-bottom-right-radius: 0.375rem !important;
+}
+.modern-form-group:has(.is-invalid) .input-group-text {
+    border-color: var(--bs-form-invalid-border-color);
+    border-width: 1px 1px 1px 1px;
+}
+.modern-form-group:has(.is-invalid) .modern-form-control {
+    border-color: var(--bs-form-invalid-border-color);
+    border-width: 1px 1px 1px 1px;
+    border-top-right-radius: 0.375rem !important;
+    border-bottom-right-radius: 0.375rem !important;
+}
+#id_duration_type{
+    border: 1px solid var(--border-color);
+    border-radius: 0px 8px 8px 0px;
+    padding: 12px 16px;
+    font-size: 14px;
+}
 
+/* Form validation styling */
+.is-invalid input,
+.is-invalid select,
+.is-invalid textarea {
+    border-color: var(--bs-form-invalid-border-color) !important;
+    border-width: 1px !important;
+}
+
+.is-invalid .input-group {
+    border-color: var(--bs-form-invalid-border-color) !important;
+}
+
+.is-invalid .input-group input,
+.is-invalid .input-group select {
+    border-color: var(--bs-form-invalid-border-color) !important;
+    border-width: 1px !important;
+}
 /* Modern Tables */
 .modern-table-wrapper {
     background: white;

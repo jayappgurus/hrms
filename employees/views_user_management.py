@@ -108,6 +108,12 @@ class UserCreateView(LoginRequiredMixin, CreateView):
     template_name = 'employees/user_create.html'
     success_url = reverse_lazy('employees:user_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['role_choices'] = UserProfile.ROLE_CHOICES
+        context['departments'] = Department.objects.all()
+        return context
+
     def form_valid(self, form):
         response = super().form_valid(form)
         messages.success(self.request, f'User {self.object.username} created successfully!')

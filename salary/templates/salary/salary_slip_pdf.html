@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Salary Slip - {{ slip.employee.full_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #332666;
+            padding-bottom: 20px;
+        }
+        
+        .company-info {
+            margin-bottom: 20px;
+        }
+        
+        .slip-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #332666;
+            margin-bottom: 20px;
+        }
+        
+        .employee-info {
+            background: #f8faff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .salary-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #332666;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .salary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .salary-table th,
+        .salary-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .salary-table th {
+            background: #f0f7ff;
+            font-weight: bold;
+        }
+        
+        .salary-table .amount {
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        .total-row {
+            background: #f8faff;
+            font-weight: bold;
+        }
+        
+        .net-salary {
+            font-size: 16px;
+            font-weight: bold;
+            color: #059669;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #059669;
+            border-radius: 8px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .summary-box {
+            border: 2px solid #332666;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            background: #f8faff;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .summary-label {
+            font-weight: bold;
+        }
+        
+        .summary-value {
+            font-weight: bold;
+            color: #332666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="slip-title">SALARY SLIP</div>
+        <div class="company-info">
+            <strong>HRMS Portal</strong><br>
+            Pay Period: {{ slip.month|date:"F Y" }}<br>
+            Generated on: {{ slip.generated_at|date:"d M Y, H:i" }}
+        </div>
+    </div>
+
+    <div class="employee-info">
+        <strong>Employee Details:</strong><br>
+        Name: {{ slip.employee.full_name }}<br>
+        Employee ID: {{ slip.employee.employee_id }}<br>
+        Department: {{ slip.employee.department|default:"N/A" }}<br>
+        Designation: {{ slip.employee.designation|default:"N/A" }}
+    </div>
+
+    <div class="salary-section">
+        <div class="section-title">EARNINGS</div>
+        <table class="salary-table">
+            <tr>
+                <th>Component</th>
+                <th class="amount">Amount (₹)</th>
+            </tr>
+            <tr>
+                <td>Basic Salary</td>
+                <td class="amount">{{ slip.basic_salary }}</td>
+            </tr>
+            <tr>
+                <td>House Rent Allowance (HRA)</td>
+                <td class="amount">{{ slip.hra }}</td>
+            </tr>
+            <tr>
+                <td>Medical Allowance</td>
+                <td class="amount">{{ slip.medical_allowance }}</td>
+            </tr>
+            <tr>
+                <td>Conveyance Allowance</td>
+                <td class="amount">{{ slip.conveyance_allowance }}</td>
+            </tr>
+            <tr>
+                <td>Special Allowance</td>
+                <td class="amount">{{ slip.special_allowance }}</td>
+            </tr>
+            {% if slip.overtime_earnings %}
+            <tr>
+                <td>Overtime Earnings</td>
+                <td class="amount">{{ slip.overtime_earnings }}</td>
+            </tr>
+            {% endif %}
+            {% if slip.other_earnings %}
+            <tr>
+                <td>Other Earnings</td>
+                <td class="amount">{{ slip.other_earnings }}</td>
+            </tr>
+            {% endif %}
+            <tr class="total-row">
+                <td><strong>GROSS EARNINGS</strong></td>
+                <td class="amount"><strong>{{ slip.gross_salary }}</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="salary-section">
+        <div class="section-title">DEDUCTIONS</div>
+        <table class="salary-table">
+            <tr>
+                <th>Component</th>
+                <th class="amount">Amount (₹)</th>
+            </tr>
+            <tr>
+                <td>Provident Fund (PF) - Employee</td>
+                <td class="amount">{{ slip.employee_pf }}</td>
+            </tr>
+            {% if slip.employee_esic %}
+            <tr>
+                <td>ESIC - Employee</td>
+                <td class="amount">{{ slip.employee_esic }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>Professional Tax</td>
+                <td class="amount">{{ slip.professional_tax }}</td>
+            </tr>
+            {% if slip.leave_deduction %}
+            <tr>
+                <td>Leave Deduction (LOP)</td>
+                <td class="amount">{{ slip.leave_deduction }}</td>
+            </tr>
+            {% endif %}
+            {% if slip.other_deductions %}
+            <tr>
+                <td>Other Deductions</td>
+                <td class="amount">{{ slip.other_deductions }}</td>
+            </tr>
+            {% endif %}
+            <tr class="total-row">
+                <td><strong>TOTAL DEDUCTIONS</strong></td>
+                <td class="amount"><strong>{{ slip.total_deductions }}</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="net-salary">
+        NET SALARY: ₹{{ slip.net_salary }}
+    </div>
+
+    <div class="summary-box">
+        <div class="section-title">SUMMARY</div>
+        <div class="summary-row">
+            <span class="summary-label">Working Days:</span>
+            <span class="summary-value">{{ slip.working_days }}</span>
+        </div>
+        <div class="summary-row">
+            <span class="summary-label">Present Days:</span>
+            <span class="summary-value">{{ slip.present_days }}</span>
+        </div>
+        {% if slip.lop_days %}
+        <div class="summary-row">
+            <span class="summary-label">LOP Days:</span>
+            <span class="summary-value">{{ slip.lop_days }}</span>
+        </div>
+        {% endif %}
+        <div class="summary-row">
+            <span class="summary-label">Employer PF Contribution:</span>
+            <span class="summary-value">₹{{ slip.employer_pf }}</span>
+        </div>
+        {% if slip.employer_esic %}
+        <div class="summary-row">
+            <span class="summary-label">Employer ESIC Contribution:</span>
+            <span class="summary-value">₹{{ slip.employer_esic }}</span>
+        </div>
+        {% endif %}
+        <div class="summary-row">
+            <span class="summary-label">Total CTC:</span>
+            <span class="summary-value">₹{{ slip.total_ctc }}</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>This is a computer-generated salary slip and does not require signature.</p>
+        <p>For any queries, please contact HR Department.</p>
+        <p>Generated by HRMS Portal on {{ slip.generated_at|date:"d M Y, H:i" }}</p>
+    </div>
+</body>
+</html>

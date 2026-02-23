@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.db.models import Count, Q
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
@@ -258,3 +259,76 @@ def export_windows_systems_csv(request):
         ])
     
     return response
+
+
+@login_required
+def show_mac_address(request):
+    """
+    Show MAC address assignments page
+    """
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, 'You do not have permission to view this page.')
+        return redirect('employees:system_management')
+    
+    # Get filter parameter
+    status_filter = request.GET.get('status', 'all')
+    
+    # Get systems that have MAC addresses
+    mac_systems = SystemDetail.objects.filter(
+        macaddress__isnull=False
+    ).exclude(macaddress='').select_related('employee', 'employee__department')
+    
+    # Apply status filter
+    if status_filter == 'assigned':
+        mac_systems = mac_systems.filter(is_active=True)
+    elif status_filter == 'pending':
+        mac_systems = mac_systems.filter(is_active=False)
+    
+    mac_systems = mac_systems.order_by('employee__full_name')
+    
+    context = {
+        'mac_systems': mac_systems,
+        'title': 'MAC Address Assignments',
+        'status_filter': status_filter
+    }
+    
+    return render(request, 'system/show_mac_address.html', context)
+
+
+@login_required
+@require_POST
+def update_system_status(request):
+    """
+    AJAX endpoint to update system allocation status
+    """
+    if not request.user.is_staff and not request.user.is_superuser:
+        return JsonResponse({'success': False, 'message': 'Permission denied'}, status=403)
+    
+    try:
+        system_id = request.POST.get('system_id')
+        is_active = request.POST.get('is_active') == 'true'
+        
+        if not system_id:
+            return JsonResponse({'success': False, 'message': 'System ID is required'})
+        
+        # Get the system
+        system = SystemDetail.objects.get(pk=system_id)
+        
+        # Update status
+        old_status = 'Assigned' if system.is_active else 'Pending'
+        system.is_active = is_active
+        system.save()
+        
+        new_status = 'Assigned' if is_active else 'Pending'
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Status updated from {old_status} to {new_status}',
+            'system_id': system_id,
+            'is_active': is_active
+        })
+        
+    except SystemDetail.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'System not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)

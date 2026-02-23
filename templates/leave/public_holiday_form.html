@@ -22,7 +22,12 @@
 </div>
 <div class="modern-card">
     <div class="modern-card-body">
-        <form method="post" id="holidayForm">
+        <form method="post" 
+              id="holidayForm"
+              data-validate
+              data-validate-url="{% url 'employees:validate_public_holiday' %}"
+              data-validate-on-blur="true"
+              data-validate-on-change="false">
             {% csrf_token %}
 
             <div class="row g-3">
@@ -31,7 +36,11 @@
                         <label class="modern-form-label required">{{ form.name.label }}</label>
                         {{ form.name }}
                         {% if form.name.errors %}
-                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                            <div class="text-danger">
+                                {% for error in form.name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
                         {% endif %}
                         <small class="form-help-text">Enter the name of the holiday (e.g., Diwali, Christmas)</small>
                     </div>
@@ -45,7 +54,11 @@
                             {{ form.date }}
                         </div>
                         {% if form.date.errors %}
-                        <div class="text-danger small mt-1">{{ form.date.errors.0 }}</div>
+                            <div class="text-danger">
+                                {% for error in form.date.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
                         {% endif %}
                         <small class="form-help-text">Select the date of the holiday</small>
                     </div>
@@ -63,6 +76,13 @@
                     <div class="modern-form-group">
                         <label class="modern-form-label">{{ form.country.label }}</label>
                         {{ form.country }}
+                        {% if form.name.errors %}
+                            <div class="text-danger">
+                                {% for error in form.name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         {% if form.country.errors %}
                         <div class="text-danger small mt-1">{{ form.country.errors.0 }}</div>
                         {% endif %}

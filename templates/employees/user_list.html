@@ -89,18 +89,32 @@
                         </td>
                         <td data-label="Email">{{ user.email|default:"—" }}</td>
                         <td data-label="Role">
-                            {% if user.is_superuser %}
-                            <span class="status-badge danger">
-                                <i class="bi bi-shield-fill-check"></i> Superuser
-                            </span>
-                            {% elif user.is_staff %}
-                            <span class="status-badge warning">
-                                <i class="bi bi-person-badge"></i> Staff
-                            </span>
+                            {% if user.profile %}
+                                {% if user.profile.role == 'admin' %}
+                                <span class="status-badge danger">
+                                    <i class="bi bi-shield-fill-check"></i> Admin
+                                </span>
+                                {% elif user.profile.role == 'hr' %}
+                                <span class="status-badge warning">
+                                    <i class="bi bi-person-badge"></i> HR
+                                </span>
+                                {% elif user.profile.role == 'manager' %}
+                                <span class="status-badge primary">
+                                    <i class="bi bi-briefcase"></i> Manager
+                                </span>
+                                {% elif user.profile.role == 'employee' %}
+                                <span class="status-badge info">
+                                    <i class="bi bi-person"></i> Employee
+                                </span>
+                                {% else %}
+                                <span class="status-badge secondary">
+                                    <i class="bi bi-question-circle"></i> {{ user.profile.get_role_display|default:user.profile.role }}
+                                </span>
+                                {% endif %}
                             {% else %}
-                            <span class="status-badge info">
-                                <i class="bi bi-person"></i> Employee
-                            </span>
+                                <span class="status-badge secondary">
+                                    <i class="bi bi-dash-circle"></i> No Role
+                                </span>
                             {% endif %}
                         </td>
                         <td data-label="Status">
@@ -184,7 +198,7 @@ async function confirmDelete(userId) {
         // Create a form and submit it
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/users/${userId}/delete/`;
+        form.action = `{% url 'employees:delete_user' 0 %}`.replace('0', userId);
 
         // Add CSRF token - try multiple methods
         let csrfToken = null;

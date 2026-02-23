@@ -5,8 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
-from .models import SystemDetail, MacAddress, SystemRequirement, Employee
-from .forms_system import SystemDetailForm, MacAddressForm, SystemRequirementForm
+from .models import SystemDetail, SystemRequirement, Employee
+from .forms_system import SystemDetailForm, SystemRequirementForm
 from .decorators import admin_required, it_admin_required
 from django.utils.decorators import method_decorator
 from django.db.models import Q, Count
@@ -117,97 +117,6 @@ class SystemDetailDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'System Details'
         return context
-
-
-# MacAddress Views
-
-@method_decorator([login_required, it_admin_required], name='dispatch')
-class MacAddressListView(LoginRequiredMixin, ListView):
-    model = MacAddress
-    template_name = 'system/mac_address_list.html'
-    context_object_name = 'mac_addresses'
-    paginate_by = 20
-
-    def get_queryset(self):
-        queryset = MacAddress.objects.select_related('employee').all()
-        
-        # Search functionality
-        search = self.request.GET.get('search', '')
-        if search:
-            queryset = queryset.filter(
-                Q(mac_address__icontains=search) |
-                Q(employee__full_name__icontains=search) |
-                Q(employee__employee_code__icontains=search)
-            )
-        
-        return queryset.order_by('-created_at')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'MAC Address Management'
-        context['total_macs'] = MacAddress.objects.count()
-        context['active_macs'] = MacAddress.objects.count()  # All are active now
-        context['search'] = self.request.GET.get('search', '')
-        return context
-
-
-@method_decorator([login_required, it_admin_required], name='dispatch')
-class MacAddressDetailView(LoginRequiredMixin, DetailView):
-    model = MacAddress
-    template_name = 'system/mac_address_view.html'
-    context_object_name = 'mac'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'MAC Address Details'
-        return context
-
-
-@method_decorator([login_required, it_admin_required], name='dispatch')
-class MacAddressCreateView(LoginRequiredMixin, CreateView):
-    model = MacAddress
-    form_class = MacAddressForm
-    template_name = 'system/mac_address_form.html'
-    success_url = reverse_lazy('employees:mac_address_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'MAC address added successfully.')
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Add MAC Address'
-        context['button_text'] = 'Add MAC Address'
-        return context
-
-
-@method_decorator([login_required, it_admin_required], name='dispatch')
-class MacAddressUpdateView(LoginRequiredMixin, UpdateView):
-    model = MacAddress
-    form_class = MacAddressForm
-    template_name = 'system/mac_address_form.html'
-    success_url = reverse_lazy('employees:mac_address_list')
-
-    def form_valid(self, form):
-        messages.success(self.request, 'MAC address updated successfully.')
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Edit MAC Address'
-        context['button_text'] = 'Update MAC Address'
-        return context
-
-
-@method_decorator([login_required, it_admin_required], name='dispatch')
-class MacAddressDeleteView(LoginRequiredMixin, DeleteView):
-    model = MacAddress
-    template_name = 'system/mac_address_confirm_delete.html'
-    success_url = reverse_lazy('employees:mac_address_list')
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, 'MAC address deleted successfully.')
-        return super().delete(request, *args, **kwargs)
 
 
 # SystemRequirement Views

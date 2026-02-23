@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4 page-content">
+    <!-- Breadcrumb & Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb premium-breadcrumb p-0">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'salary:dashboard' %}">
+                            <i class="bi bi-house-door me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Salary Structures</li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <h1 class="h2 page-heading mb-0">Salary Structures</h1>
+                <a href="{% url 'salary:salary_structure_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create Structure
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Salary Structures Grid -->
+    <div class="row g-4">
+        {% for structure in structures %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="modern-card">
+                <div class="modern-card-header">
+                    <h5 class="modern-card-title">
+                        <i class="bi bi-diagram-3"></i>
+                        {{ structure.name }}
+                    </h5>
+                </div>
+                <div class="modern-card-body">
+                    <div class="salary-structure-preview">
+                        <div class="mb-3">
+                            <small class="text-muted">Basic % of CTC</small>
+                            <div class="fw-bold text-primary">{{ structure.basic_percentage }}%</div>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">HRA % of Basic</small>
+                            <div class="fw-bold text-primary">{{ structure.hra_percentage }}%</div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <small class="text-muted">Medical</small>
+                                <div class="fw-bold">₹{{ structure.medical_allowance }}</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Conveyance</small>
+                                <div class="fw-bold">₹{{ structure.conveyance_allowance }}</div>
+                            </div>
+                        </div>
+                        {% if structure.description %}
+                        <p class="text-muted small mb-3">{{ structure.description|truncatewords:10 }}</p>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'salary:salary_structure_update' structure.pk %}" 
+                               class="btn btn-sm btn-outline-primary flex-grow-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'salary:salary_structure_delete' structure.pk %}" 
+                               class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="bi bi-diagram-3"></i>
+                </div>
+                <h3 class="empty-state-title">No Salary Structures</h3>
+                <p class="empty-state-text">
+                    Create your first salary structure to define how salaries are calculated for different employee categories.
+                </p>
+                <a href="{% url 'salary:salary_structure_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create First Structure
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

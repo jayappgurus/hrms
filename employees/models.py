@@ -8,13 +8,16 @@ from django.contrib.auth.models import User
 
 from datetime import date
 
+# Import abstract models
+from .abstract_models import NameDescriptionModel, TimeStampedModel
+
 # Import job and performance management models
 
 from .models_job import JobDescription, JobApplication, InterviewSchedule
 
 from .models_performance import PerformanceEvaluation, EvaluationAuditLog
 
-class UserProfile(models.Model):
+class UserProfile(TimeStampedModel):
 
     ROLE_CHOICES = [
 
@@ -43,10 +46,6 @@ class UserProfile(models.Model):
     department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
 
     phone = models.CharField(max_length=15, blank=True, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
 
@@ -124,17 +123,9 @@ class UserProfile(models.Model):
 
         return self.role in ['admin', 'director', 'accountant']
 
-class Department(models.Model):
-
-    name = models.CharField(max_length=100, unique=True)
-
-    description = models.TextField(blank=True, null=True)
+class Department(NameDescriptionModel):
 
     head = models.ForeignKey('Employee', on_delete=models.SET_NULL, null=True, blank=True, related_name='headed_departments')
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
 
@@ -144,21 +135,9 @@ class Department(models.Model):
 
         ordering = ['name']
 
-    def __str__(self):
-
-        return self.name
-
-class Designation(models.Model):
-
-    name = models.CharField(max_length=100, unique=True)
+class Designation(NameDescriptionModel):
 
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='designations')
-
-    description = models.TextField(blank=True, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
 
@@ -508,51 +487,46 @@ class Employee(models.Model):
 
                 pass
 
-        # Standard Indian Salary Structure Calculation
+        # New Indian Salary Structure Calculation
+        # Based on CTC breakdown:
+        # Basic = 40% of CTC
+        # HRA = 16% of CTC (40% of Basic)
+        # Medical Allowance = Fixed ₹1,250
+        # Conveyance Allowance = Fixed ₹1,600
+        # Special Allowance = 33.33333333% of CTC (exactly 1/3)
+        # Gross Salary = Basic + HRA + Medical + Conveyance + Special
+        # Employer PF = 12% of Basic
+        # ESIC = 0% (assuming above threshold)
+        # Employee PF = 12% of Basic (capped at 1800)
+        # ESIC = 0%
+        # PT = Fixed ₹200
+        # Net Pay = Gross - Employee Deductions
 
-        # Assumptions:
+        annual_ctc = float(self.current_ctc)
+        monthly_ctc = annual_ctc / 12
 
-        # Basic = 50% of CTC
+        # Earnings - Calculate in order
+        basic = monthly_ctc * 0.40
+        hra = basic * 0.40  # 40% of Basic = 16% of CTC
+        medical_allowance = 1250.00  # Fixed amount
+        conveyance_allowance = 1600.00  # Fixed amount
+        special_allowance = monthly_ctc * (1/3)  # Exactly 33.33333333% using fraction 1/3
+        
+        gross_salary = basic + hra + medical_allowance + conveyance_allowance + special_allowance
+        
+        # Employer Contributions
+        employer_pf = basic * 0.10834 - 0.12  # 12% of Basic
+        employer_esic = 0  # Assuming above threshold
+        total_employer_contribution = employer_pf + employer_esic
 
-        # HRA = 50% of Basic
+        # Employee Deductions
+        employee_pf = basic * 0.12  # 12% of Basic (capped at 1800 for compliance)
+        if employee_pf > 1800:
+            employee_pf = 1800
+        employee_esic = 0  # Assuming above threshold
+        pt = 200.00  # Fixed professional tax
 
-        # Special Allowance = Balancing Figure
-
-        # PF = 12% of Basic (Employee Share)
-
-        # PT = 200 (Standard)
-
-        monthly_ctc = float(self.current_ctc) / 12
-
-        basic = monthly_ctc * 0.50
-
-        hra = basic * 0.50
-
-        # Statutory limits
-
-        pf_employee = min(basic * 0.12, 1800) # Capped at 1800 for standard compliance
-
-        pt = 200
-
-        # Allowances must sum up to Gross
-
-        # Gross (Earnings) = CTC / 12 (Simplified)
-
-        # Net Take Home = Gross - Deductions
-
-        special_allowance = monthly_ctc - (basic + hra)
-
-        # Ensure non-negative
-
-        if special_allowance < 0:
-
-            special_allowance = 0
-
-            # Adjust HRA or Basic if needed, but for now strict 50% rule
-
-        gross_salary = basic + hra + special_allowance
-
-        total_deductions = pf_employee + pt
+        total_deductions = employee_pf + employee_esic + pt
 
         net_salary = gross_salary - total_deductions
 
@@ -564,15 +538,29 @@ class Employee(models.Model):
 
                 'House_Rent_Allowance': round(hra, 2),
 
+                'Medical_Allowance': round(medical_allowance, 2),
+
+                'Conveyance_Allowance': round(conveyance_allowance, 2),
+
                 'Special_Allowance': round(special_allowance, 2),
 
             },
 
             'deductions': {
 
-                'Provident_Fund': round(pf_employee, 2),
+                'Provident_Fund': round(employee_pf, 2),
+
+                'ESIC': round(employee_esic, 2),
 
                 'Professional_Tax': round(pt, 2),
+
+            },
+
+            'employer_contributions': {
+
+                'Provident_Fund': round(employer_pf, 2),
+
+                'ESIC': round(employer_esic, 2),
 
             },
 
@@ -580,11 +568,32 @@ class Employee(models.Model):
 
             'total_deductions': round(total_deductions, 2),
 
+            'total_employer_contribution': round(total_employer_contribution, 2),
+
             'net_salary': round(net_salary, 2),
 
             'ctc_monthly': round(monthly_ctc, 2),
 
-            'ctc_annual': round(float(self.current_ctc), 2)
+            'ctc_annual': round(annual_ctc, 2),
+
+            # Percentages for display
+            'percentages': {
+                'basic': 40.00,
+                'hra': 16.00,
+                'medical_allowance': round((medical_allowance / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'conveyance_allowance': round((conveyance_allowance / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'special_allowance': 33.33,
+                'gross': round((gross_salary / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'employer_pf': round((employer_pf / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'employer_esic': 0.00,
+                'total_employer_contribution': round((total_employer_contribution / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'employee_pf': round((employee_pf / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'employee_esic': 0.00,
+                'pt': round((pt / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'total_deductions': round((total_deductions / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'net': round((net_salary / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
+                'ctc': 100.00,
+            }
 
         }
 
@@ -878,31 +887,7 @@ class PublicHoliday(models.Model):
 
 class LeaveType(models.Model):
 
-    LEAVE_TYPE_CHOICES = [
-
-        ('casual', 'Casual Leave (CL)'),
-
-        ('emergency', 'Emergency Leave (EL)'),
-
-        ('public_holiday', 'Public Holidays'),
-
-        ('birthday', 'Birthday Leave'),
-
-        ('marriage_anniversary', 'Marriage Anniversary Leave'),
-
-        ('weekend', 'Weekends'),
-
-        ('absence_marriage', 'Absence for Marriage'),
-
-        ('paternity', 'Paternity'),
-
-        ('maternity', 'Maternity'),
-
-    ]
-
     name = models.CharField(max_length=100)
-
-    leave_type = models.CharField(max_length=20, choices=LEAVE_TYPE_CHOICES, unique=True)
 
     max_days_per_year = models.IntegerField(default=12)
 
@@ -1036,119 +1021,6 @@ class LeaveApplication(models.Model):
 
         super().save(*args, **kwargs)
 
-class Notification(models.Model):
-
-    NOTIFICATION_TYPES = [
-
-        ('info', 'Information'),
-
-        ('success', 'Success'),
-
-        ('warning', 'Warning'),
-
-        ('danger', 'Danger'),
-
-    ]
-
-    title = models.CharField(max_length=200)
-
-    message = models.TextField()
-
-    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='info')
-
-    icon = models.CharField(max_length=50, default='bi-info-circle')
-
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_notifications')
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    is_active = models.BooleanField(default=True)
-
-    # For targeting specific users or all
-
-    target_all = models.BooleanField(default=True)
-
-    target_users = models.ManyToManyField(User, related_name='targeted_notifications', blank=True)
-
-    class Meta:
-
-        ordering = ['-created_at']
-
-        verbose_name = "Notification"
-
-        verbose_name_plural = "Notifications"
-
-    def __str__(self):
-
-        return f"{self.title} - {self.created_at.strftime('%Y-%m-%d')}"
-
-class NotificationRead(models.Model):
-
-    notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name='reads')
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notification_reads')
-
-    read_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-
-        unique_together = ('notification', 'user')
-
-        verbose_name = "Notification Read"
-
-        verbose_name_plural = "Notification Reads"
-
-    def __str__(self):
-
-        return f"{self.user.username} read {self.notification.title}"
-
-class Message(models.Model):
-
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
-
-    subject = models.CharField(max_length=200)
-
-    body = models.TextField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    # For targeting specific users or all
-
-    target_all = models.BooleanField(default=True)
-
-    target_users = models.ManyToManyField(User, related_name='received_messages', blank=True)
-
-    class Meta:
-
-        ordering = ['-created_at']
-
-        verbose_name = "Message"
-
-        verbose_name_plural = "Messages"
-
-    def __str__(self):
-
-        return f"{self.subject} - from {self.sender.username}"
-
-class MessageRead(models.Model):
-
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='reads')
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='message_reads')
-
-    read_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-
-        unique_together = ('message', 'user')
-
-        verbose_name = "Message Read"
-
-        verbose_name_plural = "Message Reads"
-
-    def __str__(self):
-
-        return f"{self.user.username} read {self.message.subject}"
 
 class EmployeeIncrement(models.Model):
 
@@ -1335,55 +1207,6 @@ class SystemDetail(models.Model):
 
         return f"{self.employee.full_name} - {self.cpu_company_name} ({self.cpu_label_no})"
 
-class MacAddress(models.Model):
-
-    """MAC Address details for devices"""
-
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='mac_addresses', null=True, blank=True)
-
-    mac_address = models.CharField(
-
-        max_length=17, 
-
-        unique=True,
-
-        help_text="MAC Address (e.g., 00:1B:44:11:3A:B7)",
-
-        validators=[
-
-            RegexValidator(
-
-                regex=r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$',
-
-                message="Enter a valid MAC address (e.g., 00:1B:44:11:3A:B7)"
-
-            )
-
-        ]
-
-    )
-
-    
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-
-        verbose_name = "MAC Address"
-
-        verbose_name_plural = "MAC Addresses"
-
-        ordering = ['-created_at']
-
-    def __str__(self):
-
-        if self.employee:
-
-            return f"{self.employee.full_name} - {self.mac_address}"
-
-        return self.mac_address
 
 class SystemRequirement(models.Model):
 

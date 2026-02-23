@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4 page-content">
+    <!-- Breadcrumb & Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb premium-breadcrumb p-0">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'salary:dashboard' %}">
+                            <i class="bi bi-house-door me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'salary:salary_structure_list' %}">
+                            Salary Structures
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ title }}</li>
+                </ol>
+            </nav>
+            <h1 class="h2 page-heading mb-4">{{ title }}</h1>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-10">
+            <div class="modern-card">
+                <div class="modern-card-header">
+                    <h5 class="modern-card-title">
+                        <i class="bi bi-diagram-3"></i>
+                        Salary Structure Details
+                    </h5>
+                </div>
+                <div class="modern-card-body">
+                    <form method="post" id="salaryStructureForm">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Structure Name *</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Status</label>
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="is_active" id="is_active" checked>
+                                        <label class="form-check-label" for="is_active">
+                                            Active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modern-form-group">
+                            <label class="modern-form-label">Description</label>
+                            {{ form.description }}
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Basic Salary % of CTC *</label>
+                                    {{ form.basic_percentage }}
+                                    {% if form.basic_percentage.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.basic_percentage.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-help-text">Basic salary should not exceed 50% of CTC</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">HRA % of Basic *</label>
+                                    {{ form.hra_percentage }}
+                                    {% if form.hra_percentage.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.hra_percentage.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-help-text">House Rent Allowance percentage</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Medical Allowance</label>
+                                    {{ form.medical_allowance }}
+                                    <small class="form-help-text">Fixed amount per month</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Conveyance Allowance</label>
+                                    {{ form.conveyance_allowance }}
+                                    <small class="form-help-text">Fixed amount per month</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Professional Tax</label>
+                                    {{ form.professional_tax }}
+                                    <small class="form-help-text">Fixed deduction per month</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Preview Section -->
+                        <div class="mt-5">
+                            <h6 class="fw-bold mb-3">
+                                <i class="bi bi-calculator me-2"></i>Live Preview
+                            </h6>
+                            <div class="modern-form-group">
+                                <label class="modern-form-label">Sample CTC (Monthly)</label>
+                                <input type="number" class="modern-form-control" id="sampleCtc" 
+                                       value="45000" step="100" min="0">
+                            </div>
+                            
+                            <div id="salaryPreview" class="salary-preview-grid">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="preview-earnings">
+                                            <h6 class="text-success mb-3">Earnings</h6>
+                                            <div class="preview-item">
+                                                <span>Basic Salary</span>
+                                                <span id="previewBasic">₹0</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <span>HRA</span>
+                                                <span id="previewHRA">₹0</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <span>Medical Allowance</span>
+                                                <span id="previewMedical">₹0</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <span>Conveyance</span>
+                                                <span id="previewConveyance">₹0</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <span>Special Allowance</span>
+                                                <span id="previewSpecial">₹0</span>
+                                            </div>
+                                            <div class="preview-item total">
+                                                <span>Gross Salary</span>
+                                                <span id="previewGross">₹0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="preview-deductions">
+                                            <h6 class="text-danger mb-3">Deductions</h6>
+                                            <div class="preview-item">
+                                                <span>Employee PF (12%)</span>
+                                                <span id="previewEmployeePF">₹0</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <span>Employee ESIC</span>
+                                                <span id="previewEmployeeESIC">₹0</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <span>Professional Tax</span>
+                                                <span id="previewPT">₹0</span>
+                                            </div>
+                                            <div class="preview-item total">
+                                                <span>Total Deductions</span>
+                                                <span id="previewTotalDeductions">₹0</span>
+                                            </div>
+                                            <div class="preview-item net">
+                                                <span>Net Salary</span>
+                                                <span id="previewNet">₹0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="preview-ctc">
+                                            <div class="preview-item">
+                                                <span>Employer PF</span>
+                                                <span id="previewEmployerPF">₹0</span>
+                                            </div>
+                                            <div class="preview-item">
+                                                <span>Employer ESIC</span>
+                                                <span id="previewEmployerESIC">₹0</span>
+                                            </div>
+                                            <div class="preview-item total-ctc">
+                                                <span>Total CTC</span>
+                                                <span id="previewCTC">₹0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-3 mt-5">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {% if structure.pk %}Update Structure{% else %}Create Structure{% endif %}
+                            </button>
+                            <a href="{% url 'salary:salary_structure_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.salary-preview-grid {
+    background: #f8faff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.preview-earnings, .preview-deductions, .preview-ctc {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+}
+
+.preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.preview-item:last-child {
+    border-bottom: none;
+}
+
+.preview-item.total {
+    border-top: 2px solid var(--primary);
+    font-weight: 700;
+    color: var(--primary);
+    margin-top: 8px;
+    padding-top: 12px;
+}
+
+.preview-item.net {
+    font-weight: 700;
+    color: var(--success);
+    font-size: 1.1em;
+}
+
+.preview-item.total-ctc {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.1em;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function updatePreview() {
+        const ctc = parseFloat(document.getElementById('sampleCtc').value) || 0;
+        const basicPercent = parseFloat(document.getElementById('id_basic_percentage').value) || 0;
+        const hraPercent = parseFloat(document.getElementById('id_hra_percentage').value) || 0;
+        const medical = parseFloat(document.getElementById('id_medical_allowance').value) || 0;
+        const conveyance = parseFloat(document.getElementById('id_conveyance_allowance').value) || 0;
+        const pt = parseFloat(document.getElementById('id_professional_tax').value) || 0;
+        
+        // Calculate components
+        const basic = (ctc * basicPercent) / 100;
+        const hra = (basic * hraPercent) / 100;
+        const grossEarnings = basic + hra + medical + conveyance;
+        const specialAllowance = Math.max(0, ctc - grossEarnings);
+        const grossSalary = basic + hra + medical + conveyance + specialAllowance;
+        
+        // PF calculations
+        const employeePF = (basic * 12) / 100;
+        const employerPF = (basic * 12) / 100;
+        
+        // ESIC calculations
+        let employeeESIC = 0;
+        let employerESIC = 0;
+        if (grossSalary <= 21000) {
+            employeeESIC = (grossSalary * 0.75) / 100;
+            employerESIC = (grossSalary * 3.25) / 100;
+        }
+        
+        // Total deductions and net salary
+        const totalDeductions = employeePF + employeeESIC + pt;
+        const netSalary = grossSalary - totalDeductions;
+        const totalCTC = grossSalary + employerPF + employerESIC;
+        
+        // Update preview
+        document.getElementById('previewBasic').textContent = '₹' + basic.toFixed(2);
+        document.getElementById('previewHRA').textContent = '₹' + hra.toFixed(2);
+        document.getElementById('previewMedical').textContent = '₹' + medical.toFixed(2);
+        document.getElementById('previewConveyance').textContent = '₹' + conveyance.toFixed(2);
+        document.getElementById('previewSpecial').textContent = '₹' + specialAllowance.toFixed(2);
+        document.getElementById('previewGross').textContent = '₹' + grossSalary.toFixed(2);
+        
+        document.getElementById('previewEmployeePF').textContent = '₹' + employeePF.toFixed(2);
+        document.getElementById('previewEmployeeESIC').textContent = '₹' + employeeESIC.toFixed(2);
+        document.getElementById('previewPT').textContent = '₹' + pt.toFixed(2);
+        document.getElementById('previewTotalDeductions').textContent = '₹' + totalDeductions.toFixed(2);
+        document.getElementById('previewNet').textContent = '₹' + netSalary.toFixed(2);
+        
+        document.getElementById('previewEmployerPF').textContent = '₹' + employerPF.toFixed(2);
+        document.getElementById('previewEmployerESIC').textContent = '₹' + employerESIC.toFixed(2);
+        document.getElementById('previewCTC').textContent = '₹' + totalCTC.toFixed(2);
+    }
+    
+    // Event listeners
+    document.getElementById('sampleCtc').addEventListener('input', updatePreview);
+    document.getElementById('id_basic_percentage').addEventListener('input', updatePreview);
+    document.getElementById('id_hra_percentage').addEventListener('input', updatePreview);
+    document.getElementById('id_medical_allowance').addEventListener('input', updatePreview);
+    document.getElementById('id_conveyance_allowance').addEventListener('input', updatePreview);
+    document.getElementById('id_professional_tax').addEventListener('input', updatePreview);
+    
+    // Initial calculation
+    updatePreview();
+});
+</script>
+{% endblock %}

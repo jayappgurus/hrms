@@ -1,7 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load salary_filters %}
 
 {% block content %}
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <div id="payslipToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi me-2"></i>
+                <span class="toast-message"></span>
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid py-4 page-content">
     <!-- Breadcrumb & Header -->
     <div class="row mb-5">
@@ -41,8 +55,10 @@
                         </div>
                     </div>
                     <div class="ctc-amount-display mb-2">
-                        <span class="currency">₹</span>
-                        <span class="amount counter-value">{{ employee.current_ctc }}</span>
+                        <span class="amount counter-value" id="ctc-amount">₹ ******</span>
+                        <button type="button" class="btn btn-sm btn-outline-light ms-2" onclick="toggleSalaryView('ctc')" id="ctc-toggle">
+                            <i class="bi bi-eye" id="ctc-icon"></i>
+                        </button>
                     </div>
                     <div class="effective-badge mt-3">
                         <i class="bi bi-calendar-check me-2"></i>Joined: {{ employee.joining_date|date:"d M, Y" }}
@@ -55,25 +71,40 @@
                             <div class="dot bg-primary me-2"></div>
                             <span class="text-muted">Monthly Gross</span>
                         </div>
-                        <span class="fw-bold text-dark">₹{{ salary_components.gross_salary }}</span>
+                        <div class="d-flex align-items-center">
+                            <span class="fw-bold text-dark" id="gross-amount">₹ ******</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleSalaryView('gross')" id="gross-toggle">
+                                <i class="bi bi-eye" id="gross-icon"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="summary-item d-flex justify-content-between align-items-center mb-3">
                         <div class="d-flex align-items-center">
                             <div class="dot bg-danger me-2"></div>
                             <span class="text-muted">Deductions</span>
                         </div>
-                        <span class="fw-bold text-danger">₹{{ salary_components.total_deductions }}</span>
+                        <div class="d-flex align-items-center">
+                            <span class="fw-bold text-danger" id="deductions-amount">₹ ******</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleSalaryView('deductions')" id="deductions-toggle">
+                                <i class="bi bi-eye" id="deductions-icon"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="net-pay-highlight mt-4 p-3 rounded-4 bg-light border-start border-success border-4">
                         <div class="d-flex justify-content-between align-items-end">
                             <div>
                                 <p class="text-muted small mb-1">Monthly In-Hand</p>
-                                <h3 class="fw-bold mb-0 text-success">₹{{ salary_components.net_salary }}</h3>
+                                <div class="d-flex align-items-center">
+                                    <h3 class="fw-bold mb-0 text-success" id="net-amount">₹ ******</h3>
+                                    <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="toggleSalaryView('net')" id="net-toggle">
+                                        <i class="bi bi-eye" id="net-icon"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="net-percent-badge">
+                            <!-- <div class="net-percent-badge">
                                 <span class="small text-success fw-bold">~{{ salary_components.net_salary|default:0 }}%
                                     of CTC</span>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -119,7 +150,19 @@
                             const original = btn.innerHTML;
                             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Sending...';
                             btn.classList.add('disabled');
-                            setTimeout(() => { if (btn) btn.innerHTML = original; btn.classList.remove('disabled'); }, 10000);
+                            btn.disabled = true;
+                            
+                            // Show info toast immediately
+                            showToast('Generating and sending payslip... Please wait.', 'info');
+                            
+                            // Re-enable after timeout (in case of redirect delay)
+                            setTimeout(() => { 
+                                if (btn) {
+                                    btn.innerHTML = original; 
+                                    btn.classList.remove('disabled');
+                                    btn.disabled = false;
+                                }
+                            }, 10000);
                         }
                     };
                 </script>
@@ -168,12 +211,15 @@
                                     <div class="d-flex align-items-center">
                                         <div class="comp-icon earnings me-3"><i class="bi bi-buildings"></i></div>
                                         <div>
-                                            <div class="item-label">Basic Salary</div>
+                                            <div class="item-label">Basic Salary <span class="badge bg-primary-subtle text-primary ms-1">{{ salary_components.percentages.basic }}%</span></div>
                                             <div class="item-desc small text-muted">Core monthly base</div>
                                         </div>
                                     </div>
-                                    <div class="item-value fw-bold">
-                                        ₹{{ salary_components.earnings.Basic_Salary }}
+                                    <div class="item-value fw-bold d-flex align-items-center gap-2">
+                                        <span id="basic-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary p-1 px-2" onclick="toggleSalaryView('basic')" id="basic-toggle">
+                                            <i class="bi bi-eye" id="basic-icon"></i>
+                                        </button>
                                     </div>
                                 </div>
 
@@ -181,33 +227,72 @@
                                     <div class="d-flex align-items-center">
                                         <div class="comp-icon earnings me-3"><i class="bi bi-houses"></i></div>
                                         <div>
-                                            <div class="item-label">H.R.A.</div>
+                                            <div class="item-label">H.R.A. <span class="badge bg-primary-subtle text-primary ms-1">{{ salary_components.percentages.hra }}%</span></div>
                                             <div class="item-desc small text-muted">House rent allowance</div>
                                         </div>
                                     </div>
-                                    <div class="item-value fw-bold">
-                                        ₹{{ salary_components.earnings.House_Rent_Allowance }}
+                                    <div class="item-value fw-bold d-flex align-items-center gap-2">
+                                        <span id="hra-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary p-1 px-2" onclick="toggleSalaryView('hra')" id="hra-toggle">
+                                            <i class="bi bi-eye" id="hra-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon earnings me-3"><i class="bi bi-heart-pulse"></i></div>
+                                        <div>
+                                            <div class="item-label">Medical Allowance <span class="badge bg-primary-subtle text-primary ms-1">{{ salary_components.percentages.medical_allowance|floatformat:2 }}%</span></div>
+                                            <div class="item-desc small text-muted">Medical benefits</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold d-flex align-items-center gap-2">
+                                        <span id="medical-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary p-1 px-2" onclick="toggleSalaryView('medical')" id="medical-toggle">
+                                            <i class="bi bi-eye" id="medical-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon earnings me-3"><i class="bi bi-car-front"></i></div>
+                                        <div>
+                                            <div class="item-label">Conveyance Allowance <span class="badge bg-primary-subtle text-primary ms-1">{{ salary_components.percentages.conveyance_allowance|floatformat:2 }}%</span></div>
+                                            <div class="item-desc small text-muted">Transport benefits</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold d-flex align-items-center gap-2">
+                                        <span id="conveyance-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary p-1 px-2" onclick="toggleSalaryView('conveyance')" id="conveyance-toggle">
+                                            <i class="bi bi-eye" id="conveyance-icon"></i>
+                                        </button>
                                     </div>
                                 </div>
 
                                 <div class="value-item d-flex justify-content-between align-items-center mb-4">
                                     <div class="d-flex align-items-center">
-                                        <div class="comp-icon earnings me-3"><i class="bi bi-gift text-warning"></i>
-                                        </div>
+                                        <div class="comp-icon earnings me-3"><i class="bi bi-gift text-warning"></i></div>
                                         <div>
-                                            <div class="item-label">Special Allowance</div>
+                                            <div class="item-label">Special Allowance <span class="badge bg-primary-subtle text-primary ms-1">{{ salary_components.percentages.special_allowance }}%</span></div>
                                             <div class="item-desc small text-muted">Performance & bonus</div>
                                         </div>
                                     </div>
-                                    <div class="item-value fw-bold">
-                                        ₹{{ salary_components.earnings.Special_Allowance }}
+                                    <div class="item-value fw-bold d-flex align-items-center gap-2">
+                                        <span id="special-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary p-1 px-2" onclick="toggleSalaryView('special')" id="special-toggle">
+                                            <i class="bi bi-eye" id="special-icon"></i>
+                                        </button>
                                     </div>
                                 </div>
 
-                                <div
-                                    class="total-bar earnings mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold">Total Gross Earnings</span>
-                                    <span class="h5 mb-0 fw-bold">₹{{ salary_components.gross_salary }}</span>
+                                <div class="total-bar earnings mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Total Gross Earnings <span class="badge bg-primary text-white ms-1">{{ salary_components.percentages.gross|floatformat:2 }}%</span></span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="h5 mb-0 fw-bold" id="gross-total-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-primary p-1 px-2" onclick="toggleSalaryView('gross')" id="gross-total-toggle">
+                                            <i class="bi bi-eye" id="gross-total-icon"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -217,20 +302,22 @@
                             <div class="component-group">
                                 <div class="group-header text-danger mb-4 d-flex align-items-center">
                                     <span class="line bg-danger me-2"></span>
-                                    <span class="text-uppercase fw-bold tracking-widest small">Statutory
-                                        Deductions</span>
+                                    <span class="text-uppercase fw-bold tracking-widest small">Employer Contribution</span>
                                 </div>
 
                                 <div class="value-item d-flex justify-content-between align-items-center mb-4">
                                     <div class="d-flex align-items-center">
                                         <div class="comp-icon deductions me-3"><i class="bi bi-safe"></i></div>
                                         <div>
-                                            <div class="item-label">Provident Fund</div>
+                                            <div class="item-label">Provident Fund <span class="badge bg-danger-subtle text-danger ms-1">{{ salary_components.percentages.employer_pf|floatformat:2 }}%</span></div>
                                             <div class="item-desc small text-muted">Retirement savings</div>
                                         </div>
                                     </div>
-                                    <div class="item-value fw-bold text-danger">
-                                        ₹{{ salary_components.deductions.Provident_Fund }}
+                                    <div class="item-value fw-bold text-danger d-flex align-items-center gap-2">
+                                        <span id="employer-pf-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger p-1 px-2" onclick="toggleSalaryView('employer_pf')" id="employer-pf-toggle">
+                                            <i class="bi bi-eye" id="employer-pf-icon"></i>
+                                        </button>
                                     </div>
                                 </div>
 
@@ -238,21 +325,84 @@
                                     <div class="d-flex align-items-center">
                                         <div class="comp-icon deductions me-3"><i class="bi bi-shield-lock"></i></div>
                                         <div>
-                                            <div class="item-label">Professional Tax</div>
-                                            <div class="item-desc small text-muted">State tax reg.</div>
+                                            <div class="item-label">ESIC <span class="badge bg-danger-subtle text-danger ms-1">{{ salary_components.percentages.employer_esic }}%</span></div>
+                                            <div class="item-desc small text-muted">Health insurance</div>
                                         </div>
                                     </div>
-                                    <div class="item-value fw-bold text-danger">
-                                        ₹{{ salary_components.deductions.Professional_Tax }}
+                                    <div class="item-value fw-bold text-danger d-flex align-items-center gap-2">
+                                        <span>0</span>
                                     </div>
                                 </div>
 
-                                <div class="placeholder-space" style="height: 60px;"></div>
+                                <div class="total-bar deductions mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Total Employer Contribution <span class="badge bg-danger text-white ms-1">{{ salary_components.percentages.total_employer_contribution|floatformat:2 }}%</span></span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="h5 mb-0 fw-bold" id="employer-contribution-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger p-1 px-2" onclick="toggleSalaryView('employer_contribution')" id="employer-contribution-toggle">
+                                            <i class="bi bi-eye" id="employer-contribution-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="component-group mt-4">
+                                <div class="group-header text-danger mb-4 d-flex align-items-center">
+                                    <span class="line bg-danger me-2"></span>
+                                    <span class="text-uppercase fw-bold tracking-widest small">Employee Deduction</span>
+                                </div>
 
-                                <div
-                                    class="total-bar deductions mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center">
-                                    <span class="fw-bold">Total Statutory Deductions</span>
-                                    <span class="h5 mb-0 fw-bold">₹{{ salary_components.total_deductions }}</span>
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon deductions me-3"><i class="bi bi-safe"></i></div>
+                                        <div>
+                                            <div class="item-label">Provident Fund <span class="badge bg-danger-subtle text-danger ms-1">{{ salary_components.percentages.employee_pf|floatformat:2 }}%</span></div>
+                                            <div class="item-desc small text-muted">Retirement savings</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold text-danger d-flex align-items-center gap-2">
+                                        <span id="pf-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger p-1 px-2" onclick="toggleSalaryView('pf')" id="pf-toggle">
+                                            <i class="bi bi-eye" id="pf-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon deductions me-3"><i class="bi bi-shield-lock"></i></div>
+                                        <div>
+                                            <div class="item-label">ESIC <span class="badge bg-danger-subtle text-danger ms-1">{{ salary_components.percentages.employee_esic }}%</span></div>
+                                            <div class="item-desc small text-muted">Health insurance</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold text-danger d-flex align-items-center gap-2">
+                                        <span>0</span>
+                                    </div>
+                                </div>
+
+                                <div class="value-item d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="comp-icon deductions me-3"><i class="bi bi-receipt"></i></div>
+                                        <div>
+                                            <div class="item-label">Professional Tax <span class="badge bg-danger-subtle text-danger ms-1">{{ salary_components.percentages.pt|floatformat:2 }}%</span></div>
+                                            <div class="item-desc small text-muted">State tax reg.</div>
+                                        </div>
+                                    </div>
+                                    <div class="item-value fw-bold text-danger d-flex align-items-center gap-2">
+                                        <span id="pt-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger p-1 px-2" onclick="toggleSalaryView('pt')" id="pt-toggle">
+                                            <i class="bi bi-eye" id="pt-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="total-bar deductions mt-4 p-3 rounded-3 d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Total Statutory Deductions <span class="badge bg-danger text-white ms-1">{{ salary_components.percentages.total_deductions|floatformat:2 }}%</span></span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="h5 mb-0 fw-bold" id="deductions-total-amount">₹ ******</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger p-1 px-2" onclick="toggleSalaryView('deductions')" id="deductions-total-toggle">
+                                            <i class="bi bi-eye" id="deductions-total-icon"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -261,23 +411,24 @@
                     <!-- Net Pay Spotlight -->
                     <div class="net-pay-spotlight mt-5">
                         <div class="gradient-border-box">
-                            <div
-                                class="spotlight-content d-md-flex align-items-center justify-content-between p-4 bg-white rounded-4">
+                            <div class="spotlight-content d-md-flex align-items-center justify-content-between p-4 bg-white rounded-4">
                                 <div class="d-flex align-items-center mb-3 mb-md-0">
                                     <div class="spotlight-icon-circle me-3">
                                         <i class="bi bi-stars"></i>
                                     </div>
                                     <div>
-                                        <h4 class="fw-bold mb-1">Monthly Credited Pay</h4>
-                                        <p class="text-muted small mb-0">Estimate after all standard deductions applied.
-                                        </p>
+                                        <h4 class="fw-bold mb-1">Monthly Credited Pay <span class="badge bg-success text-white ms-1">{{ salary_components.percentages.net|floatformat:2 }}%</span></h4>
+                                        <p class="text-muted small mb-0">Estimate after all standard deductions applied.</p>
                                     </div>
                                 </div>
                                 <div class="text-md-end">
-                                    <div class="display-5 fw-bold text-primary mb-0">₹{{ salary_components.net_salary }}
+                                    <div class="d-flex align-items-center justify-content-md-end gap-2">
+                                        <div class="display-5 fw-bold text-primary mb-0" id="net-spotlight-amount">₹ ******</div>
+                                        <button type="button" class="btn btn-outline-primary" onclick="toggleSalaryView('net')" id="net-spotlight-toggle">
+                                            <i class="bi bi-eye" id="net-spotlight-icon"></i>
+                                        </button>
                                     </div>
-                                    <span class="badge bg-success-subtle text-success p-1 px-2 rounded-pill mt-2">
-                                        Active Pay Structure</span>
+                                    <span class="badge bg-success-subtle text-success p-1 px-2 rounded-pill mt-2">Active Pay Structure</span>
                                 </div>
                             </div>
                         </div>
@@ -299,7 +450,6 @@
 </div>
 
 <style>
-    /* Premium Root Styling */
     .page-content {
         background: #f8f9fa;
         min-height: 100vh;
@@ -311,7 +461,6 @@
         letter-spacing: -0.5px;
     }
 
-    /* Glass Breadcrumbs */
     .premium-breadcrumb {
         background: rgba(255, 255, 255, 0.7);
         backdrop-filter: blur(10px);
@@ -339,7 +488,6 @@
         color: var(--primary) !important;
     }
 
-    /* Master Salary Card */
     .salary-master-card {
         border-radius: 24px;
         background: var(--primary);
@@ -358,17 +506,10 @@
         z-index: 0;
     }
 
-    .ctc-amount-display .currency {
-        font-size: 2rem;
-        font-weight: 300;
-        opacity: 0.8;
-        margin-right: 8px;
-    }
-
     .ctc-amount-display .amount {
         font-size: 2rem;
         font-weight: 800;
-        letter-spacing: -2px;
+        letter-spacing: -1px;
     }
 
     .card-icon-blob {
@@ -393,7 +534,6 @@
         font-weight: 500;
     }
 
-    /* Detailed Components Styling */
     .glass-card {
         background: #fff;
         border-radius: 24px;
@@ -453,7 +593,6 @@
         border-left: 5px solid #e74a3b;
     }
 
-    /* Form & Buttons */
     .form-label-custom {
         font-size: 0.8rem;
         font-weight: 700;
@@ -486,7 +625,6 @@
         color: #fff;
     }
 
-    /* Spotlight pay item */
     .net-pay-spotlight .gradient-border-box {
         background: linear-gradient(135deg, #4e73df, #1cc88a);
         padding: 2px;
@@ -510,80 +648,236 @@
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     }
 
-    @media (max-width: 991px) {
-        .salary-master-card {
-            border-radius: 16px;
-        }
+    /* Masked value style */
+    .masked-value {
+        letter-spacing: 2px;
+        color: inherit;
+    }
 
-        .glass-card {
-            border-radius: 16px;
-        }
+    @media (max-width: 991px) {
+        .salary-master-card { border-radius: 16px; }
+        .glass-card { border-radius: 16px; }
     }
 
     @media (max-width: 768px) {
-        .ctc-amount-display .amount {
-            font-size: 2rem;
-        }
-
-        .page-heading {
-            font-size: 1.5rem;
-        }
-
-        .premium-breadcrumb {
-            display: none;
-        }
-
-        .net-pay-highlight {
-            text-align: center;
-        }
-
-        .net-pay-highlight .d-flex {
-            flex-direction: column;
-            align-items: center !important;
-            gap: 10px;
-        }
-
-        .net-percent-badge {
-            margin-top: 5px;
-        }
+        .ctc-amount-display .amount { font-size: 1.6rem; }
+        .page-heading { font-size: 1.5rem; }
+        .premium-breadcrumb { display: none; }
+        .net-pay-highlight { text-align: center; }
+        .net-pay-highlight .d-flex { flex-direction: column; align-items: center !important; gap: 10px; }
+        .net-percent-badge { margin-top: 5px; }
     }
 
     @media (max-width: 576px) {
-        .insight-card-premium {
-            padding: 1.25rem !important;
-        }
+        .display-6 { font-size: 1.75rem; }
+        .p-4 { padding: 1.25rem !important; }
+        .display-5 { font-size: 2rem; }
+        .spotlight-content { text-align: center; }
+        .spotlight-icon-circle { margin: 0 auto 15px !important; }
+        .total-bar { font-size: 0.9rem; }
+    }
 
-        .display-6 {
-            font-size: 1.75rem;
-        }
+    /* Toast Styles */
+    .toast {
+        min-width: 300px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        font-weight: 500;
+    }
 
-        .stat-pill {
-            padding: 6px 15px;
-        }
+    .toast.toast-success {
+        background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%);
+        color: white;
+    }
 
-        .stat-pill .value {
-            font-size: 1rem;
-        }
+    .toast.toast-error {
+        background: linear-gradient(135deg, #e74a3b 0%, #c53030 100%);
+        color: white;
+    }
 
-        .p-4 {
-            padding: 1.25rem !important;
-        }
+    .toast.toast-info {
+        background: linear-gradient(135deg, #4e73df 0%, #3e5cb8 100%);
+        color: white;
+    }
 
-        .display-5 {
-            font-size: 2rem;
-        }
+    .toast .btn-close {
+        filter: brightness(0) invert(1);
+    }
 
-        .spotlight-content {
-            text-align: center;
-        }
+    .toast-body {
+        padding: 16px;
+        font-size: 0.95rem;
+    }
 
-        .spotlight-icon-circle {
-            margin: 0 auto 15px !important;
-        }
-
-        .total-bar {
-            font-size: 0.9rem;
-        }
+    .toast-body i {
+        font-size: 1.2rem;
     }
 </style>
+
+<script>
+// Django messages to toast
+{% if messages %}
+document.addEventListener('DOMContentLoaded', function() {
+    {% for message in messages %}
+    showToast('{{ message }}', '{{ message.tags }}');
+    {% endfor %}
+});
+{% endif %}
+
+function showToast(message, type) {
+    const toastEl = document.getElementById('payslipToast');
+    const toastBody = toastEl.querySelector('.toast-body');
+    const icon = toastBody.querySelector('i');
+    const messageSpan = toastBody.querySelector('.toast-message');
+    
+    // Reset classes
+    toastEl.className = 'toast align-items-center border-0';
+    
+    // Set message
+    messageSpan.textContent = message;
+    
+    // Set icon and style based on type
+    if (type.includes('success')) {
+        toastEl.classList.add('toast-success');
+        icon.className = 'bi bi-check-circle-fill me-2';
+    } else if (type.includes('error')) {
+        toastEl.classList.add('toast-error');
+        icon.className = 'bi bi-exclamation-circle-fill me-2';
+    } else {
+        toastEl.classList.add('toast-info');
+        icon.className = 'bi bi-info-circle-fill me-2';
+    }
+    
+    // Show toast
+    const toast = new bootstrap.Toast(toastEl, {
+        autohide: true,
+        delay: 5000
+    });
+    toast.show();
+}
+
+// Store actual values from Django (monthly values)
+const monthlyData = {
+    ctc:                    {{ salary_components.ctc_monthly|default:0|safe }},
+    gross:                  {{ salary_components.gross_salary|default:0|safe }},
+    deductions:             {{ salary_components.total_deductions|default:0|safe }},
+    net:                    {{ salary_components.net_salary|default:0|safe }},
+    basic:                  {{ salary_components.earnings.Basic_Salary|default:0|safe }},
+    hra:                    {{ salary_components.earnings.House_Rent_Allowance|default:0|safe }},
+    medical:                {{ salary_components.earnings.Medical_Allowance|default:0|safe }},
+    conveyance:             {{ salary_components.earnings.Conveyance_Allowance|default:0|safe }},
+    special:                {{ salary_components.earnings.Special_Allowance|default:0|safe }},
+    pf:                     {{ salary_components.deductions.Provident_Fund|default:0|safe }},
+    employee_esic:          {{ salary_components.deductions.ESIC|default:0|safe }},
+    pt:                     {{ salary_components.deductions.Professional_Tax|default:0|safe }},
+    employer_pf:            {{ salary_components.employer_contributions.Provident_Fund|default:0|safe }},
+    employer_esic:          {{ salary_components.employer_contributions.ESIC|default:0|safe }},
+    employer_contribution:  {{ salary_components.total_employer_contribution|default:0|safe }},
+};
+
+// Convert to annual values (only CTC is annual, others remain monthly)
+const salaryData = {};
+Object.keys(monthlyData).forEach(key => {
+    salaryData[key] = key === 'ctc' ? monthlyData[key] * 12 : monthlyData[key];
+});
+
+// Each field maps to: [elementId, toggleBtnId, iconId, originalBtnClass]
+const fieldConfig = {
+    ctc:                    { elements: ['ctc-amount'],              icons: ['ctc-icon'],              toggles: ['ctc-toggle'],              resetClass: 'btn-outline-light'   },
+    gross:                  { elements: ['gross-amount', 'gross-total-amount'], icons: ['gross-icon', 'gross-total-icon'], toggles: ['gross-toggle', 'gross-total-toggle'], resetClass: 'btn-outline-secondary' },
+    deductions:             { elements: ['deductions-amount', 'deductions-total-amount'], icons: ['deductions-icon', 'deductions-total-icon'], toggles: ['deductions-toggle', 'deductions-total-toggle'], resetClass: 'btn-outline-secondary' },
+    net:                    { elements: ['net-amount', 'net-spotlight-amount'], icons: ['net-icon', 'net-spotlight-icon'], toggles: ['net-toggle', 'net-spotlight-toggle'], resetClass: 'btn-outline-success'   },
+    basic:                  { elements: ['basic-amount'],            icons: ['basic-icon'],            toggles: ['basic-toggle'],            resetClass: 'btn-outline-secondary' },
+    hra:                    { elements: ['hra-amount'],              icons: ['hra-icon'],              toggles: ['hra-toggle'],              resetClass: 'btn-outline-secondary' },
+    medical:                { elements: ['medical-amount'],          icons: ['medical-icon'],          toggles: ['medical-toggle'],          resetClass: 'btn-outline-secondary' },
+    conveyance:             { elements: ['conveyance-amount'],       icons: ['conveyance-icon'],       toggles: ['conveyance-toggle'],       resetClass: 'btn-outline-secondary' },
+    special:                { elements: ['special-amount'],          icons: ['special-icon'],          toggles: ['special-toggle'],          resetClass: 'btn-outline-secondary' },
+    pf:                     { elements: ['pf-amount'],               icons: ['pf-icon'],               toggles: ['pf-toggle'],               resetClass: 'btn-outline-danger'    },
+    employee_esic:          { elements: ['employee-esic-amount'],    icons: ['employee-esic-icon'],    toggles: ['employee-esic-toggle'],    resetClass: 'btn-outline-danger'    },
+    pt:                     { elements: ['pt-amount'],               icons: ['pt-icon'],               toggles: ['pt-toggle'],               resetClass: 'btn-outline-danger'    },
+    employer_pf:            { elements: ['employer-pf-amount'],      icons: ['employer-pf-icon'],      toggles: ['employer-pf-toggle'],      resetClass: 'btn-outline-danger'    },
+    employer_esic:          { elements: ['employer-esic-amount'],    icons: ['employer-esic-icon'],    toggles: ['employer-esic-toggle'],    resetClass: 'btn-outline-danger'    },
+    employer_contribution:  { elements: ['employer-contribution-amount'], icons: ['employer-contribution-icon'], toggles: ['employer-contribution-toggle'], resetClass: 'btn-outline-danger' },
+};
+
+const visibilityState = {};
+Object.keys(salaryData).forEach(k => visibilityState[k] = false);
+
+function getMaskedValue(value) {
+    const abs = Math.abs(value);
+    const formatted = abs.toLocaleString('en-IN');
+    
+    // Replace all digits with asterisks, keep commas and currency symbol
+    const masked = formatted.replace(/\d/g, '*');
+    
+    return '₹ ' + masked;
+}
+
+function formatCurrency(value) {
+    const abs = Math.abs(value);
+    const formatted = abs.toLocaleString('en-IN');
+    return '₹ ' + formatted;
+}
+
+function toggleSalaryView(field) {
+    const config = fieldConfig[field];
+    if (!config) return;
+
+    visibilityState[field] = !visibilityState[field];
+    const isVisible = visibilityState[field];
+
+    config.elements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = isVisible ? formatCurrency(salaryData[field]) : getMaskedValue(salaryData[field]);
+    });
+
+    config.icons.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.className = isVisible ? 'bi bi-eye-slash' : 'bi bi-eye';
+    });
+
+    config.toggles.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('btn-outline-light', 'btn-outline-secondary', 'btn-outline-success', 'btn-outline-danger', 'btn-outline-primary', 'btn-primary');
+        if (isVisible) {
+            el.classList.add('btn-primary');
+        } else {
+            el.classList.add(config.resetClass);
+        }
+    });
+}
+
+// Initialize — ensure all display as masked on load
+document.addEventListener('DOMContentLoaded', function () {
+    Object.values(fieldConfig).forEach(config => {
+        config.elements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                // Find which field this element belongs to
+                const field = Object.keys(fieldConfig).find(f => 
+                    fieldConfig[f].elements.includes(id)
+                );
+                if (field && salaryData[field] !== undefined) {
+                    el.textContent = getMaskedValue(salaryData[field]);
+                }
+            }
+        });
+    });
+});
+
+// Ctrl/Cmd + Shift + S → toggle all
+document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
+        e.preventDefault();
+        const anyVisible = Object.values(visibilityState).some(Boolean);
+        Object.keys(salaryData).forEach(field => {
+            const shouldBeVisible = !anyVisible;
+            if (visibilityState[field] !== shouldBeVisible) {
+                toggleSalaryView(field);
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

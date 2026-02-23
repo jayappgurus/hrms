@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MAC Address Assignments{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="bi bi-ethernet me-2" style="color: var(--primary);"></i>MAC Address Assignments
+            </h2>
+            <p class="text-muted mb-0">View all MAC addresses assigned to systems and employees</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'employees:system_management' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to System Management
+            </a>
+            <a href="{% url 'employees:export_mac_systems_csv' %}" class="btn btn-primary">
+                <i class="bi bi-download me-1"></i>Export CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Filter by Status</label>
+                    <select name="status" id="statusFilter" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Systems</option>
+                        <option value="assigned" {% if status_filter == 'assigned' %}selected{% endif %}>Assigned</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending/Non-allocated</option>
+                    </select>
+                </div>
+                <div class="col-md-9">
+                    <div class="d-flex gap-2">
+                        {% if status_filter != 'all' %}
+                        <a href="{% url 'employees:show_mac_address' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Clear Filter
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAC Address Table -->
+    <div class="card">
+        <div class="card-body">
+            {% if mac_systems %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>MAC Address</th>
+                            <th>System Name</th>
+                            <th>System Type</th>
+                            <th>Employee Name</th>
+                            <th>Employee Code</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for system in mac_systems %}
+                        <tr>
+                            <td>
+                                <code class="text-primary">{{ system.macaddress }}</code>
+                            </td>
+                            <td>{{ system.cpu_company_name }} - {{ system.cpu_label_no }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ system.get_system_type_display }}</span>
+                            </td>
+                            <td>
+                                {% if system.employee %}
+                                    {{ system.employee.full_name }}
+                                {% else %}
+                                    <span class="text-muted">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if system.employee %}
+                                    {{ system.employee.employee_code }}
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if system.employee and system.employee.department %}
+                                    {{ system.employee.department.name }}
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm status-dropdown" 
+                                        data-system-id="{{ system.pk }}" 
+                                        style="width: auto; min-width: 140px;">
+                                    <option value="true" {% if system.is_active %}selected{% endif %}>
+                                        ✓ Assigned
+                                    </option>
+                                    <option value="false" {% if not system.is_active %}selected{% endif %}>
+                                        ⏰ Pending
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <a href="{% url 'employees:system_detail_view' system.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted">No MAC addresses found</h5>
+                <p class="text-muted">No systems have been assigned MAC addresses yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.status-dropdown {
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.status-dropdown:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.status-dropdown option[value="true"] {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-dropdown option[value="false"] {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.status-dropdown.updating {
+    opacity: 0.6;
+    pointer-events: none;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusDropdowns = document.querySelectorAll('.status-dropdown');
+    
+    statusDropdowns.forEach(dropdown => {
+        // Style dropdown based on current value
+        updateDropdownStyle(dropdown);
+        
+        dropdown.addEventListener('change', function() {
+            const systemId = this.dataset.systemId;
+            const newStatus = this.value === 'true';
+            const originalValue = this.value;
+            
+            // Add loading state
+            this.classList.add('updating');
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('system_id', systemId);
+            formData.append('is_active', newStatus);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            // Send AJAX request
+            fetch('{% url "employees:update_system_status" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.classList.remove('updating');
+                
+                if (data.success) {
+                    // Update dropdown style
+                    updateDropdownStyle(this);
+                    
+                    // Show success message
+                    showToast('Success', data.message || 'Status updated successfully', 'success');
+                } else {
+                    // Revert to original value
+                    this.value = originalValue;
+                    showToast('Error', data.message || 'Failed to update status', 'error');
+                }
+            })
+            .catch(error => {
+                this.classList.remove('updating');
+                this.value = originalValue;
+                console.error('Error:', error);
+                showToast('Error', 'An error occurred while updating status', 'error');
+            });
+        });
+    });
+    
+    function updateDropdownStyle(dropdown) {
+        const isActive = dropdown.value === 'true';
+        
+        if (isActive) {
+            dropdown.style.backgroundColor = '#d1e7dd';
+            dropdown.style.color = '#0f5132';
+            dropdown.style.borderColor = '#198754';
+        } else {
+            dropdown.style.backgroundColor = '#fff3cd';
+            dropdown.style.color = '#664d03';
+            dropdown.style.borderColor = '#ffc107';
+        }
+    }
+    
+    function showToast(title, message, type) {
+        // Check if Bootstrap toast container exists
+        let toastContainer = document.querySelector('.toast-container');
+        
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+        
+        const toastId = 'toast-' + Date.now();
+        const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        
+        const toastHTML = `
+            <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-${icon} me-2"></i>
+                        <strong>${title}:</strong> ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+        
+        const toastElement = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+        toast.show();
+        
+        // Remove toast element after it's hidden
+        toastElement.addEventListener('hidden.bs.toast', function() {
+            toastElement.remove();
+        });
+    }
+});
+</script>
+{% endblock %}

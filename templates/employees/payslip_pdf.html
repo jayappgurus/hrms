@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load salary_filters %}
 <html>
 
 <head>
@@ -28,6 +29,12 @@
             font-weight: bold;
             color: #4e73df;
             margin: 0;
+        }
+
+        .logo-image {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 10px;
         }
 
         .payslip-title {
@@ -69,43 +76,45 @@
         }
 
         .salary-table th {
-            background-color: #f8f9fc;
-            border: 1px solid #e3e6f0;
+            background-color: #d4e3fc;
+            border: 1px solid #333;
             padding: 10px;
-            text-align: left;
+            text-align: center;
             font-size: 13px;
+            font-weight: bold;
         }
 
         .salary-table td {
-            border: 1px solid #e3e6f0;
+            border: 1px solid #333;
             padding: 10px;
             font-size: 12px;
         }
 
         .section-header {
-            background-color: #4e73df;
-            color: white;
+            background-color: #d4e3fc;
             font-weight: bold;
             text-align: center !important;
+            font-size: 14px;
         }
 
         .total-row {
             font-weight: bold;
-            background-color: #f8f9fc;
+            background-color: #f0f0f0;
         }
 
-        .net-pay-section {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #f8f9fc;
-            border: 1px solid #e3e6f0;
+        .ctc-header {
+            background-color: #b8d4f7;
+            font-weight: bold;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .text-right {
             text-align: right;
         }
 
-        .net-pay-amount {
-            font-size: 20px;
-            font-weight: bold;
-            color: #1cc88a;
+        .text-center {
+            text-align: center;
         }
 
         .footer {
@@ -138,8 +147,7 @@
 
 <body>
     <div class="header">
-        <h1 class="company-name">HRMS Portal Pvt Ltd</h1>
-        <p style="margin: 0; font-size: 12px;">123 Business Avenue, Tech Park, City - 400001</p>
+        <h1 class="company-name">Trilokn infotech Pvt Ltd</h1>
         <div class="payslip-title">Salary Slip for {{ month_name }} - {{ year }}</div>
     </div>
 
@@ -167,54 +175,110 @@
     <table class="salary-table">
         <thead>
             <tr>
-                <th colspan="2" class="section-header">Earnings</th>
-                <th colspan="2" class="section-header">Deductions</th>
+                <th colspan="3" class="ctc-header">Total Cost to Company - INR {{ salary.ctc_monthly|floatformat:0 }}</th>
             </tr>
             <tr>
-                <th>Description</th>
-                <th>Amount (₹)</th>
-                <th>Description</th>
-                <th>Amount (₹)</th>
+                <th colspan="3" class="section-header">Income</th>
+            </tr>
+            <tr>
+                <th style="width: 50%;">Components</th>
+                <th style="width: 25%;">Per Month</th>
+                <th style="width: 25%;">Per Annum</th>
             </tr>
         </thead>
         <tbody>
+            <!-- Earnings -->
             <tr>
-                <td style="width: 35%;">Basic Salary</td>
-                <td style="width: 15%;">{{ salary.earnings.Basic_Salary }}
-                </td>
-                <td style="width: 35%;">Provident Fund</td>
-                <td style="width: 15%;">{{ salary.deductions.Provident_Fund }}
-                </td>
+                <td>Basic Salary</td>
+                <td class="text-right">{{ salary.earnings.Basic_Salary|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.earnings.Basic_Salary|floatformat:0|add:"0"|multiply:12 }}</td>
             </tr>
             <tr>
-                <td style="width: 35%;">House Rent Allowance</td>
-                <td style="width: 15%;">{{ salary.earnings.House_Rent_Allowance }}</td>
-                <td style="width: 35%;">Professional Tax</td>
-                <td style="width: 15%;">{{ salary.deductions.Professional_Tax }}
-                </td>
+                <td>HRA</td>
+                <td class="text-right">{{ salary.earnings.House_Rent_Allowance|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.earnings.House_Rent_Allowance|floatformat:0|add:"0"|multiply:12 }}</td>
             </tr>
             <tr>
-                <td style="width: 35%;">Special Allowance</td>
-                <td style="width: 15%;">{{ salary.earnings.Special_Allowance }}</td>
-                <td></td>
-                <td></td>
+                <td>Medical Allowance</td>
+                <td class="text-right">{{ salary.earnings.Medical_Allowance|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.earnings.Medical_Allowance|floatformat:0|add:"0"|multiply:12 }}</td>
             </tr>
-            <!-- Fill empty rows if needed for alignment -->
+            <tr>
+                <td>Conveyance Allowance</td>
+                <td class="text-right">{{ salary.earnings.Conveyance_Allowance|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.earnings.Conveyance_Allowance|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+            <tr>
+                <td>Special Allowance</td>
+                <td class="text-right">{{ salary.earnings.Special_Allowance|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.earnings.Special_Allowance|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
             <tr class="total-row">
-                <td>Total Earnings (A)</td>
-                <td>₹{{ salary.gross_salary }}</td>
-                <td>Total Deductions (B)</td>
-                <td>₹{{ salary.total_deductions }}</td>
+                <td>Total Gross</td>
+                <td class="text-right">{{ salary.gross_salary|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.gross_salary|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+
+            <!-- Employer Contribution -->
+            <tr>
+                <th colspan="3" class="section-header">Employer Contribution</th>
+            </tr>
+            <tr>
+                <td>P.F.</td>
+                <td class="text-right">{{ salary.employer_contributions.Provident_Fund|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.employer_contributions.Provident_Fund|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+            <tr>
+                <td>ESIC</td>
+                <td class="text-right">{{ salary.employer_contributions.ESIC|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.employer_contributions.ESIC|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+            <tr class="total-row">
+                <td>Total Employer Contribution</td>
+                <td class="text-right">{{ salary.total_employer_contribution|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.total_employer_contribution|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+
+            <!-- Employee Deduction -->
+            <tr>
+                <th colspan="3" class="section-header">Employee Deduction</th>
+            </tr>
+            <tr>
+                <td>P.F.</td>
+                <td class="text-right">{{ salary.deductions.Provident_Fund|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.deductions.Provident_Fund|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+            <tr>
+                <td>ESIC</td>
+                <td class="text-right">{{ salary.deductions.ESIC|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.deductions.ESIC|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+            <tr>
+                <td>P.T.</td>
+                <td class="text-right">{{ salary.deductions.Professional_Tax|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.deductions.Professional_Tax|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+            <tr class="total-row">
+                <td>Total Deduction</td>
+                <td class="text-right">{{ salary.total_deductions|floatformat:0 }}</td>
+                <td class="text-right">{{ salary.total_deductions|floatformat:0|add:"0"|multiply:12 }}</td>
+            </tr>
+
+            <!-- Net Pay -->
+            <tr class="total-row" style="background-color: #d4e3fc;">
+                <td><strong>Net Pay</strong></td>
+                <td class="text-right"><strong>{{ salary.net_salary|floatformat:0 }}</strong></td>
+                <td class="text-right"><strong>{{ salary.net_salary|floatformat:0|add:"0"|multiply:12 }}</strong></td>
+            </tr>
+
+            <!-- Total Fixed Compensation -->
+            <tr class="total-row" style="background-color: #b8d4f7;">
+                <td><strong>Total Fixed compensation</strong></td>
+                <td class="text-right"><strong>{{ salary.ctc_monthly|floatformat:0 }}</strong></td>
+                <td class="text-right"><strong>{{ salary.ctc_annual|floatformat:0 }}</strong></td>
             </tr>
         </tbody>
     </table>
-
-    <div class="net-pay-section">
-        <div style="font-size: 14px; margin-bottom: 5px;">Net Take-Home Pay (A-B)</div>
-        <div class="net-pay-amount">₹{{ salary.net_salary }}</div>
-        <div style="font-style: italic; font-size: 11px; margin-top: 5px;">(Amount in words: Rupees
-            ________________________________ only)</div>
-    </div>
 
     <div class="signature-area">
         <div class="signature-box" style="float: left;">
@@ -229,7 +293,7 @@
 
     <div class="footer">
         <p>This is a computer-generated document and does not require a physical signature for digital validation.</p>
-        <p>Generated on {{ today|date:"d M Y" }} | Secret Key: HRMS-{{ employee.id }}-{{ year }}{{ month }}</p>
+        <p>Generated on {{ current_date|date:"d M Y" }} | HRMS Portal</p>
     </div>
 </body>
 

@@ -8,7 +8,7 @@ class UserProfileForm(forms.ModelForm):
         fields = ['role', 'department', 'phone']
         widgets = {
             'role': forms.Select(attrs={'class': 'form-select'}),
-            'department': forms.Select(attrs={'class': 'form-select'}, required=False),
+            'department': forms.Select(attrs={'class': 'form-select'}),
             'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'}),
         }
 
@@ -16,6 +16,7 @@ class UserProfileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['department'].queryset = Department.objects.all()
         self.fields['department'].empty_label = "Select Department"
+        self.fields['department'].required = False
 
 class UserSearchForm(forms.Form):
     search = forms.CharField(

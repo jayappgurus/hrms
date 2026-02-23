@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4 page-content">
+    <!-- Breadcrumb & Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb premium-breadcrumb p-0">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'salary:dashboard' %}">
+                            <i class="bi bi-house-door me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'salary:salary_slip_list' %}">
+                            Salary Slips
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Generate Salary Slips</li>
+                </ol>
+            </nav>
+            <h1 class="h2 page-heading mb-4">Generate Salary Slips</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-10">
+            <div class="modern-card">
+                <div class="modern-card-header">
+                    <h5 class="modern-card-title">
+                        <i class="bi bi-file-earmark-plus"></i>
+                        Generate Salary Slips
+                    </h5>
+                </div>
+                <div class="modern-card-body">
+                    <form method="post" id="salarySlipForm">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Month *</label>
+                                    {{ form.month }}
+                                    {% if form.month.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ form.month.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">LOP Days</label>
+                                    {{ form.lop_days }}
+                                    <small class="form-help-text">Loss of Pay days</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Overtime Hours</label>
+                                    {{ form.overtime_hours }}
+                                    <small class="form-help-text">Extra hours worked</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Employee Selection -->
+                        <div class="modern-form-group">
+                            <label class="modern-form-label">Generate For</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="generate_for" 
+                                       id="generate_all" value="all" checked>
+                                <label class="form-check-label" for="generate_all">
+                                    All Active Employees
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="generate_for" 
+                                       id="generate_specific" value="specific">
+                                <label class="form-check-label" for="generate_specific">
+                                    Specific Employee
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="modern-form-group" id="employeeSelection" style="display: none;">
+                            <label class="modern-form-label">Select Employee</label>
+                            <select name="employee_id" class="modern-form-select" id="employeeSelect">
+                                <option value="">Choose an employee...</option>
+                                {% for employee in employees %}
+                                <option value="{{ employee.pk }}">{{ employee.full_name }} - {{ employee.employee_id }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div class="mt-4">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Preview:</strong> Salary slips will be calculated based on assigned salary structures.
+                                {% if form.month.value %}
+                                    Selected month: {{ form.month.value|date:"F Y" }}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-3 mt-5">
+                            <button type="submit" class="btn btn-primary" id="generateBtn">
+                                <i class="bi bi-file-earmark-plus me-2"></i>Generate Salary Slips
+                            </button>
+                            <a href="{% url 'salary:salary_slip_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const generateForRadios = document.querySelectorAll('input[name="generate_for"]');
+    const employeeSelection = document.getElementById('employeeSelection');
+    const generateBtn = document.getElementById('generateBtn');
+    
+    generateForRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'specific') {
+                employeeSelection.style.display = 'block';
+            } else {
+                employeeSelection.style.display = 'none';
+            }
+        });
+    });
+    
+    generateBtn.addEventListener('click', function(e) {
+        const generateFor = document.querySelector('input[name="generate_for"]:checked').value;
+        
+        if (generateFor === 'specific') {
+            const employeeId = document.getElementById('employeeSelect').value;
+            if (!employeeId) {
+                e.preventDefault();
+                alert('Please select an employee.');
+                return;
+            }
+        }
+        
+        // Show loading state
+        const originalText = this.innerHTML;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+        this.classList.add('disabled');
+        
+        // Reset after 10 seconds (in case of long processing)
+        setTimeout(() => {
+            this.innerHTML = originalText;
+            this.classList.remove('disabled');
+        }, 10000);
+    });
+});
+</script>
+{% endblock %}

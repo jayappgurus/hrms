@@ -121,7 +121,7 @@
     }
 
     .btn-submit {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #332666;
         border: none;
         padding: 12px 40px;
         border-radius: 10px;
@@ -132,8 +132,7 @@
 
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        color: white;
+        box-shadow: 0 10px 25px #332666;
     }
 
     .employee-type-badge {
@@ -252,7 +251,7 @@
     {% endif %}
 
     <!-- Leave Application Form -->
-    <form method="post" id="leaveApplicationForm">
+    <form method="post" id="leaveApplicationForm" data-validate data-validate-url="{% url 'employees:validate_leave_application' %}">
         {% csrf_token %}
 
         <!-- Basic Information Section -->
