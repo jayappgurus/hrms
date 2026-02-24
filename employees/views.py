@@ -604,7 +604,7 @@ class DeviceCreateView(LoginRequiredMixin, CreateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         if 'purchase_date' in form.fields:
-            form.fields['purchase_date'].widget.attrs['placeholder'] = 'YYYY-MM-DD'
+            form.fields['purchase_date'].widget.attrs['placeholder'] = 'DD/MM/YYYY'
             existing_class = form.fields['purchase_date'].widget.attrs.get('class', '')
             form.fields['purchase_date'].widget.attrs['class'] = f"{existing_class} form-control input modern-form-control"
         return form
@@ -635,7 +635,7 @@ class DeviceUpdateView(LoginRequiredMixin, UpdateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         if 'purchase_date' in form.fields:
-            form.fields['purchase_date'].widget.attrs['placeholder'] = 'yyyy-mm-dd'
+            form.fields['purchase_date'].widget.attrs['placeholder'] = 'DD/MM/YYYY'
             existing_class = form.fields['purchase_date'].widget.attrs.get('class', '')
             form.fields['purchase_date'].widget.attrs['class'] = f"{existing_class} modern-form-control"
         return form
@@ -805,6 +805,23 @@ class PublicHolidayUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, 'Holiday updated successfully!')
         return super().form_valid(form)
+
+
+class PublicHolidayDetailView(LoginRequiredMixin, DetailView):
+    model = PublicHoliday
+    template_name = 'leave/public_holiday_view.html'
+    context_object_name = 'holiday'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser and not request.user.is_staff:
+            messages.error(request, 'You do not have permission to view holiday details.')
+            return redirect('employees:public_holidays')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Holiday Details - {self.object.name}'
+        return context
 
 
 class PublicHolidayDeleteView(LoginRequiredMixin, DeleteView):

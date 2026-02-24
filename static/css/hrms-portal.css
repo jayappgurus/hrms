@@ -288,7 +288,12 @@ ul {
 .nav-label:first-child {
     margin-top: 0;
 }
-
+.text-primary {
+    color: var(--primary) !important;
+}
+.bg-primary {
+    background-color: var(--primary) !important;
+}
 .nav-item {
     margin-bottom: 6px;
 }

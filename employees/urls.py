@@ -99,6 +99,7 @@ urlpatterns = [
     path('holidays/add/', views.PublicHolidayCreateView.as_view(), name='public_holiday_add'),
     path('holidays/bulk-delete/', views.bulk_delete_public_holidays, name='bulk_delete_public_holidays'),
     path('holidays/<str:country>/', views.PublicHolidayListView.as_view(), name='public_holidays_by_country'),
+    path('holidays/<int:pk>/view/', views.PublicHolidayDetailView.as_view(), name='public_holiday_view'),
     path('holidays/<int:pk>/edit/', views.PublicHolidayUpdateView.as_view(), name='public_holiday_edit'),
     path('holidays/<int:pk>/delete/', views.PublicHolidayDeleteView.as_view(), name='public_holiday_delete'),
 

@@ -16,6 +16,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/hrms-portal.css' %}">
     <link rel="stylesheet" href="{% static 'css/shared-components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/checkbox-styles.css' %}">
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
@@ -70,21 +71,21 @@
 
 
                     <li class="nav-item">
-                        <a class="nav-link {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name %}active{% endif %}"
+                        <a class="nav-link {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name or 'leave_application' in request.resolver_match.url_name or 'leave_type' in request.resolver_match.url_name %}active{% endif %}"
                             href="{% url 'employees:public_holidays' %}">
                             <i class="bi bi-calendar-event"></i>
                             <span>Leaves & Holidays</span>
                             <i class="bi bi-chevron-down nav-arrow"></i>
                         </a>
                         <ul
-                            class="sub-menu {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name %}show{% endif %}">
+                            class="sub-menu {% if 'leave' in request.resolver_match.url_name or 'holiday' in request.resolver_match.url_name or 'leave_application' in request.resolver_match.url_name or 'leave_type' in request.resolver_match.url_name %}show{% endif %}">
                             <li class="mt-2"><a href="{% url 'employees:leave_types' %}"
-                                    class="{% if request.resolver_match.url_name == 'leave_types' %}active{% endif %}">Leave
+                                    class="{% if request.resolver_match.url_name == 'leave_types' or 'leave_type' in request.resolver_match.url_name %}active{% endif %}">Leave
                                     Types</a></li>
                             <li class="mt-2"><a href="{% url 'employees:leave_application_list' %}"
-                                    class="{% if request.resolver_match.url_name == 'leave_application_list' %}active{% endif %}">Leave
+                                    class="{% if request.resolver_match.url_name == 'leave_application_list' or 'leave_application' in request.resolver_match.url_name %}active{% endif %}">Leave
                                     Applications</a></li>
-                            <li class="has-submenu mt-2">
+                            <li class="has-submenu mt-2{% if 'public_holidays_by_country' in request.resolver_match.url_name %} expanded{% endif %}">
                                 <a href="{% url 'employees:public_holidays' %}"
                                     class="d-flex justify-content-between align-items-center {% if request.resolver_match.url_name == 'public_holidays' or request.resolver_match.url_name == 'public_holidays_by_country' %}active{% endif %}">
                                     Public Holidays
@@ -122,13 +123,13 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if 'device' in request.resolver_match.url_name %}active{% endif %}"
+                        <a class="nav-link {% if 'device' in request.resolver_match.url_name or 'system' in request.resolver_match.url_name %}active{% endif %}"
                             href="{% url 'employees:device_visibility' %}">
                             <i class="bi bi-laptop"></i>
                             <span>Inventory Management</span>
                             <i class="bi bi-chevron-down nav-arrow"></i>
                         </a>
-                        <ul class="sub-menu {% if 'device' in request.resolver_match.url_name %}show{% endif %}">
+                        <ul class="sub-menu {% if 'device' in request.resolver_match.url_name or 'system' in request.resolver_match.url_name %}show{% endif %}">
                             <li class="mt-2"><a
                                     class="{% if 'device' in request.resolver_match.url_name %}active{% endif %}"
                                     href="{% url 'employees:device_visibility' %}">
@@ -161,7 +162,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if 'account_management' in request.resolver_match.url_name %}active{% endif %}"
+                        <a class="nav-link {% if 'account_management' in request.resolver_match.url_name or 'account' in request.resolver_match.url_name %}active{% endif %}"
                             href="{% url 'employees:account_management' %}">
                             <i class="bi bi-person"></i>
                             <span>Account Management</span>

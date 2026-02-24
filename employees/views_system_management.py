@@ -25,16 +25,35 @@ def system_management(request):
     windows_systems = SystemDetail.objects.filter(system_type='windows').count()
     mac_systems = SystemDetail.objects.filter(system_type='mac').count()
     
-    # MAC Address statistics (from SystemDetail)
-    total_mac_addresses = SystemDetail.objects.filter(macaddress__isnull=False).exclude(macaddress='').count()
-    allocated_mac_addresses = SystemDetail.objects.filter(
-        macaddress__isnull=False, 
-        employee__isnull=False
+    # MAC Address statistics (only for MAC systems)
+    total_mac_addresses = SystemDetail.objects.filter(
+        system_type='mac',
+        macaddress__isnull=False
     ).exclude(macaddress='').count()
+    
+    allocated_mac_addresses = SystemDetail.objects.filter(
+        system_type='mac',
+        macaddress__isnull=False, 
+        employee__isnull=False,
+        is_active=True
+    ).exclude(macaddress='').count()
+    
     available_mac_addresses = SystemDetail.objects.filter(
+        system_type='mac',
         macaddress__isnull=False, 
         employee__isnull=True
     ).exclude(macaddress='').count()
+    
+    # Windows systems allocation statistics
+    allocated_windows_systems = SystemDetail.objects.filter(
+        system_type='windows',
+        employee__isnull=False,
+        is_active=True
+    ).count()
+    available_windows_systems = SystemDetail.objects.filter(
+        system_type='windows',
+        employee__isnull=True
+    ).count()
     
     context = {
         'total_systems': total_systems,
@@ -46,6 +65,8 @@ def system_management(request):
         'total_mac_addresses': total_mac_addresses,
         'allocated_mac_addresses': allocated_mac_addresses,
         'available_mac_addresses': available_mac_addresses,
+        'allocated_windows_systems': allocated_windows_systems,
+        'available_windows_systems': available_windows_systems,
     }
     
     return render(request, 'employees/system_management.html', context)
@@ -92,14 +113,15 @@ def get_employees_for_assignment(request):
 @login_required
 def get_mac_systems_assignments(request):
     """
-    API to get MAC address assignments from SystemDetail with employee details
+    API to get MAC system assignments (only system_type='mac') with employee details
     """
     if not request.user.is_staff and not request.user.is_superuser:
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
     try:
-        # Get systems that have MAC addresses
+        # Get only MAC systems (system_type='mac')
         mac_systems = SystemDetail.objects.filter(
+            system_type='mac',
             macaddress__isnull=False
         ).exclude(macaddress='').select_related('employee', 'employee__department')
         
@@ -196,7 +218,7 @@ def assign_system(request):
 @login_required
 def export_mac_systems_csv(request):
     """
-    Export MAC address assignments to CSV
+    Export MAC system assignments to CSV (only system_type='mac')
     """
     if not request.user.is_staff and not request.user.is_superuser:
         messages.error(request, 'You do not have permission to export data.')
@@ -209,8 +231,9 @@ def export_mac_systems_csv(request):
     writer = csv.writer(response)
     writer.writerow(['MAC Address', 'System Name', 'System Type', 'Employee Name', 'Employee Code', 'Department'])
     
-    # Get systems that have MAC addresses
+    # Get only MAC systems (system_type='mac')
     mac_systems = SystemDetail.objects.filter(
+        system_type='mac',
         macaddress__isnull=False
     ).exclude(macaddress='').select_related('employee', 'employee__department')
     
@@ -264,7 +287,7 @@ def export_windows_systems_csv(request):
 @login_required
 def show_mac_address(request):
     """
-    Show MAC address assignments page
+    Show MAC system assignments page (only system_type='mac')
     """
     if not request.user.is_staff and not request.user.is_superuser:
         messages.error(request, 'You do not have permission to view this page.')
@@ -273,8 +296,9 @@ def show_mac_address(request):
     # Get filter parameter
     status_filter = request.GET.get('status', 'all')
     
-    # Get systems that have MAC addresses
+    # Get only MAC systems (system_type='mac')
     mac_systems = SystemDetail.objects.filter(
+        system_type='mac',
         macaddress__isnull=False
     ).exclude(macaddress='').select_related('employee', 'employee__department')
     
@@ -288,7 +312,7 @@ def show_mac_address(request):
     
     context = {
         'mac_systems': mac_systems,
-        'title': 'MAC Address Assignments',
+        'title': 'MAC System Assignments',
         'status_filter': status_filter
     }
     

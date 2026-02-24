@@ -265,11 +265,11 @@
                         </td>
                         <td>
                             {% if system.is_active %}
-                            <span class="badge bg-success">Allocated</span>
+                            <span class="badge bg-success text-white">Allocated</span>
                             {% else %}
-                            <span class="badge bg-warning">Non-allocated</span>
+                            <span class="badge bg-warning text-dark">Non-allocated</span>
                             {% if system.return_date %}
-                            <br><small class="text-muted">{{ system.return_date|date:"d M Y" }}</small>
+                            <br><small class="text-muted">Returned: {{ system.return_date|date:"d M Y" }}</small>
                             {% endif %}
                             {% endif %}
                         </td>

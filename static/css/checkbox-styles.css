@@ -1,0 +1,504 @@
+/* ============================================
+   HRMS Portal - Modern Checkbox Styles
+   ============================================ */
+
+/* Base Checkbox Styling */
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    margin-top: 0.15em;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.form-check-input:hover {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-check-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    outline: none;
+}
+
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+
+.form-check-input:checked:hover {
+    background-color: #5568d3;
+    border-color: #5568d3;
+}
+
+.form-check-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f1f5f9;
+}
+
+.form-check-input:disabled:checked {
+    background-color: #94a3b8;
+    border-color: #94a3b8;
+}
+
+/* Checkbox Label */
+.form-check-label {
+    margin-left: 10px;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.form-check-label:hover {
+    color: #667eea;
+}
+
+.form-check-input:disabled + .form-check-label {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Form Check Container */
+.form-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+    min-height: 1.5rem;
+}
+.modern-form-group .form-check{
+    justify-content: start;
+    .form-check-label{
+        color: #334155;
+    }
+}
+.form-check .form-check-input{
+    margin-left: 0 !important;
+}
+.form-check.form-check-inline {
+    display: inline-flex;
+    margin-right: 1rem;
+}
+
+/* ============================================
+   Checkbox Variants
+   ============================================ */
+
+/* Primary Checkbox (Default) */
+.form-check-input.checkbox-primary:checked {
+    background-color: #332666;
+    border-color: #332666;
+}
+
+/* Success Checkbox */
+.form-check-input.checkbox-success:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.form-check-input.checkbox-success:hover {
+    border-color: #10b981;
+}
+
+/* Danger Checkbox */
+.form-check-input.checkbox-danger:checked {
+    background-color: #ef4444;
+    border-color: #ef4444;
+}
+
+.form-check-input.checkbox-danger:hover {
+    border-color: #ef4444;
+}
+
+/* Warning Checkbox */
+.form-check-input.checkbox-warning:checked {
+    background-color: #f59e0b;
+    border-color: #f59e0b;
+}
+
+.form-check-input.checkbox-warning:hover {
+    border-color: #f59e0b;
+}
+
+/* Info Checkbox */
+.form-check-input.checkbox-info:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.form-check-input.checkbox-info:hover {
+    border-color: #3b82f6;
+}
+
+/* Dark Checkbox */
+.form-check-input.checkbox-dark:checked {
+    background-color: #1e293b;
+    border-color: #1e293b;
+}
+
+.form-check-input.checkbox-dark:hover {
+    border-color: #1e293b;
+}
+
+/* ============================================
+   Checkbox Sizes
+   ============================================ */
+
+/* Small Checkbox */
+.form-check-input.checkbox-sm {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.form-check-input.checkbox-sm + .form-check-label {
+    font-size: 0.875rem;
+    margin-left: 8px;
+}
+
+/* Large Checkbox */
+.form-check-input.checkbox-lg {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+}
+
+.form-check-input.checkbox-lg + .form-check-label {
+    font-size: 1.125rem;
+    margin-left: 12px;
+}
+
+/* ============================================
+   Checkbox with Card/Box Style
+   ============================================ */
+
+.checkbox-card {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-card:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.checkbox-card .form-check-input {
+    margin-right: 16px;
+}
+
+.checkbox-card.checked {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.checkbox-card .checkbox-card-content {
+    flex: 1;
+}
+
+.checkbox-card .checkbox-card-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.checkbox-card .checkbox-card-description {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* ============================================
+   Toggle Switch Style Checkbox
+   ============================================ */
+
+.form-switch .form-check-input {
+    width: 44px;
+    height: 24px;
+    border-radius: 24px;
+    background-color: #cbd5e1;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+    background-position: left center;
+    background-size: contain;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: #667eea;
+    background-position: right center;
+}
+
+.form-switch .form-check-input:focus {
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+}
+
+.form-switch .form-check-input:hover {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ============================================
+   Checkbox List Group
+   ============================================ */
+
+.checkbox-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.checkbox-list-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    transition: background-color 0.2s ease;
+}
+
+.checkbox-list-item:hover {
+    background-color: #f8fafc;
+}
+
+.checkbox-list-item:last-child {
+    border-bottom: none;
+}
+
+.checkbox-list-item .form-check {
+    margin: 0;
+    padding: 0;
+}
+
+/* ============================================
+   Checkbox with Icon
+   ============================================ */
+
+.checkbox-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.checkbox-with-icon .checkbox-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    border-radius: 10px;
+    font-size: 1.25rem;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.checkbox-with-icon .form-check-input:checked ~ .checkbox-icon {
+    background: #667eea;
+    color: #fff;
+}
+
+/* ============================================
+   Checkbox Group with Border
+   ============================================ */
+
+.checkbox-group {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.checkbox-group-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 16px;
+    font-size: 1.125rem;
+}
+
+.checkbox-group .form-check {
+    padding: 8px 0;
+}
+
+/* ============================================
+   Indeterminate State
+   ============================================ */
+
+.form-check-input:indeterminate {
+    background-color: #667eea;
+    border-color: #667eea;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+}
+
+/* ============================================
+   Checkbox with Badge
+   ============================================ */
+
+.checkbox-with-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.checkbox-with-badge .badge {
+    margin-left: auto;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ============================================
+   Animated Checkbox
+   ============================================ */
+
+.checkbox-animated .form-check-input {
+    position: relative;
+}
+
+.checkbox-animated .form-check-input::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: rgba(102, 126, 234, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.checkbox-animated .form-check-input:checked::before {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+}
+
+/* ============================================
+   Checkbox in Table
+   ============================================ */
+
+.table .form-check-input {
+    margin: 0;
+}
+
+.table thead .form-check-input {
+    width: 18px;
+    height: 18px;
+}
+
+.table tbody .form-check-input {
+    width: 18px;
+    height: 18px;
+}
+
+/* ============================================
+   Checkbox in Modal
+   ============================================ */
+
+.modal .form-check {
+    padding: 12px 0;
+}
+
+.modal .checkbox-group {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .form-check-label {
+        font-size: 0.9375rem;
+    }
+    
+    .checkbox-card {
+        padding: 12px;
+    }
+    
+    .form-switch .form-check-input {
+        width: 40px;
+        height: 22px;
+    }
+}
+
+/* ============================================
+   Dark Mode Support (Optional)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+    .form-check-input {
+        background-color: #fff;
+        border-color: #475569;
+    }
+    
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    .form-check-label {
+        color: #e2e8f0;
+    }
+    
+    .checkbox-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+    
+    .checkbox-card:hover {
+        background: #334155;
+    }
+}
+
+/* ============================================
+   Accessibility Improvements
+   ============================================ */
+
+.form-check-input:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .form-check-input {
+        border-width: 3px;
+    }
+    
+    .form-check-input:checked {
+        background-color: #000;
+        border-color: #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .form-check-input,
+    .checkbox-card,
+    .form-switch .form-check-input {
+        transition: none;
+    }
+}

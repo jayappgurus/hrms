@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}Access Denied - HRMS Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-page-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+    }
+    
+    .error-content {
+        text-align: center;
+        max-width: 600px;
+        padding: 3rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .error-number {
+        font-size: 8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 1rem;
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fd7e14;
+        margin-bottom: 1rem;
+    }
+    
+    .error-description {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .error-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, rgba(253, 126, 20, 0.1) 0%, rgba(232, 89, 12, 0.1) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 2rem;
+        color: #fd7e14;
+    }
+    
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-home {
+        background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #e9ecef;
+        color: #495057;
+        transform: translateY(-2px);
+    }
+    
+    .error-details {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: #fff3cd;
+        border-radius: 10px;
+        border-left: 4px solid #fd7e14;
+    }
+    
+    .error-details h6 {
+        color: #856404;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .error-details p {
+        color: #856404;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    .permission-list {
+        text-align: left;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .permission-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .permission-list li {
+        padding: 0.5rem 0;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .permission-list li i {
+        color: var(--primary);
+    }
+    
+    @media (max-width: 768px) {
+        .error-number {
+            font-size: 6rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .error-content {
+            padding: 2rem;
+            margin: 1rem;
+        }
+        
+        .error-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-home, .btn-secondary {
+            width: 100%;
+            max-width: 250px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-page-container">
+    <div class="error-content">
+        <div class="error-icon">
+            <i class="bi bi-shield-lock"></i>
+        </div>
+        
+        <div class="error-number">403</div>
+        
+        <h1 class="error-title">Access Denied</h1>
+        
+        <p class="error-description">
+            Sorry, you don't have permission to access this page. 
+            This area is restricted to authorized personnel only.
+        </p>
+        
+        <div class="error-actions">
+            <a href="{% url 'employees:dashboard' %}" class="btn-home">
+                <i class="bi bi-house-door"></i>
+                Back to Dashboard
+            </a>
+            <a href="javascript:history.back()" class="btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Go Back
+            </a>
+        </div>
+        
+        <div class="error-details">
+            <h6>Why am I seeing this?</h6>
+            <p>
+                You may need additional permissions or a different user role to access this resource. 
+                Contact your administrator if you believe this is an error.
+            </p>
+        </div>
+        
+        {% if user.is_authenticated %}
+        <div class="permission-list">
+            <h6>Your current access level:</h6>
+            <ul>
+                <li><i class="bi bi-person-circle"></i> Logged in as: {{ user.username }}</li>
+                <li><i class="bi bi-shield-check"></i> Staff: {% if user.is_staff %}Yes{% else %}No{% endif %}</li>
+                <li><i class="bi bi-gear"></i> Superuser: {% if user.is_superuser %}Yes{% else %}No{% endif %}</li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Log the access denied for security monitoring
+    console.warn('403 Access Denied for user:', '{{ user.username|default:"Anonymous" }}', 'at:', window.location.pathname);
+    
+    // Auto-redirect after 10 seconds if not authenticated
+    {% if not user.is_authenticated %}
+    setTimeout(() => {
+        window.location.href = '{% url "login" %}?next={{ request.path }}';
+    }, 10000);
+    {% endif %}
+});
+</script>
+{% endblock %}

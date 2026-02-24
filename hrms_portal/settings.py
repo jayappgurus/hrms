@@ -21,8 +21,9 @@ if sys.version_info >= (3, 14):
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'inbnvhm^mvim%1wcyh^5(xoq)36f^mbv79q*ua#oyglrji%)5b'
-DEBUG = True
+# Security Settings - Load from environment variables
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 # Logging Configuration
 LOGGING = {
@@ -98,7 +99,15 @@ LOGGING = {
 # import os
 # os.makedirs(BASE_DIR / 'logs', exist_ok=True)
 
-ALLOWED_HOSTS = ['*']
+# Allowed Hosts - Load from environment variables
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+
+# Custom error pages
+DEBUG = config('DEBUG', default=True, cast=bool)  # Keep True for development, change to False in production
+
+# These will be used when DEBUG = False
+# For development, Django will show debug pages, but these are configured for production
+STATIC_URL = '/static/'
 
 INSTALLED_APPS = [
     'jazzmin',
@@ -144,14 +153,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'hrms_portal.wsgi.application'
 
+# Database Configuration - Load from environment variables
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'hrmsportalappdev_portal_hrms_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': config('DB_NAME', default='hrmsportalappdev_portal_hrms_db'),
+        'USER': config('DB_USER', default='root'),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='3306'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         }
@@ -203,11 +213,8 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# CSRF Settings
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-]
+# CSRF Settings - Load from environment variables
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000,http://127.0.0.1:8000').split(',')
 
 # Session and Cookie Settings
 SESSION_COOKIE_SECURE = False
@@ -263,10 +270,19 @@ JAZZMIN_SETTINGS = {
     },
 }
 
+# Email Configuration - Load from environment variables
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = '13fff2b7547ed9'
-EMAIL_HOST_PASSWORD = 'ddf4b21b3b7140'
-DEFAULT_FROM_EMAIL = 'HRMS Portal <hrms@example.com>'
+EMAIL_HOST = config('EMAIL_HOST', default='sandbox.smtp.mailtrap.io')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='HRMS Portal <hrms@example.com>')
+
+# Custom error handlers
+# These will be used when DEBUG = False
+# For development with DEBUG = True, Django will show its debug pages
+handler404 = 'employees.error_handlers.custom_404'
+handler500 = 'employees.error_handlers.custom_500'
+handler403 = 'employees.error_handlers.custom_403'
+handler400 = 'employees.error_handlers.custom_400'

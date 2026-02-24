@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from datetime import date
 
 # Import abstract models
-from .abstract_models import NameDescriptionModel, TimeStampedModel
+from .abstract_models import NameDescriptionModel, TimeStampedModel, SoftDeleteModel
 
 # Import job and performance management models
 

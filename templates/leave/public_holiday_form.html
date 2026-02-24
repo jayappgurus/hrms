@@ -76,15 +76,12 @@
                     <div class="modern-form-group">
                         <label class="modern-form-label">{{ form.country.label }}</label>
                         {{ form.country }}
-                        {% if form.name.errors %}
+                        {% if form.country.errors %}
                             <div class="text-danger">
-                                {% for error in form.name.errors %}
+                                {% for error in form.country.errors %}
                                     <small>{{ error }}</small>
                                 {% endfor %}
                             </div>
-                        {% endif %}
-                        {% if form.country.errors %}
-                        <div class="text-danger small mt-1">{{ form.country.errors.0 }}</div>
                         {% endif %}
                         <small class="form-help-text">Select the country for this holiday</small>
                     </div>
@@ -113,6 +110,22 @@
                         <small class="form-help-text">Uncheck to hide this holiday from the calendar</small>
                     </div>
                 </div>
+                
+                <div class="col-12">
+                    <div class="modern-form-group">
+                        <label class="modern-form-label">{{ form.description.label }}</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger">
+                                {% for error in form.description.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-help-text">Optional description or notes about this holiday</small>
+                    </div>
+                </div>
+                
                 <div class="col-md-6" style="display: none;">
                     <div class="modern-form-group">
                         <label class="modern-form-label required">{{ form.year.label }}</label>

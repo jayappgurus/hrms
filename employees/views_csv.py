@@ -10,6 +10,9 @@ from django.contrib import messages
 from django.db import transaction
 from datetime import datetime
 from decimal import Decimal
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
 
 from .models import Employee, Department, Designation, PublicHoliday
 from .models_job import JobDescription
@@ -222,29 +225,101 @@ def import_employees_csv(request):
 
 @login_required
 def export_public_holidays_csv(request):
-    """Export public holidays to CSV with optional country filter"""
-    # Get country parameter from query string (default to 'IN')
-    country = request.GET.get('country', 'IN')
-
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="public_holidays_{country}_{timezone.now().year}.csv"'
-
-    writer = csv.writer(response)
-
-    # Write header
-    writer.writerow(['Name', 'Date', 'Country', 'Description', 'Is Active'])
-
-    # Write data - filter by country
-    holidays = PublicHoliday.objects.filter(country=country).order_by('date')
-    for holiday in holidays:
-        writer.writerow([
-            holiday.name,
-            holiday.date.strftime('%Y-%m-%d'),
-            holiday.country,
-            holiday.description or '',
-            'Yes' if holiday.is_active else 'No'
-        ])
-
+    """Export public holidays to Excel with separate sheets for each country"""
+    from django.utils import timezone
+    
+    # Create a new Excel workbook
+    wb = openpyxl.Workbook()
+    
+    # Remove default sheet
+    if 'Sheet' in wb.sheetnames:
+        wb.remove(wb['Sheet'])
+    
+    # Define styles
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='332666', end_color='332666', fill_type='solid')
+    header_alignment = Alignment(horizontal='center', vertical='center')
+    
+    # Get all countries from the model choices
+    countries = PublicHoliday.COUNTRY_CHOICES
+    
+    # Calculate year range from all holidays
+    all_holidays = PublicHoliday.objects.all()
+    if all_holidays.exists():
+        years = sorted(set(holiday.year for holiday in all_holidays))
+        year_range = f"{years[0]}-{years[-1]}" if len(years) > 1 else str(years[0])
+    else:
+        year_range = str(timezone.now().year)
+    
+    for country_code, country_name in countries:
+        # Create sheet for each country
+        sheet_name = f"{country_name} Holidays"
+        ws = wb.create_sheet(title=sheet_name)
+        
+        # Write headers
+        headers = ['Holiday Name', 'Date', 'Day', 'Year', 'Description', 'Is Optional', 'Is Active']
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.value = header
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+        
+        # Get holidays for this country
+        holidays = PublicHoliday.objects.filter(country=country_code).order_by('date')
+        
+        # Write data
+        for row_num, holiday in enumerate(holidays, 2):
+            ws.cell(row=row_num, column=1, value=holiday.name)
+            ws.cell(row=row_num, column=2, value=holiday.date.strftime('%Y-%m-%d'))
+            ws.cell(row=row_num, column=3, value=holiday.day)
+            ws.cell(row=row_num, column=4, value=holiday.year)
+            ws.cell(row=row_num, column=5, value=holiday.description or '')
+            ws.cell(row=row_num, column=6, value='Yes' if holiday.is_optional else 'No')
+            ws.cell(row=row_num, column=7, value='Yes' if holiday.is_active else 'No')
+        
+        # Auto-adjust column widths
+        for column in ws.columns:
+            max_length = 0
+            column_letter = get_column_letter(column[0].column)
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = min(max_length + 2, 50)
+            ws.column_dimensions[column_letter].width = adjusted_width
+        
+        # Add summary at the top if there are holidays
+        if holidays.count() > 0:
+            # Calculate year range for this country
+            country_years = sorted(set(holiday.year for holiday in holidays))
+            country_year_range = f"{country_years[0]}-{country_years[-1]}" if len(country_years) > 1 else str(country_years[0])
+            
+            # Insert title row
+            ws.insert_rows(1)
+            ws.cell(row=1, column=1, value=f"{country_name} Public Holidays - {country_year_range}")
+            ws.cell(row=1, column=1).font = Font(bold=True, size=14)
+            ws.merge_cells(f'A1:{get_column_letter(len(headers))}1')
+            ws.cell(row=1, column=1).alignment = Alignment(horizontal='center')
+            
+            # Insert total count row
+            ws.insert_rows(2)
+            ws.cell(row=2, column=1, value=f"Total Holidays: {holidays.count()}")
+            ws.cell(row=2, column=1).font = Font(bold=True)
+            ws.merge_cells(f'A2:{get_column_letter(len(headers))}2')
+    
+    # Create response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename = f'public_holidays_all_countries_{year_range}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
+    # Save workbook to response
+    wb.save(response)
+    
     return response
 
 @login_required

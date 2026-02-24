@@ -3,15 +3,52 @@ from .models import SystemDetail, SystemRequirement, Employee
 from django.contrib.auth.models import User
 
 
+class BooleanSelectField(forms.NullBooleanField):
+    """Custom field to handle boolean values with Select widget"""
+    def __init__(self, *args, **kwargs):
+        kwargs['widget'] = forms.Select(choices=[
+            ('', '---------'),
+            ('true', kwargs.pop('true_label', 'Yes')),
+            ('false', kwargs.pop('false_label', 'No')),
+        ])
+        super().__init__(*args, **kwargs)
+    
+    def to_python(self, value):
+        """Convert string to boolean"""
+        if value in ('true', 'True', '1', 1, True):
+            return True
+        elif value in ('false', 'False', '0', 0, False):
+            return False
+        return None
+    
+    def validate(self, value):
+        """Validate the value"""
+        pass
+
+
 class SystemDetailForm(forms.ModelForm):
     system_type = forms.ChoiceField(
         choices=[('windows', 'Windows'), ('mac', 'MAC')],
         widget=forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_system_type'}),
         initial='windows'
     )
-    is_active = forms.ChoiceField(
-        choices=[(True, 'Allocated'), (False, 'Non-allocated')],
-        widget=forms.Select(attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_is_active'})
+    
+    has_headphone = BooleanSelectField(
+        required=True,
+        true_label='Yes',
+        false_label='No'
+    )
+    
+    has_extender = BooleanSelectField(
+        required=True,
+        true_label='Yes',
+        false_label='No'
+    )
+    
+    is_active = BooleanSelectField(
+        required=True,
+        true_label='Allocated',
+        false_label='Non-allocated'
     )
     
     class Meta:
@@ -45,11 +82,9 @@ class SystemDetailForm(forms.ModelForm):
             'mouse_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Logitech'}),
             'mouse_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique asset number'}),
             
-            'has_headphone': forms.Select(choices=[(False, 'No'), (True, 'Yes')], attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_has_headphone'}),
             'headphone_company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company name'}),
             'headphone_label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label number'}),
             
-            'has_extender': forms.Select(choices=[(False, 'No'), (True, 'Yes')], attrs={'class': 'form-select modern-form-control modern-form-select', 'id': 'id_has_extender'}),
             'extender_label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Label'}),
             'extender_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Name'}),
         }
@@ -71,6 +106,55 @@ class SystemDetailForm(forms.ModelForm):
         # Make extender fields not required initially
         self.fields['extender_label'].required = False
         self.fields['extender_name'].required = False
+        
+        # Add CSS classes to boolean select fields
+        self.fields['has_headphone'].widget.attrs.update({
+            'class': 'form-select modern-form-control modern-form-select',
+            'id': 'id_has_headphone'
+        })
+        self.fields['has_extender'].widget.attrs.update({
+            'class': 'form-select modern-form-control modern-form-select',
+            'id': 'id_has_extender'
+        })
+        self.fields['is_active'].widget.attrs.update({
+            'class': 'form-select modern-form-control modern-form-select',
+            'id': 'id_is_active'
+        })
+        
+        # Set initial values when editing
+        if self.instance and self.instance.pk:
+            # Set the widget choices to not include empty option
+            self.fields['has_headphone'].widget.choices = [
+                ('true', 'Yes'),
+                ('false', 'No'),
+            ]
+            self.fields['has_extender'].widget.choices = [
+                ('true', 'Yes'),
+                ('false', 'No'),
+            ]
+            self.fields['is_active'].widget.choices = [
+                ('true', 'Allocated'),
+                ('false', 'Non-allocated'),
+            ]
+        else:
+            # For new forms, also remove empty option and set defaults
+            self.fields['has_headphone'].widget.choices = [
+                ('true', 'Yes'),
+                ('false', 'No'),
+            ]
+            self.fields['has_headphone'].initial = 'false'
+            
+            self.fields['has_extender'].widget.choices = [
+                ('true', 'Yes'),
+                ('false', 'No'),
+            ]
+            self.fields['has_extender'].initial = 'false'
+            
+            self.fields['is_active'].widget.choices = [
+                ('true', 'Allocated'),
+                ('false', 'Non-allocated'),
+            ]
+            self.fields['is_active'].initial = 'true'
 
     def clean(self):
         cleaned_data = super().clean()

@@ -31,5 +31,5 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('employees.urls')),
     path('salary/', include('salary.urls')),
-    path('leave/', include('employees.urls', namespace='leave')),
+    path('leave/', include('employees.leave_urls', namespace='leave')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

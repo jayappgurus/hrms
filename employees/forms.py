@@ -493,6 +493,16 @@ class LeaveApplicationForm(forms.ModelForm):
         return cleaned_data
 
 class PublicHolidayForm(forms.ModelForm):
+    # Add day field as a form field (not in Meta.fields since it's auto-calculated)
+    day = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'modern-form-control',
+            'readonly': True,
+            'placeholder': 'Will be auto-calculated'
+        })
+    )
+    
     class Meta:
         model = PublicHoliday
         fields = ['name', 'date', 'year', 'country', 'is_optional', 'description', 'is_active']
@@ -536,34 +546,30 @@ class PublicHolidayForm(forms.ModelForm):
         self.fields['is_optional'].label = 'Optional Holiday'
         self.fields['description'].label = 'Description'
         self.fields['is_active'].label = 'Active'
+        self.fields['day'].label = 'Day'
 
-        # Auto-populate day field based on date
-        if self.instance and self.instance.pk:
-            self.fields['day'] = forms.CharField(
-                initial=self.instance.date.strftime('%A'),
-                disabled=True,
-                widget=forms.TextInput(attrs={
-                    'class': 'modern-form-control',
-                    'readonly': True
-                })
-            )
-        else:
-            self.fields['day'] = forms.CharField(
-                required=False,
-                disabled=True,
-                widget=forms.TextInput(attrs={
-                    'class': 'modern-form-control',
-                    'readonly': True,
-                    'placeholder': 'Will be auto-calculated'
-                })
-            )
+        # Pre-populate day field if editing existing holiday
+        if self.instance and self.instance.pk and self.instance.date:
+            self.fields['day'].initial = self.instance.date.strftime('%A')
 
+    def clean(self):
+        cleaned_data = super().clean()
+        date = cleaned_data.get('date')
+        
+        # Auto-populate year from date if not provided
+        if date and not cleaned_data.get('year'):
+            cleaned_data['year'] = date.year
+        
+        return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
         # Auto-calculate day from date
         if instance.date:
             instance.day = instance.date.strftime('%A')
+            # Auto-set year if not already set
+            if not instance.year:
+                instance.year = instance.date.year
         if commit:
             instance.save()
         return instance

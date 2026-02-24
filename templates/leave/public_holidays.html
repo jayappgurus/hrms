@@ -22,19 +22,19 @@
         <div class="btn-group" role="group">
             <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown"
                 aria-expanded="false">
-                <i class="bi bi-file-earmark-spreadsheet me-2"></i>CSV
+                <i class="bi bi-file-earmark-spreadsheet me-2"></i>Excel
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'employees:export_public_holidays_csv' %}">
-                        <i class="bi bi-download me-2"></i>Export CSV
+                <li><a class="dropdown-item" href="/leave/holidays/export-csv">
+                        <i class="bi bi-download me-2"></i>Export Excel (All Countries)
                     </a></li>
-                <li><a class="dropdown-item" href="{% url 'employees:import_public_holidays_csv' %}">
+                <li><a class="dropdown-item" href="/leave/holidays/import-csv/">
                         <i class="bi bi-upload me-2"></i>Import CSV
                     </a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="{% url 'employees:download_public_holiday_sample_csv' %}">
+                <li><a class="dropdown-item" href="/leave/holidays/sample-csv/">
                         <i class="bi bi-file-earmark-text me-2"></i>Download Sample
                     </a></li>
             </ul>
@@ -159,6 +159,10 @@
                         {% if user.is_superuser or user.is_staff %}
                         <td data-label="Actions" class="text-end">
                             <div class="table-actions justify-content-end">
+                                <a href="{% url 'employees:public_holiday_view' holiday.pk %}" class="action-icon-btn"
+                                    title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
                                 <a href="{% url 'employees:public_holiday_edit' holiday.pk %}" class="action-icon-btn"
                                     title="Edit">
                                     <i class="bi bi-pencil"></i>

@@ -80,12 +80,16 @@ class SystemDetailUpdateView(LoginRequiredMixin, UpdateView):
     model = SystemDetail
     form_class = SystemDetailForm
     template_name = 'system/system_detail_form.html'
+    context_object_name = 'system'
     success_url = reverse_lazy('employees:system_detail_list')
 
     def form_valid(self, form):
         # Auto-populate department from employee
         if form.instance.employee:
             form.instance.department = form.instance.employee.department
+        # Set allocated_by if not already set
+        if not form.instance.allocated_by:
+            form.instance.allocated_by = self.request.user
         messages.success(self.request, 'System details updated successfully.')
         return super().form_valid(form)
 
@@ -93,6 +97,7 @@ class SystemDetailUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Edit System Details'
         context['button_text'] = 'Update System'
+        context['system'] = self.object  # Explicitly add system to context
         return context
 
 
@@ -186,6 +191,7 @@ class SystemRequirementUpdateView(LoginRequiredMixin, UpdateView):
     model = SystemRequirement
     form_class = SystemRequirementForm
     template_name = 'system/system_requirement_form.html'
+    context_object_name = 'requirement'
     success_url = reverse_lazy('employees:system_requirement_list')
 
     def form_valid(self, form):
@@ -196,6 +202,7 @@ class SystemRequirementUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Edit System Requirement'
         context['button_text'] = 'Update Requirement'
+        context['object'] = self.object  # Explicitly add object to context
         return context
 
 

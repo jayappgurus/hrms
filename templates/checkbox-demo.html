@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkbox Styles Demo - HRMS Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="bi bi-check2-square me-2"></i>
+                Checkbox Styles Demo
+            </h1>
+            <p class="text-muted mb-4">Comprehensive showcase of all checkbox styles available in HRMS Portal</p>
+        </div>
+    </div>
+
+    <!-- Basic Checkboxes -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Basic Checkboxes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="basic1">
+                                <label class="form-check-label" for="basic1">Unchecked</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="basic2" checked>
+                                <label class="form-check-label" for="basic2">Checked</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="basic3" disabled>
+                                <label class="form-check-label" for="basic3">Disabled</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Variants -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Color Variants</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-primary" type="checkbox" id="primary" checked>
+                                <label class="form-check-label" for="primary">Primary</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-success" type="checkbox" id="success" checked>
+                                <label class="form-check-label" for="success">Success</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-danger" type="checkbox" id="danger" checked>
+                                <label class="form-check-label" for="danger">Danger</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-warning" type="checkbox" id="warning" checked>
+                                <label class="form-check-label" for="warning">Warning</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-info" type="checkbox" id="info" checked>
+                                <label class="form-check-label" for="info">Info</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-dark" type="checkbox" id="dark" checked>
+                                <label class="form-check-label" for="dark">Dark</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sizes -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Checkbox Sizes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-sm" type="checkbox" id="small" checked>
+                                <label class="form-check-label" for="small">Small</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="default" checked>
+                                <label class="form-check-label" for="default">Default</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input checkbox-lg" type="checkbox" id="large" checked>
+                                <label class="form-check-label" for="large">Large</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle Switches -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Toggle Switches</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switch1">
+                                <label class="form-check-label" for="switch1">Off</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switch2" checked>
+                                <label class="form-check-label" for="switch2">On</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="switch3" disabled>
+                                <label class="form-check-label" for="switch3">Disabled</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkbox Cards -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Checkbox Cards</h5>
+                </div>
+                <div class="card-body">
+                    <div class="checkbox-card">
+                        <input class="form-check-input" type="checkbox" id="card1">
+                        <div class="checkbox-card-content">
+                            <div class="checkbox-card-title">Premium Plan</div>
+                            <p class="checkbox-card-description">
+                                Get access to all premium features including priority support
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-card checked">
+                        <input class="form-check-input" type="checkbox" id="card2" checked>
+                        <div class="checkbox-card-content">
+                            <div class="checkbox-card-title">Basic Plan</div>
+                            <p class="checkbox-card-description">
+                                Essential features for getting started
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkbox Group -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Checkbox Group</h5>
+                </div>
+                <div class="card-body">
+                    <div class="checkbox-group">
+                        <div class="checkbox-group-title">Select Permissions</div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="perm1" checked>
+                            <label class="form-check-label" for="perm1">View Employees</label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="perm2" checked>
+                            <label class="form-check-label" for="perm2">Edit Employees</label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="perm3">
+                            <label class="form-check-label" for="perm3">Delete Employees</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Checkbox List</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="checkbox-list">
+                        <li class="checkbox-list-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="list1">
+                                <label class="form-check-label" for="list1">Item 1</label>
+                            </div>
+                        </li>
+                        <li class="checkbox-list-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="list2" checked>
+                                <label class="form-check-label" for="list2">Item 2</label>
+                            </div>
+                        </li>
+                        <li class="checkbox-list-item">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="list3">
+                                <label class="form-check-label" for="list3">Item 3</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inline Checkboxes -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Inline Checkboxes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inline1">
+                        <label class="form-check-label" for="inline1">Option 1</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inline2" checked>
+                        <label class="form-check-label" for="inline2">Option 2</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inline3">
+                        <label class="form-check-label" for="inline3">Option 3</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Checkbox card toggle
+document.querySelectorAll('.checkbox-card input').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const card = this.closest('.checkbox-card');
+        if (this.checked) {
+            card.classList.add('checked');
+        } else {
+            card.classList.remove('checked');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+
+{% block title %}Page Not Found - HRMS Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-page-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+    }
+    
+    .error-content {
+        text-align: center;
+        max-width: 600px;
+        padding: 3rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .error-number {
+        font-size: 8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    
+    .error-number::before {
+        content: '404';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        z-index: -1;
+        transform: translate(3px, 3px);
+        filter: blur(5px);
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    
+    .error-description {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .error-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 2rem;
+        color: var(--primary);
+    }
+    
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-home {
+        background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+        padding: 12px 30px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #e9ecef;
+        color: #495057;
+        transform: translateY(-2px);
+    }
+    
+    .search-box {
+        max-width: 400px;
+        margin: 2rem auto 0;
+        position: relative;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 12px 50px 12px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .search-btn {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--primary);
+        border: none;
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+        background: #5a4d8f;
+    }
+    
+    .help-links {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .help-links h6 {
+        color: #6c757d;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .help-links-list {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .help-links-list a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    
+    .help-links-list a:hover {
+        color: #5a4d8f;
+        text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+        .error-number {
+            font-size: 6rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .error-content {
+            padding: 2rem;
+            margin: 1rem;
+        }
+        
+        .error-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-home, .btn-secondary {
+            width: 100%;
+            max-width: 250px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-page-container">
+    <div class="error-content">
+        <div class="error-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        
+        <div class="error-number">404</div>
+        
+        <h1 class="error-title">Page Not Found</h1>
+        
+        <p class="error-description">
+            Oops! The page you're looking for seems to have vanished into the digital void. 
+            Don't worry, even the best HR systems sometimes misplace things!
+        </p>
+        
+        <div class="error-actions">
+            <a href="{% url 'employees:dashboard' %}" class="btn-home">
+                <i class="bi bi-house-door"></i>
+                Back to Dashboard
+            </a>
+            <a href="javascript:history.back()" class="btn-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Go Back
+            </a>
+        </div>
+        
+        <div class="search-box">
+            <form method="get" action="{% url 'employees:employee_list' %}">
+                <input type="text" name="search" class="search-input" placeholder="Search for employees...">
+                <button type="submit" class="search-btn">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="help-links">
+            <h6>Looking for something specific?</h6>
+            <div class="help-links-list">
+                <a href="{% url 'employees:employee_list' %}">Employee Directory</a>
+                <a href="{% url 'employees:system_management' %}">System Management</a>
+                <a href="{% url 'employees:public_holidays' %}">Holidays</a>
+                <a href="{% url 'employees:leave_application_list' %}">Leave Applications</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add some interactive animations
+    const errorNumber = document.querySelector('.error-number');
+    const errorIcon = document.querySelector('.error-icon i');
+    
+    // Animate the 404 number on load
+    setTimeout(() => {
+        errorNumber.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            errorNumber.style.transform = 'scale(1)';
+        }, 200);
+    }, 500);
+    
+    // Animate the icon
+    let iconRotation = 0;
+    setInterval(() => {
+        iconRotation += 1;
+        errorIcon.style.transform = `rotate(${iconRotation}deg)`;
+    }, 50);
+    
+    // Search input focus effect
+    const searchInput = document.querySelector('.search-input');
+    searchInput.addEventListener('focus', function() {
+        this.placeholder = 'Try searching by name, ID, or department...';
+    });
+    
+    searchInput.addEventListener('blur', function() {
+        this.placeholder = 'Search for employees...';
+    });
+    
+    // Log the error for debugging (optional)
+    console.log('404 Error: Page not found -', window.location.pathname);
+});
+</script>
+{% endblock %}
