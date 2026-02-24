@@ -54,6 +54,17 @@
         margin: 0 -32px -32px;
         border-radius: 0 0 16px 16px;
     }
+    
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        display: block;
+    }
 </style>
 {% endblock %}
 
@@ -543,10 +554,50 @@
 
         // Form validation feedback
         const form = document.getElementById('employeeForm');
+        const validateUrl = form.dataset.validateUrl;
+        
         form.addEventListener('submit', function (e) {
-            // Temporarily allow form submission without validation for testing
-            console.log('Form submitting...');
-            // form.classList.add('was-validated');
+            e.preventDefault(); // Prevent default form submission
+            
+            // Clear previous errors
+            document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            
+            // Send AJAX validation request
+            fetch(validateUrl, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.valid || data.success) {
+                    // If validation passes, submit the form normally
+                    form.removeEventListener('submit', arguments.callee); // Remove this listener to prevent infinite loop
+                    form.submit();
+                } else {
+                    // Display errors
+                    for (const [field, errors] of Object.entries(data.errors)) {
+                        const input = form.querySelector(`[name=${field}]`);
+                        if (input) {
+                            input.classList.add('is-invalid');
+                            const errorDiv = document.createElement('div');
+                            errorDiv.classList.add('invalid-feedback');
+                            errorDiv.textContent = Array.isArray(errors) ? errors.join(' ') : errors;
+                            input.parentNode.appendChild(errorDiv);
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error during validation:', error);
+                // If validation fails, submit the form anyway
+                form.removeEventListener('submit', arguments.callee);
+                form.submit();
+            });
         });
 
         // Department-Designation dependency
@@ -555,9 +606,9 @@
         const departmentHeadField = document.getElementById('departmentHead');
 
         // Store all designations and departments data directly from Django context
-        // Using safe filter to output the JSON string directly into JS
-        const allDesignations = {{ all_designations|default:"[]"|safe }};
-        const allDepartments = {{ all_departments|default:"[]"|safe }};
+        // Using json_script template tag to safely output JSON
+        const allDesignations = JSON.parse(document.getElementById('all-designations-data').textContent);
+        const allDepartments = JSON.parse(document.getElementById('all-departments-data').textContent);
 
         console.log('Designations loaded successfully:', allDesignations.length);
         console.log('Departments loaded successfully:', allDepartments.length);
@@ -731,4 +782,8 @@
     }
     });
 </script>
+
+{{ all_designations|json_script:"all-designations-data" }}
+{{ all_departments|json_script:"all-departments-data" }}
+
 {% endblock %}

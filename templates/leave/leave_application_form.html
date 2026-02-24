@@ -297,6 +297,10 @@
                 </div>
 
                 <div class="col-md-12">
+                    <div id="dateValidationMessage" class="alert" style="display: none;"></div>
+                </div>
+
+                <div class="col-md-12">
                     <div class="alert alert-info mb-0">
                         <i class="bi bi-info-circle me-2"></i>
                         <strong>Important:</strong> Leave can only be applied for working days (Monday to Friday). Weekends (Saturday & Sunday) and public holidays are non-working days and cannot be included in leave applications.
@@ -418,6 +422,59 @@ document.addEventListener('DOMContentLoaded', function() {
     const isOfficeCheckbox = document.getElementById('{{ form.is_office.id_for_label }}');
     const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
     const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+    const dateValidationMessage = document.getElementById('dateValidationMessage');
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    // Function to validate dates via AJAX
+    function validateDates() {
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+
+        if (!startDate || !endDate) {
+            dateValidationMessage.style.display = 'none';
+            submitButton.disabled = false;
+            return;
+        }
+
+        // Show loading state
+        dateValidationMessage.className = 'alert alert-info';
+        dateValidationMessage.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Checking dates...';
+        dateValidationMessage.style.display = 'block';
+        submitButton.disabled = true;
+
+        // Make AJAX request to validate dates
+        fetch(`{% url 'employees:check_leave_dates' %}?start_date=${startDate}&end_date=${endDate}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.valid) {
+                    dateValidationMessage.className = 'alert alert-success';
+                    dateValidationMessage.innerHTML = `<i class="bi bi-check-circle me-2"></i>${data.message}`;
+                    dateValidationMessage.style.display = 'block';
+                    submitButton.disabled = false;
+                } else {
+                    dateValidationMessage.className = 'alert alert-danger';
+                    dateValidationMessage.innerHTML = `<i class="bi bi-x-circle me-2"></i>${data.message}`;
+                    dateValidationMessage.style.display = 'block';
+                    submitButton.disabled = true;
+                }
+            })
+            .catch(error => {
+                console.error('Error validating dates:', error);
+                dateValidationMessage.className = 'alert alert-warning';
+                dateValidationMessage.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Could not validate dates. Please try again.';
+                dateValidationMessage.style.display = 'block';
+                submitButton.disabled = false;
+            });
+    }
+
+    // Add event listeners to date inputs
+    startDateInput.addEventListener('change', validateDates);
+    endDateInput.addEventListener('change', validateDates);
+
+    // Validate on page load if dates are already filled
+    if (startDateInput.value && endDateInput.value) {
+        validateDates();
+    }
 
     // Show/hide half-day section
     isHalfDayCheckbox.addEventListener('change', function() {
@@ -476,6 +533,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const reason = document.getElementById('{{ form.reason.id_for_label }}').value;
         const isHalfDay = isHalfDayCheckbox.checked;
         const scheduledHours = document.getElementById('{{ form.scheduled_hours.id_for_label }}').value;
+
+        // Check if submit button is disabled (invalid dates)
+        if (submitButton.disabled) {
+            alert('Please correct the date selection before submitting. Weekends and public holidays cannot be included in leave applications.');
+            e.preventDefault();
+            return false;
+        }
 
         // Basic validation
         if (!leaveType) {

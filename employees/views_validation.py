@@ -634,6 +634,7 @@ def collect_validation_errors(validators_with_args: list) -> dict:
 
 
 
+@csrf_exempt
 def validate_employee_form(request):
 
     """
@@ -668,40 +669,34 @@ def validate_employee_form(request):
         
 
         # Validate required fields
-
-        required_fields = ['first_name', 'last_name', 'email']
+        required_fields = ['full_name', 'employee_code', 'department', 'designation']
 
         for field in required_fields:
-
             if not data.get(field):
-
                 errors[field] = f"{field.replace('_', ' ').title()} is required."
 
         
 
         # Validate email format
-
-        if data.get('email'):
-
+        if data.get('official_email'):
             import re
-
             email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-
-            if not re.match(email_pattern, data['email']):
-
-                errors['email'] = 'Please enter a valid email address.'
+            if not re.match(email_pattern, data['official_email']):
+                errors['official_email'] = 'Please enter a valid official email address.'
+        
+        if data.get('personal_email'):
+            import re
+            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(email_pattern, data['personal_email']):
+                errors['personal_email'] = 'Please enter a valid personal email address.'
 
         
 
         # Validate phone number
-
-        if data.get('phone'):
-
-            phone = re.sub(r'[^\d]', '', data['phone'])
-
+        if data.get('mobile_number'):
+            phone = re.sub(r'[^\d]', '', data['mobile_number'])
             if len(phone) != 10:
-
-                errors['phone'] = 'Phone number must be 10 digits.'
+                errors['mobile_number'] = 'Mobile number must be 10 digits.'
 
         
 
@@ -1416,4 +1411,95 @@ def validate_user_profile_form(request):
         return JsonResponse({
             'valid': False, 
             'errors': {'__all__': 'Validation error occurred'}
+        })
+
+
+def check_leave_dates(request):
+    """
+    AJAX endpoint to check if selected dates include weekends or public holidays.
+    Returns JSON with validation results.
+    """
+    from django.http import JsonResponse
+    from datetime import datetime, timedelta
+    from .leave_service import LeaveManagementService
+    from .models import PublicHoliday
+    
+    try:
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+        
+        if not start_date_str or not end_date_str:
+            return JsonResponse({
+                'valid': True,
+                'message': ''
+            })
+        
+        # Parse dates
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({
+                'valid': False,
+                'message': 'Invalid date format'
+            })
+        
+        # Check if end date is before start date
+        if end_date < start_date:
+            return JsonResponse({
+                'valid': False,
+                'message': 'End date must be after or equal to start date'
+            })
+        
+        # Check for weekends and holidays
+        invalid_dates = []
+        current_date = start_date
+        
+        while current_date <= end_date:
+            # Check if weekend
+            if LeaveManagementService.is_weekend(current_date):
+                day_name = current_date.strftime('%A')
+                date_str = current_date.strftime('%d-%m-%Y')
+                invalid_dates.append(f"{day_name}, {date_str} (Weekend)")
+            
+            # Check if public holiday
+            elif LeaveManagementService.is_public_holiday(current_date, country='IN'):
+                holiday = PublicHoliday.objects.filter(
+                    date=current_date,
+                    country='IN',
+                    is_active=True
+                ).first()
+                date_str = current_date.strftime('%d-%m-%Y')
+                holiday_name = holiday.name if holiday else "Public Holiday"
+                invalid_dates.append(f"{date_str} ({holiday_name})")
+            
+            current_date += timedelta(days=1)
+        
+        if invalid_dates:
+            if len(invalid_dates) == 1:
+                message = f"❌ Cannot apply leave: {invalid_dates[0]} is a non-working day. Please select working days only (Monday to Friday, excluding public holidays)."
+            else:
+                dates_list = ", ".join(invalid_dates[:3])
+                if len(invalid_dates) > 3:
+                    dates_list += f" and {len(invalid_dates) - 3} more"
+                message = f"❌ Cannot apply leave: The selected range includes non-working days: {dates_list}. Please select working days only."
+            
+            return JsonResponse({
+                'valid': False,
+                'message': message,
+                'invalid_dates': invalid_dates
+            })
+        
+        # All dates are valid working days
+        working_days = LeaveManagementService.count_working_days(start_date, end_date, country='IN')
+        return JsonResponse({
+            'valid': True,
+            'message': f'✓ Valid working days selected ({working_days} day{"s" if working_days != 1 else ""})',
+            'working_days': working_days
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'valid': False,
+            'message': f'Error validating dates: {str(e)}'
         })

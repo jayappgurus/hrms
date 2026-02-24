@@ -244,14 +244,6 @@
                                     title="Edit Employee">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <button type="button"
-                                    class="btn btn-sm btn-outline-{% if employee.employment_status == 'active' %}warning{% else %}success{% endif %} px-2 toggle-status-btn"
-                                    data-employee-id="{{ employee.pk }}"
-                                    data-employee-name="{{ employee.full_name }}"
-                                    data-current-status="{{ employee.employment_status }}"
-                                    title="{% if employee.employment_status == 'active' %}Deactivate{% else %}Activate{% endif %} Employee">
-                                    <i class="bi bi-{% if employee.employment_status == 'active' %}toggle-on{% else %}toggle-off{% endif %}"></i>
-                                </button>
                                 <a href="{% url 'employees:employee_delete_record' employee.pk %}"
                                     class="btn btn-sm btn-outline-danger px-2"
                                     title="Delete Employee"
@@ -329,14 +321,6 @@
                                 title="Edit Employee">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <button type="button"
-                                class="btn btn-sm btn-outline-{% if employee.employment_status == 'active' %}warning{% else %}success{% endif %} px-2 toggle-status-btn"
-                                data-employee-id="{{ employee.pk }}"
-                                data-employee-name="{{ employee.full_name }}"
-                                data-current-status="{{ employee.employment_status }}"
-                                title="{% if employee.employment_status == 'active' %}Deactivate{% else %}Activate{% endif %} Employee">
-                                <i class="bi bi-{% if employee.employment_status == 'active' %}toggle-on{% else %}toggle-off{% endif %}"></i>
-                            </button>
                             <a href="{% url 'employees:employee_delete_record' employee.pk %}"
                                 class="btn btn-sm btn-outline-danger px-2"
                                 title="Delete Employee"

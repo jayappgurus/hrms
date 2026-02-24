@@ -196,6 +196,7 @@ urlpatterns = [
     # Form Validation Endpoints
     path('validate/employee/', views_validation.validate_employee_form, name='validate_employee'),
     path('validate/leave-application/', views_validation.validate_leave_application_form, name='validate_leave_application'),
+    path('validate/leave-dates/', views_validation.check_leave_dates, name='check_leave_dates'),
     path('validate/public-holiday/', views_validation.validate_public_holiday_form, name='validate_public_holiday'),
     path('validate/leave-type/', views_validation.validate_leave_type_form, name='validate_leave_type'),
     path('validate/device-request/', views_validation.validate_device_request_form, name='validate_device_request'),

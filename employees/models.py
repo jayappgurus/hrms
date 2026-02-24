@@ -487,21 +487,6 @@ class Employee(models.Model):
 
                 pass
 
-        # New Indian Salary Structure Calculation
-        # Based on CTC breakdown:
-        # Basic = 40% of CTC
-        # HRA = 16% of CTC (40% of Basic)
-        # Medical Allowance = Fixed ₹1,250
-        # Conveyance Allowance = Fixed ₹1,600
-        # Special Allowance = 33.33333333% of CTC (exactly 1/3)
-        # Gross Salary = Basic + HRA + Medical + Conveyance + Special
-        # Employer PF = 12% of Basic
-        # ESIC = 0% (assuming above threshold)
-        # Employee PF = 12% of Basic (capped at 1800)
-        # ESIC = 0%
-        # PT = Fixed ₹200
-        # Net Pay = Gross - Employee Deductions
-
         annual_ctc = float(self.current_ctc)
         monthly_ctc = annual_ctc / 12
 
