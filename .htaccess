@@ -1,14 +1,18 @@
-PassengerAppRoot /home/yourusername/public_html/hrms-portal
-PassengerAppType python
-PassengerStartupFile passenger_wsgi.py
-PassengerPython /home/yourusername/virtualenv/your-env/bin/python3
-
+Options -MultiViews
 RewriteEngine On
-
-# Serve collected static files
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^static/(.*)$ /staticfiles/$1 [L]
-
-# Serve media files
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^media/(.*)$ /media/$1 [L]
+ 
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^staticfiles/(.*)$ staticfiles/$1 [L]
+ 
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^static/(.*)$ static/$1 [L]
+ 
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^media/(.*)$ media/$1 [L]
+ 
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+ 
+RewriteRule ^$ http://127.0.0.1:8000/ [P,L]
+RewriteRule ^(.*)$ http://127.0.0.1:8000/$1 [P,L]
