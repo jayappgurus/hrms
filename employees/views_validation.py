@@ -668,8 +668,8 @@ def validate_employee_form(request):
 
         
 
-        # Validate required fields
-        required_fields = ['full_name', 'employee_code', 'department', 'designation']
+        # Validate required fields (employee_code is NOT required - it's auto-generated)
+        required_fields = ['full_name', 'department', 'designation', 'joining_date', 'mobile_number', 'official_email', 'date_of_birth', 'marital_status', 'highest_qualification', 'aadhar_card_number', 'pan_card_number']
 
         for field in required_fields:
             if not data.get(field):
@@ -697,6 +697,18 @@ def validate_employee_form(request):
             phone = re.sub(r'[^\d]', '', data['mobile_number'])
             if len(phone) != 10:
                 errors['mobile_number'] = 'Mobile number must be 10 digits.'
+        
+        # Validate Aadhar number
+        if data.get('aadhar_card_number'):
+            aadhar = re.sub(r'[^\d]', '', data['aadhar_card_number'])
+            if len(aadhar) != 12:
+                errors['aadhar_card_number'] = 'Aadhar card number must be exactly 12 digits.'
+        
+        # Validate PAN number
+        if data.get('pan_card_number'):
+            pan = data['pan_card_number'].upper()
+            if len(pan) != 10:
+                errors['pan_card_number'] = 'PAN card number must be exactly 10 characters.'
 
         
 

@@ -177,6 +177,7 @@ cython_debug/
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 hrms_portal/settings.py
+settings.py
 
 # Local History for Visual Studio Code
 .history/

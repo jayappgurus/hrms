@@ -487,31 +487,51 @@ class Employee(models.Model):
 
                 pass
 
-        annual_ctc = float(self.current_ctc)
-        monthly_ctc = annual_ctc / 12
+        # Standard Indian Salary Structure Calculation
 
-        # Earnings - Calculate in order
-        basic = monthly_ctc * 0.40
-        hra = basic * 0.40  # 40% of Basic = 16% of CTC
-        medical_allowance = 1250.00  # Fixed amount
-        conveyance_allowance = 1600.00  # Fixed amount
-        special_allowance = monthly_ctc * (1/3)  # Exactly 33.33333333% using fraction 1/3
-        
-        gross_salary = basic + hra + medical_allowance + conveyance_allowance + special_allowance
-        
-        # Employer Contributions
-        employer_pf = basic * 0.10834 - 0.12  # 12% of Basic
-        employer_esic = 0  # Assuming above threshold
-        total_employer_contribution = employer_pf + employer_esic
+        # Assumptions:
 
-        # Employee Deductions
-        employee_pf = basic * 0.12  # 12% of Basic (capped at 1800 for compliance)
-        if employee_pf > 1800:
-            employee_pf = 1800
-        employee_esic = 0  # Assuming above threshold
-        pt = 200.00  # Fixed professional tax
+        # Basic = 50% of CTC
 
-        total_deductions = employee_pf + employee_esic + pt
+        # HRA = 50% of Basic
+
+        # Special Allowance = Balancing Figure
+
+        # PF = 12% of Basic (Employee Share)
+
+        # PT = 200 (Standard)
+
+        monthly_ctc = float(self.current_ctc) / 12
+
+        basic = monthly_ctc * 0.50
+
+        hra = basic * 0.50
+
+        # Statutory limits
+
+        pf_employee = min(basic * 0.12, 1800) # Capped at 1800 for standard compliance
+
+        pt = 200
+
+        # Allowances must sum up to Gross
+
+        # Gross (Earnings) = CTC / 12 (Simplified)
+
+        # Net Take Home = Gross - Deductions
+
+        special_allowance = monthly_ctc - (basic + hra)
+
+        # Ensure non-negative
+
+        if special_allowance < 0:
+
+            special_allowance = 0
+
+            # Adjust HRA or Basic if needed, but for now strict 50% rule
+
+        gross_salary = basic + hra + special_allowance
+
+        total_deductions = pf_employee + pt
 
         net_salary = gross_salary - total_deductions
 
@@ -523,29 +543,15 @@ class Employee(models.Model):
 
                 'House_Rent_Allowance': round(hra, 2),
 
-                'Medical_Allowance': round(medical_allowance, 2),
-
-                'Conveyance_Allowance': round(conveyance_allowance, 2),
-
                 'Special_Allowance': round(special_allowance, 2),
 
             },
 
             'deductions': {
 
-                'Provident_Fund': round(employee_pf, 2),
-
-                'ESIC': round(employee_esic, 2),
+                'Provident_Fund': round(pf_employee, 2),
 
                 'Professional_Tax': round(pt, 2),
-
-            },
-
-            'employer_contributions': {
-
-                'Provident_Fund': round(employer_pf, 2),
-
-                'ESIC': round(employer_esic, 2),
 
             },
 
@@ -553,32 +559,11 @@ class Employee(models.Model):
 
             'total_deductions': round(total_deductions, 2),
 
-            'total_employer_contribution': round(total_employer_contribution, 2),
-
             'net_salary': round(net_salary, 2),
 
             'ctc_monthly': round(monthly_ctc, 2),
 
-            'ctc_annual': round(annual_ctc, 2),
-
-            # Percentages for display
-            'percentages': {
-                'basic': 40.00,
-                'hra': 16.00,
-                'medical_allowance': round((medical_allowance / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'conveyance_allowance': round((conveyance_allowance / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'special_allowance': 33.33,
-                'gross': round((gross_salary / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'employer_pf': round((employer_pf / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'employer_esic': 0.00,
-                'total_employer_contribution': round((total_employer_contribution / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'employee_pf': round((employee_pf / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'employee_esic': 0.00,
-                'pt': round((pt / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'total_deductions': round((total_deductions / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'net': round((net_salary / monthly_ctc) * 100, 2) if monthly_ctc > 0 else 0,
-                'ctc': 100.00,
-            }
+            'ctc_annual': round(float(self.current_ctc), 2)
 
         }
 
@@ -641,7 +626,6 @@ class Employee(models.Model):
             return f"{self.user_profile.user.username}@123"
 
         return "—"
-
 class EmployeeDocument(models.Model):
 
     DOCUMENT_TYPES = [

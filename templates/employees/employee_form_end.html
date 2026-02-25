@@ -1,0 +1,8 @@
+{% block extra_js %}
+<script>
+// Global variables for JavaScript
+const departmentsData = {{ all_departments|safe }};
+const designationsData = {{ all_designations|safe }};
+</script>
+<script src="{% static 'js/employee-form.js' %}"></script>
+{% endblock %}

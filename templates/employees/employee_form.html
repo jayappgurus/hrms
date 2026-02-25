@@ -54,17 +54,6 @@
         margin: 0 -32px -32px;
         border-radius: 0 0 16px 16px;
     }
-    
-    .is-invalid {
-        border-color: #dc3545 !important;
-    }
-    
-    .invalid-feedback {
-        color: #dc3545;
-        font-size: 0.875em;
-        margin-top: 0.25rem;
-        display: block;
-    }
 </style>
 {% endblock %}
 
@@ -89,7 +78,7 @@
     </a>
 </div>
 
-<form method="post" enctype="multipart/form-data" id="employeeForm" novalidate data-validate data-validate-url="{% url 'employees:validate_employee' %}">
+<form method="post" enctype="multipart/form-data" id="employeeForm" novalidate>
     {% csrf_token %}
 
     <!-- Core Employee Details -->
@@ -451,17 +440,11 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="modern-form-group">
-                    <label class="modern-form-label">
-                        <i class="bi bi-pencil-square text-primary me-1"></i>
-                        {{ form.current_ctc.label }}
-                    </label>
+                    <label class="modern-form-label">{{ form.current_ctc.label }}</label>
                     {{ form.current_ctc }}
                     {% if form.current_ctc.errors %}
                     <div class="text-danger small mt-1">{{ form.current_ctc.errors.0 }}</div>
                     {% endif %}
-                    <small class="form-help-text">
-                        <i class="bi bi-info-circle me-1"></i>Monthly CTC in INR (editable)
-                    </small>
                 </div>
             </div>
             <div class="col-md-8">
@@ -554,50 +537,10 @@
 
         // Form validation feedback
         const form = document.getElementById('employeeForm');
-        const validateUrl = form.dataset.validateUrl;
-        
         form.addEventListener('submit', function (e) {
-            e.preventDefault(); // Prevent default form submission
-            
-            // Clear previous errors
-            document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            
-            // Send AJAX validation request
-            fetch(validateUrl, {
-                method: 'POST',
-                body: new FormData(form),
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.valid || data.success) {
-                    // If validation passes, submit the form normally
-                    form.removeEventListener('submit', arguments.callee); // Remove this listener to prevent infinite loop
-                    form.submit();
-                } else {
-                    // Display errors
-                    for (const [field, errors] of Object.entries(data.errors)) {
-                        const input = form.querySelector(`[name=${field}]`);
-                        if (input) {
-                            input.classList.add('is-invalid');
-                            const errorDiv = document.createElement('div');
-                            errorDiv.classList.add('invalid-feedback');
-                            errorDiv.textContent = Array.isArray(errors) ? errors.join(' ') : errors;
-                            input.parentNode.appendChild(errorDiv);
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error during validation:', error);
-                // If validation fails, submit the form anyway
-                form.removeEventListener('submit', arguments.callee);
-                form.submit();
-            });
+            // Temporarily allow form submission without validation for testing
+            console.log('Form submitting...');
+            // form.classList.add('was-validated');
         });
 
         // Department-Designation dependency
@@ -606,9 +549,9 @@
         const departmentHeadField = document.getElementById('departmentHead');
 
         // Store all designations and departments data directly from Django context
-        // Using json_script template tag to safely output JSON
-        const allDesignations = JSON.parse(document.getElementById('all-designations-data').textContent);
-        const allDepartments = JSON.parse(document.getElementById('all-departments-data').textContent);
+        // Using safe filter to output the JSON string directly into JS
+        const allDesignations = {{ all_designations|default:"[]"|safe }};
+        const allDepartments = {{ all_departments|default:"[]"|safe }};
 
         console.log('Designations loaded successfully:', allDesignations.length);
         console.log('Departments loaded successfully:', allDepartments.length);
@@ -751,39 +694,6 @@
             }
         });
     }
-
-    // CTC Field Enhancement - Visual feedback for editability
-    const ctcField = document.querySelector('[name="current_ctc"]');
-    if (ctcField) {
-        // Add focus effect
-        ctcField.addEventListener('focus', function() {
-            this.style.borderColor = '#4e73df';
-            this.style.boxShadow = '0 0 0 0.2rem rgba(78, 115, 223, 0.25)';
-        });
-        
-        ctcField.addEventListener('blur', function() {
-            this.style.borderColor = '';
-            this.style.boxShadow = '';
-        });
-        
-        // Format number with commas on blur
-        ctcField.addEventListener('blur', function() {
-            if (this.value) {
-                const value = parseFloat(this.value);
-                if (!isNaN(value)) {
-                    // Store the actual value
-                    this.dataset.actualValue = value;
-                }
-            }
-        });
-        
-        // Add tooltip on hover
-        ctcField.title = 'Click to edit monthly CTC amount';
-    }
     });
 </script>
-
-{{ all_designations|json_script:"all-designations-data" }}
-{{ all_departments|json_script:"all-departments-data" }}
-
 {% endblock %}

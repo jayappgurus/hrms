@@ -251,198 +251,852 @@ class EmployeeListView(LoginRequiredMixin, ListView):
 
 
 class EmployeeDetailView(LoginRequiredMixin, DetailView):
+
+
+
     model = Employee
+
+
+
     template_name = 'employees/employee_detail.html'
+
+
+
     context_object_name = 'employee'
 
+
+
+
+
+
+
     def get_context_data(self, **kwargs):
+
+
+
         context = super().get_context_data(**kwargs)
+
+
+
         context['emergency_contact'] = self.object.emergency_contact
+
+
+
         context['documents'] = self.object.documents.all()
 
+
+
+
+
+
+
+        # Define document categories for the tracker
+
+
+
         document_categories = {
+
+
+
             'Photographs': [
+
+
+
                 {'type': 'passport_photo', 'display': 'Passport Size Photos – 4 Copies'},
+
+
+
             ],
+
+
+
             'Identity Proofs': [
+
+
+
                 {'type': 'aadhar_card', 'display': 'Aadhar Card'},
+
+
+
                 {'type': 'pan_card', 'display': 'PAN Card'},
+
+
+
                 {'type': 'driving_license', 'display': 'Driving License'},
+
+
+
                 {'type': 'voter_id', 'display': 'Voter ID'},
+
+
+
                 {'type': 'passport', 'display': 'Passport'},
+
+
+
             ],
+
+
+
             'Address Proofs': [
+
+
+
                 {'type': 'electricity_bill', 'display': 'Electricity Bill'},
+
+
+
                 {'type': 'tax_bill', 'display': 'Tax Bill'},
+
+
+
                 {'type': 'rent_agreement', 'display': 'Rent Agreement'},
+
+
+
             ],
+
+
+
             'Education Proofs': [
+
+
+
                 {'type': 'ssc_marksheet', 'display': 'SSC Marksheet'},
+
+
+
                 {'type': 'hsc_marksheet', 'display': 'HSC Marksheet'},
+
+
+
                 {'type': 'graduation_certificate', 'display': 'Graduation Certificate'},
+
+
+
                 {'type': 'pg_certificate', 'display': 'Post-Graduation Certificate'},
+
+
+
                 {'type': 'graduation_marksheet', 'display': 'Graduation Marksheet'},
+
+
+
                 {'type': 'pg_marksheet', 'display': 'Post-Graduation Marksheet'},
+
+
+
             ]
+
+
+
         }
+
+
+
+
+
+
+
+        # Add document status to each category
+
+
 
         documents_dict = {doc.document_type: doc for doc in context['documents']}
 
+
+
+
+
+
+
         for category, docs in document_categories.items():
+
+
+
             for doc in docs:
+
+
+
                 if doc['type'] in documents_dict:
+
+
+
                     existing_doc = documents_dict[doc['type']]
+
+
+
                     doc.update({
+
+
+
                         'id': existing_doc.id,
+
+
+
                         'is_submitted': existing_doc.is_submitted,
+
+
+
                         'submitted_date': existing_doc.submitted_date,
+
+
+
                         'remarks': existing_doc.remarks,
-                    })
-                else:
-                    doc.update({
-                        'id': None,
-                        'is_submitted': False,
-                        'submitted_date': None,
-                        'remarks': None,
+
+
+
                     })
 
+
+
+                else:
+
+
+
+                    # Document doesn't exist yet - will be created on first toggle
+
+
+
+                    doc.update({
+
+
+
+                        'id': None,
+
+
+
+                        'is_submitted': False,
+
+
+
+                        'submitted_date': None,
+
+
+
+                        'remarks': None,
+
+
+
+                    })
+
+
+
+
+
+
+
         context['document_categories'] = document_categories
+
+
+
+        
+
+
+
+        # Add performance evaluations
+
+
+
         context['evaluations'] = self.object.evaluations.all().order_by('cycle_number')
+
+
+
+        
+
+
+
         return context
+
+
+
 
 
 class EmployeeCreateView(LoginRequiredMixin, CreateView):
+
+
+
     model = Employee
+
+
+
     form_class = EmployeeForm
+
+
+
     template_name = 'employees/employee_form.html'
+
+
+
     success_url = reverse_lazy('employees:employee_list')
 
+
+
+
+
+
+
     def dispatch(self, request, *args, **kwargs):
+
+
+
+        # Only allow superusers and staff to create employees
+
+
+
         if not request.user.is_superuser and not request.user.is_staff:
+
+
+
             messages.error(request, 'You do not have permission to add employees.')
+
+
+
             return redirect('employees:employee_list')
+
+
+
         return super().dispatch(request, *args, **kwargs)
 
+
+
+
+
+
+
     def get_context_data(self, **kwargs):
+
+
+
         context = super().get_context_data(**kwargs)
+
+
+
         context['page_title'] = 'Add Employee'
+
+
+
         context['emergency_contact_form'] = EmergencyContactForm()
+
+
+
+        # Serialize designations to JSON for JavaScript use
+
+
+
+        # Serialize designations to JSON for JavaScript use
+
+
+
         all_designations = list(Designation.objects.values('id', 'name', 'department_id'))
+
+
+
         context['all_designations'] = json.dumps(all_designations)
+
+
+
+
+
+
+
+        # Serialize departments to JSON for JavaScript use (Department Head feature)
+
+
+
         all_departments = list(Department.objects.values('id', 'name', 'head__full_name'))
+
+
+
         context['all_departments'] = json.dumps(all_departments)
+
+
+
         return context
 
+
+
+
+
+
+
     def form_valid(self, form):
+
+
+
         with transaction.atomic():
+
+
+
             response = super().form_valid(form)
+
+
+
             employee = self.object
 
+
+
+
+
+
+
+            # Handle emergency contact
+
+
+
             ec_name = form.cleaned_data.get('emergency_contact_name')
+
+
+
             if ec_name:
+
+
+
                 ec = EmergencyContact.objects.create(
+
+
+
                     name=ec_name,
+
+
+
                     mobile_number=form.cleaned_data.get('emergency_contact_mobile'),
+
+
+
                     email=form.cleaned_data.get('emergency_contact_email'),
+
+
+
                     address=form.cleaned_data.get('emergency_contact_address') or '',
+
+
+
                     relationship=form.cleaned_data.get('emergency_contact_relationship')
+
+
+
                 )
+
+
+
                 employee.emergency_contact = ec
+
+
+
                 employee.save()
 
+
+
+
+
+
+
+            # Create User for the employee
+
+
+
             username = employee.official_email
+
+
+
             email = employee.official_email
+
+
+
+            # Default password
+
+
+
             password = f"Welcome@{timezone.now().year}"
 
+
+
+
+
+
+
             try:
+
+
+
                 if not User.objects.filter(username=username).exists():
+
+
+
                     user = User.objects.create_user(username=username, email=email, password=password)
+
+
+
                     name_parts = employee.full_name.split()
+
+
+
                     user.first_name = name_parts[0]
+
+
+
                     if len(name_parts) > 1:
+
+
+
                         user.last_name = " ".join(name_parts[1:])
+
+
+
                     user.save()
 
+
+
+
+
+
+
+                    # Create UserProfile
+
+
+
                     UserProfile.objects.create(
+
+
+
                         user=user,
+
+
+
                         employee=employee,
+
+
+
                         role='employee',
+
+
+
                         department=employee.department,
+
+
+
                         phone=employee.mobile_number
+
+
+
                     )
 
+
+
+
+
+
+
                     messages.success(self.request, f'Employee added successfully! ID: {employee.employee_code}. User account created (Pass: {password})')
+
+
+
                 else:
+
+
+
                     messages.warning(self.request, f'Employee added (ID: {employee.employee_code}), but user account for {email} already exists.')
+
+
+
             except Exception as e:
+
+
+
                 messages.error(self.request, f'Employee added, but error creating user account: {str(e)}')
+
+
+
+
+
+
 
         return response
 
 
+
+
+
+
+
 class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
+
+
+
     model = Employee
+
+
+
     form_class = EmployeeForm
+
+
+
     template_name = 'employees/employee_form.html'
+
+
+
     success_url = reverse_lazy('employees:employee_list')
 
+
+
+
+
+
+
     def dispatch(self, request, *args, **kwargs):
+
+
+
+        # Only allow superusers and staff to edit employees
+
+
+
         if not request.user.is_superuser and not request.user.is_staff:
+
+
+
             messages.error(request, 'You do not have permission to edit employees.')
+
+
+
             return redirect('employees:employee_list')
+
+
+
         return super().dispatch(request, *args, **kwargs)
 
+
+
+
+
+
+
     def get_context_data(self, **kwargs):
+
+
+
         context = super().get_context_data(**kwargs)
+
+
+
         context['page_title'] = 'Edit Employee'
+
+
+
         context['emergency_contact_form'] = EmergencyContactForm()
+
+
+
+        # Serialize designations to JSON for JavaScript use
+
+
+
+        # Serialize designations to JSON for JavaScript use
+
+
+
         all_designations = list(Designation.objects.values('id', 'name', 'department_id'))
+
+
+
         context['all_designations'] = json.dumps(all_designations)
+
+
+
+
+
+
+
+        # Serialize departments to JSON for JavaScript use (Department Head feature)
+
+
+
         all_departments = list(Department.objects.values('id', 'name', 'head__full_name'))
+
+
+
         context['all_departments'] = json.dumps(all_departments)
+
+
+
         return context
 
+
+
+
+
+
+
     def form_valid(self, form):
+
+
+
         with transaction.atomic():
+
+
+
             response = super().form_valid(form)
+
+
+
             employee = self.object
 
+
+
+
+
+
+
+            # Handle emergency contact
+
+
+
             ec_name = form.cleaned_data.get('emergency_contact_name')
+
+
+
             if ec_name:
+
+
+
                 ec_data = {
+
+
+
                     'name': ec_name,
+
+
+
                     'mobile_number': form.cleaned_data.get('emergency_contact_mobile'),
+
+
+
                     'email': form.cleaned_data.get('emergency_contact_email'),
+
+
+
                     'address': form.cleaned_data.get('emergency_contact_address') or '',
+
+
+
                     'relationship': form.cleaned_data.get('emergency_contact_relationship')
+
+
+
                 }
+
+
+
                 if employee.emergency_contact:
+
+
+
                     for key, value in ec_data.items():
+
+
+
                         setattr(employee.emergency_contact, key, value)
+
+
+
                     employee.emergency_contact.save()
+
+
+
                 else:
+
+
+
                     ec = EmergencyContact.objects.create(**ec_data)
+
+
+
                     employee.emergency_contact = ec
+
+
+
                     employee.save()
 
+
+
+
+
+
+
             messages.success(self.request, 'Employee updated successfully!')
+
+
+
             return response
 
 
+
+
+
+
+
 class EmployeeDeleteView(LoginRequiredMixin, DeleteView):
+
+
+
     model = Employee
+
+
+
     template_name = 'employees/employee_confirm_delete.html'
+
+
+
     success_url = reverse_lazy('employees:employee_list')
 
+
+
+
+
+
+
     def dispatch(self, request, *args, **kwargs):
+
+
+
+        # Only allow superusers and staff to delete employees
+
+
+
         if not request.user.is_superuser and not request.user.is_staff:
+
+
+
             messages.error(request, 'You do not have permission to delete employees.')
+
+
+
             return redirect('employees:employee_list')
+
+
+
         return super().dispatch(request, *args, **kwargs)
 
+
+
+
+
+
+
     def delete(self, request, *args, **kwargs):
+
+
+
         messages.success(request, 'Employee deleted successfully!')
+
+
+
         return super().delete(request, *args, **kwargs)
+
+
+
+
 
 
 @require_POST

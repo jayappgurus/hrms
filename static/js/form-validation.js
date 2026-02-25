@@ -75,7 +75,32 @@ class FormValidator {
             if (data.valid) {
                 this.showFieldSuccess(field);
             } else {
-                this.showFieldError(field, data.errors[fieldName] || ['Invalid value']);
+                // Handle different error formats
+                let errorMessage = 'Invalid value';
+                
+                // Debug logging
+                console.log('Field:', fieldName);
+                console.log('Data errors:', data.errors);
+                console.log('Field error exists:', !!(data.errors && data.errors[fieldName]));
+                
+                if (data.errors && data.errors[fieldName]) {
+                    errorMessage = Array.isArray(data.errors[fieldName]) 
+                        ? data.errors[fieldName][0] 
+                        : data.errors[fieldName];
+                    console.log('Using specific error:', errorMessage);
+                } else {
+                    // Try to find any error that contains the field name
+                    for (let [errorField, errorValue] of Object.entries(data.errors || {})) {
+                        if (errorField.toLowerCase().includes(fieldName.toLowerCase()) || 
+                            fieldName.toLowerCase().includes(errorField.toLowerCase())) {
+                            errorMessage = Array.isArray(errorValue) ? errorValue[0] : errorValue;
+                            console.log('Found matching error:', errorMessage);
+                            break;
+                        }
+                    }
+                }
+                
+                this.showFieldError(field, errorMessage);
             }
         } catch (error) {
             console.error('Validation error:', error);
@@ -107,7 +132,9 @@ class FormValidator {
                 for (let [fieldName, errors] of Object.entries(data.errors)) {
                     const field = this.form.querySelector(`[name="${fieldName}"]`);
                     if (field) {
-                        this.showFieldError(field, errors);
+                        // Handle different error formats
+                        let errorMessage = Array.isArray(errors) ? errors[0] : errors;
+                        this.showFieldError(field, errorMessage);
                     }
                 }
                 

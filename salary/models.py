@@ -185,7 +185,7 @@ class SalarySlip(models.Model):
     employee_salary_structure = models.ForeignKey(EmployeeSalaryStructure, on_delete=models.SET_NULL, null=True)
     
     month = models.IntegerField(help_text="Month (1-12)")
-    year = models.IntegerField(help_text="Year")
+    year = models.IntegerField(default=2024, help_text="Year")
     
     # Working days
     total_working_days = models.IntegerField(default=26)

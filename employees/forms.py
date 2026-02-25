@@ -83,9 +83,7 @@ class EmployeeForm(forms.ModelForm):
             'employment_status': forms.Select(attrs={'class': 'form-select'}),
             'current_ctc': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter monthly CTC (e.g., 45000)',
-                'step': '0.01',
-                'min': '0'
+                'placeholder': 'Current CTC'
             }),
             'salary_structure': forms.Textarea(attrs={
                 'class': 'form-control',
