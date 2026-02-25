@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}Assign Manager - Performance Evaluation{% endblock %}
+
+{% block page_title %}Assign Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .assign-manager-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .manager-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .manager-card:hover {
+        border-color: #332666;
+        box-shadow: 0 4px 12px rgba(51, 38, 102, 0.1);
+    }
+    
+    .manager-card.selected {
+        border-color: #332666;
+        background-color: #f8f6ff;
+    }
+    
+    .manager-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #332666 0%, #5a4d8a 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    
+    .evaluation-info {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .btn-remove-manager {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    
+    .btn-remove-manager:hover {
+        background: #c82333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb premium-breadcrumb p-0">
+            <li class="breadcrumb-item">
+                <a href="{% url 'employees:dashboard' %}">
+                    <i class="bi bi-house-door me-1"></i>Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'employees:evaluation_dashboard' %}">Performance</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'employees:evaluation_detail' evaluation.id %}">
+                    Evaluation Details
+                </a>
+            </li>
+            <li class="breadcrumb-item active">Assign Manager</li>
+        </ol>
+    </nav>
+
+    <div class="assign-manager-container">
+        <!-- Page Header -->
+        <div class="text-center mb-4">
+            <h1 class="h2 page-heading">
+                <i class="bi bi-person-plus-fill text-primary me-2"></i>
+                Assign Evaluation Manager
+            </h1>
+            <p class="text-muted">Select a manager to oversee this performance evaluation</p>
+        </div>
+
+        <!-- Evaluation Info -->
+        <div class="evaluation-info">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-2">{{ evaluation.employee.full_name }}</h5>
+                    <p class="mb-1"><strong>Department:</strong> {{ evaluation.employee.department.name }}</p>
+                    <p class="mb-1"><strong>Designation:</strong> {{ evaluation.employee.designation.name }}</p>
+                    <p class="mb-0"><strong>Evaluation Period:</strong> {{ evaluation.evaluation_period }}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    {% if evaluation.assigned_manager %}
+                        <div class="mb-2">
+                            <span class="badge bg-success">Manager Assigned</span>
+                        </div>
+                        <p class="mb-0"><small>Current: {{ evaluation.assigned_manager.get_full_name|default:evaluation.assigned_manager.username }}</small></p>
+                    {% else %}
+                        <div class="mb-2">
+                            <span class="badge bg-warning">No Manager Assigned</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Manager Selection Form -->
+        <form method="post" id="assignManagerForm">
+            {% csrf_token %}
+            
+            <div class="row g-3 mb-4">
+                {% for manager in managers %}
+                    <div class="col-md-6">
+                        <div class="manager-card p-3 {% if current_manager and current_manager.id == manager.id %}selected{% endif %}"
+                             onclick="selectManager({{ manager.id }})">
+                            <div class="d-flex align-items-center">
+                                <div class="manager-avatar me-3">
+                                    {% if manager.get_full_name %}
+                                        {{ manager.get_full_name|slice:":2"|upper }}
+                                    {% else %}
+                                        {{ manager.username|slice:":2"|upper }}
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        {{ manager.get_full_name|default:manager.username }}
+                                    </h6>
+                                    <p class="mb-0 small text-muted">{{ manager.email }}</p>
+                                    {% if manager.profile.employee %}
+                                        <p class="mb-0 small text-muted">
+                                            {{ manager.profile.employee.department.name }} - 
+                                            {{ manager.profile.employee.designation.name }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" 
+                                           name="manager_id" 
+                                           value="{{ manager.id }}"
+                                           id="manager_{{ manager.id }}"
+                                           {% if current_manager and current_manager.id == manager.id %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            No managers available. Please add active users to the system.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    {% if current_manager %}
+                        <button type="button" class="btn btn-remove-manager" onclick="removeManager()">
+                            <i class="bi bi-person-dash me-2"></i>Remove Current Manager
+                        </button>
+                    {% endif %}
+                </div>
+                <div>
+                    <a href="{% url 'employees:evaluation_detail' evaluation.id %}" 
+                       class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Evaluation
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>Assign Manager
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function selectManager(managerId) {
+    // Remove selected class from all cards
+    document.querySelectorAll('.manager-card').forEach(function(card) {
+        card.classList.remove('selected');
+    });
+    
+    // Add selected class to clicked card
+    const selectedCard = document.querySelector('#manager_' + managerId).closest('.manager-card');
+    selectedCard.classList.add('selected');
+    
+    // Check the radio button
+    document.getElementById('manager_' + managerId).checked = true;
+}
+
+function removeManager() {
+    if (confirm('Are you sure you want to remove the current manager assignment?')) {
+        // Uncheck all radio buttons
+        document.querySelectorAll('input[name="manager_id"]').forEach(function(radio) {
+            radio.checked = false;
+        });
+        
+        // Remove selected class from all cards
+        document.querySelectorAll('.manager-card').forEach(function(card) {
+            card.classList.remove('selected');
+        });
+        
+        // Submit form with empty manager_id
+        const form = document.getElementById('assignManagerForm');
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'manager_id';
+        input.value = '';
+        form.appendChild(input);
+        form.submit();
+    }
+}
+
+// Handle form submission
+document.getElementById('assignManagerForm').addEventListener('submit', function(e) {
+    const selectedManager = document.querySelector('input[name="manager_id"]:checked');
+    
+    if (!selectedManager && !document.querySelector('input[name="manager_id"][value=""]')) {
+        e.preventDefault();
+        alert('Please select a manager or remove the current assignment.');
+        return false;
+    }
+    
+    // Show loading state
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Assigning...';
+    submitBtn.disabled = true;
+    
+    // Reset button after 2 seconds (in case of redirect issues)
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 2000);
+});
+</script>
+{% endblock %}

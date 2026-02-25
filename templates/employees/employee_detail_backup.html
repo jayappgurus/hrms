@@ -475,8 +475,8 @@
                                 class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 rounded-pill">Rejected</span>
                             {% else %}
                             <span
-                                class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-3 rounded-pill">{{
-                                eval.get_status_display }}</span>
+                                class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-3 rounded-pill">
+                                {{ eval.get_status_display }}</span>
                             {% endif %}
                         </td>
                         <td class="text-muted small">{{ eval.submitted_at|date:"d M Y, H:i"|default:"—" }}</td>

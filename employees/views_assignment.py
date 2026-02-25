@@ -21,7 +21,7 @@ def assign_manager(request, pk):
             evaluation.save()
             messages.success(request, 'Manager assignment removed.')
         
-        return redirect('employees:evaluation_detail', evaluation_id)
+        return redirect('employees:evaluation_detail', evaluation.id)
     
     # Get all users who can be managers (exclude superusers if needed)
     managers = User.objects.filter(is_active=True).exclude(is_superuser=True)
