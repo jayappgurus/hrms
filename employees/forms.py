@@ -181,6 +181,22 @@ class EmployeeForm(forms.ModelForm):
                 pass
         elif self.instance.pk and self.instance.department:
             self.fields['designation'].queryset = Designation.objects.filter(department=self.instance.department)
+    
+    def clean_employee_code(self):
+        """
+        Handle employee_code field - preserve existing code during updates
+        """
+        employee_code = self.cleaned_data.get('employee_code')
+        
+        # If this is an update and employee_code is empty, keep the existing one
+        if self.instance and self.instance.pk and not employee_code:
+            return self.instance.employee_code
+        
+        # If employee_code is empty string for new employee, convert to None for auto-generation
+        if employee_code == '':
+            employee_code = None
+            
+        return employee_code
 
     def clean_aadhar_card_number(self):
         aadhar = self.cleaned_data.get('aadhar_card_number')

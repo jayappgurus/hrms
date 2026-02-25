@@ -125,7 +125,13 @@
                     {% if form.employee_code.errors %}
                     <div class="text-danger small mt-1">{{ form.employee_code.errors.0 }}</div>
                     {% endif %}
-                    <small class="form-help-text">Leave blank to auto-generate</small>
+                    {% if form.instance.pk %}
+                        <small class="form-help-text text-muted">
+                            <i class="bi bi-lock-fill me-1"></i>Employee code cannot be modified
+                        </small>
+                    {% else %}
+                        <small class="form-help-text">Leave blank to auto-generate</small>
+                    {% endif %}
                 </div>
             </div>
 
@@ -538,7 +544,6 @@
         // Form validation feedback
         const form = document.getElementById('employeeForm');
         form.addEventListener('submit', function (e) {
-            // Temporarily allow form submission without validation for testing
             console.log('Form submitting...');
             // form.classList.add('was-validated');
         });
@@ -547,9 +552,6 @@
         const departmentField = document.getElementById('id_department');
         const designationField = document.getElementById('id_designation');
         const departmentHeadField = document.getElementById('departmentHead');
-
-        // Store all designations and departments data directly from Django context
-        // Using safe filter to output the JSON string directly into JS
         const allDesignations = {{ all_designations|default:"[]"|safe }};
         const allDepartments = {{ all_departments|default:"[]"|safe }};
 

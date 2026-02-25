@@ -868,11 +868,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Ctrl/Cmd + Shift + S → toggle all
 document.addEventListener('keydown', function (e) {
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+
+    const isWindowsShortcut = !isMac && e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 's';
+    const isMacShortcut = isMac && e.metaKey && e.shiftKey && e.key.toLowerCase() === 'y';
+
+    if (isWindowsShortcut || isMacShortcut) {
         e.preventDefault();
+
         const anyVisible = Object.values(visibilityState).some(Boolean);
+
         Object.keys(salaryData).forEach(field => {
             const shouldBeVisible = !anyVisible;
+
             if (visibilityState[field] !== shouldBeVisible) {
                 toggleSalaryView(field);
             }

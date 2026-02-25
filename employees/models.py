@@ -380,35 +380,22 @@ class Employee(models.Model):
         return f"{self.full_name} ({self.employee_code})"
 
     def save(self, *args, **kwargs):
-
-        # Auto-generate employee code if not provided
-
-        if not self.employee_code:
-
+        # Auto-generate employee code only for new employees (when pk is None)
+        if not self.pk and not self.employee_code:
             # Get the latest employee code
-
             latest_employee = Employee.objects.order_by('-id').first()
-
+            
             if latest_employee and latest_employee.employee_code and latest_employee.employee_code.startswith('EM'):
-
                 # Extract numeric part and increment
-
                 try:
-
                     latest_num = int(latest_employee.employee_code[2:])
-
                     new_num = latest_num + 1
-
                 except ValueError:
-
                     new_num = 1
-
             else:
-
                 new_num = 1
-
+            
             # Format as EM0001, EM0002, etc.
-
             self.employee_code = f'EM{new_num:04d}'
 
         # Auto-calculate probation status

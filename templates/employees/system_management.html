@@ -13,199 +13,383 @@
             <p class="text-muted mb-0">Monitor and manage system allocations and availability</p>
         </div>
     </div>
-
     <!-- Statistics Cards -->
     <div class="row g-4 mb-4">
         <!-- Total Systems Card -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary bg-opacity-10 icon-square">
-                                <i class="bi bi-pc-display text-white fs-4"></i>
+        <div class="col-lg-4 col-md-4">
+            <div class="card border-0 shadow-lg h-100 rounded bg-primary">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">Total Systems</h3>
+                            <p class="mb-0 opacity-75">Complete system overview</p>
+                        </div>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-pc-display fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ total_systems }}</h4>
+                                <small class="opacity-75">Total</small>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Total Systems</h6>
-                            <h3 class="fw-bold mb-0">{{ total_systems }}</h3>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_systems }}</h4>
+                                <small class="opacity-75">In Use</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ inactive_systems }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Allocated Systems Card -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-info bg-opacity-10 icon-square">
-                                <i class="bi bi-person-check text-info fs-4"></i>
-                            </div>
+        <!-- Mac Devices Card -->
+        <div class="col-lg-4 col-md-4">
+            <div class="card border-0 shadow-lg h-100 rounded bg-primary">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">Mac Devices</h3>
+                            <p class="mb-0 opacity-75">Apple ecosystem</p>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Allocated Systems</h6>
-                            <h3 class="fw-bold mb-0 text-info">{{ allocated_systems }}</h3>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-apple fs-4"></i>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        <!-- Available Systems Card -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-success bg-opacity-10 icon-square">
-                                <i class="bi bi-check-circle text-success fs-4"></i>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ total_mac_addresses }}</h4>
+                                <small class="opacity-75">Total</small>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Available Systems</h6>
-                            <h3 class="fw-bold mb-0 text-success">{{ inactive_systems }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <h4 class="fw-bold mt-5 mb-2">MAC Address Statistics</h4>
-    <!-- MAC Address Statistics -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-4 col-md-6">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-secondary bg-opacity-10 icon-square">
-                                <i class="bi bi-apple text-secondary fs-4"></i>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_mac_addresses }}</h4>
+                                <small class="opacity-75">In Use</small>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Total MAC Device</h6>
-                            <h3 class="fw-bold mb-0">{{ total_mac_addresses }}</h3>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ available_mac_addresses }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showMacSystemsModal()">
-                            <i class="bi bi-three-dots-vertical me-1"></i>
+                    <div class="mt-3 text-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill me-2" onclick="showMacSystemsModal()">
+                            <i class="bi bi-eye me-1"></i>View Systems
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-info bg-opacity-10 icon-square">
-                                <i class="bi bi-apple text-info fs-4"></i>
+
+        <!-- Windows Devices Card -->
+        <div class="col-lg-4 col-md-4">
+            <div class="card border-0 shadow-lg h-100 rounded bg-primary">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">Windows Devices</h3>
+                            <p class="mb-0 opacity-75">Microsoft systems</p>
+                        </div>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-windows fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ windows_systems }}</h4>
+                                <small class="opacity-75">Total</small>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Allocated MAC Device</h6>
-                            <h3 class="fw-bold mb-0 text-info">{{ allocated_mac_addresses }}</h3>
-                        </div>
-                    </div>
-                    <div class="mt-2">
-                        <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showMacSystemsModal()">
-                            <i class="bi bi-three-dots-vertical me-1"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-success bg-opacity-10 icon-square">
-                                <i class="bi bi-apple text-success fs-4"></i>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_windows_systems }}</h4>
+                                <small class="opacity-75">In Use</small>
                             </div>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Available MAC Device</h6>
-                            <h3 class="fw-bold mb-0 text-success">{{ available_mac_addresses }}</h3>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ available_windows_systems|default:"0" }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showMacSystemsModal()">
-                            <i class="bi bi-three-dots-vertical me-1"></i>
+                    <div class="mt-3 text-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill me-2" onclick="showWindowsSystemsModal()">
+                            <i class="bi bi-eye me-1"></i>View Systems
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <h4 class="fw-bold mt-5 mb-2">Windows Systems Statistics</h4>
-    <!-- Windows Systems Statistics -->
+
+    <!-- Device Statistics Cards -->
     <div class="row g-4 mb-4">
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary bg-opacity-10 icon-square">
-                                <i class="bi bi-windows text-white fs-4"></i>
-                            </div>
+        <h3 class="text-center">Device Inventory</h3>
+        
+        <!-- CPU Devices Card -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-lg h-100 rounded bg-success">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">CPU Systems</h3>
+                            <p class="mb-0 opacity-75">Processing units</p>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Windows Systems</h6>
-                            <h3 class="fw-bold mb-0 text-primary">{{ windows_systems }}</h3>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-cpu fs-4"></i>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showWindowsSystemsModal()">
-                            <i class="bi bi-three-dots-vertical me-1"></i>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ total_systems }}</h4>
+                                <small class="opacity-75">Total</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_systems }}</h4>
+                                <small class="opacity-75">In Use</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ inactive_systems }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill" onclick="showAddCpuModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Add CPU
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-info bg-opacity-10 icon-square">
-                                <i class="bi bi-windows text-info fs-4"></i>
-                            </div>
+
+        <!-- Screen Devices Card -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-lg h-100 rounded bg-info">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">Screens</h3>
+                            <p class="mb-0 opacity-75">Display devices</p>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Allocated Windows Systems</h6>
-                            <h3 class="fw-bold mb-0 text-info">{{ allocated_windows_systems }}</h3>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-display fs-4"></i>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showWindowsSystemsModal()">
-                            <i class="bi bi-three-dots-vertical me-1"></i>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ total_systems }}</h4>
+                                <small class="opacity-75">Total</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_systems }}</h4>
+                                <small class="opacity-75">In Use</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ inactive_systems }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill" onclick="showAddScreenModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Add Screen
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-success bg-opacity-10 icon-square">
-                                <i class="bi bi-windows text-success fs-4"></i>
-                            </div>
+
+        <!-- Keyboard Devices Card -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-lg h-100 rounded bg-warning">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">Keyboards</h3>
+                            <p class="mb-0 opacity-75">Input devices</p>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="text-muted mb-1">Avaliable Windows Systems</h6>
-                            <h3 class="fw-bold mb-0 text-success">{{ available_windows_systems }}</h3>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-keyboard fs-4"></i>
                         </div>
                     </div>
-                    <div class="mt-2">
-                        <button type="button" class="position-absolute top-0 end-0 bg-transparent border-0 p-2" onclick="showWindowsSystemsModal()">
-                            <i class="bi bi-three-dots-vertical me-1"></i>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ total_keyboards }}</h4>
+                                <small class="opacity-75">Total</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_keyboards }}</h4>
+                                <small class="opacity-75">In Use</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ available_keyboards }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill" onclick="showAddKeyboardModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Add Keyboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mouse Devices Card -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-lg h-100 rounded bg-danger">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">Mice</h3>
+                            <p class="mb-0 opacity-75">Pointing devices</p>
+                        </div>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-mouse fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ total_mice }}</h4>
+                                <small class="opacity-75">Total</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_mice }}</h4>
+                                <small class="opacity-75">In Use</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ available_mice }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill" onclick="showAddMouseModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Add Mouse
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Device Statistics -->
+    <div class="row g-4 mb-4">
+        <!-- Headphone Devices Card -->
+        <div class="col-lg-6 col-md-6">
+            <div class="card border-0 shadow-lg h-100 rounded bg-secondary">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">Headphones</h3>
+                            <p class="mb-0 opacity-75">Audio devices</p>
+                        </div>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-headphones fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ total_headphones }}</h4>
+                                <small class="opacity-75">Total</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_headphones }}</h4>
+                                <small class="opacity-75">In Use</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ available_headphones }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill" onclick="showAddHeadphoneModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Add Headphone
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extender Devices Card -->
+        <div class="col-lg-6 col-md-6">
+            <div class="card border-0 shadow-lg h-100 rounded bg-dark">
+                <div class="card-body p-4 text-white">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-white">Extenders</h3>
+                            <p class="mb-0 opacity-75">Network devices</p>
+                        </div>
+                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                            <i class="bi bi-router fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ total_extenders }}</h4>
+                                <small class="opacity-75">Total</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_extenders }}</h4>
+                                <small class="opacity-75">In Use</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
+                                <h4 class="fw-bold mb-0 text-white">{{ available_extenders }}</h4>
+                                <small class="opacity-75">Free</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button type="button" class="btn btn-light btn-sm rounded-pill" onclick="showAddExtenderModal()">
+                            <i class="bi bi-plus-circle me-1"></i>Add Extender
                         </button>
                     </div>
                 </div>
@@ -234,6 +418,7 @@
                                 <th>Employee</th>
                                 <th>Employee Code</th>
                                 <th>Department</th>
+                                <th>Allocated</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -280,6 +465,7 @@
                                 <th>Employee Code</th>
                                 <th>Department</th>
                                 <th>CPU Company</th>
+                                <th>Allocated</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -300,6 +486,241 @@
                     <i class="bi bi-download me-2"></i>Export CSV
                 </button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add CPU Modal -->
+<div class="modal fade" id="addCpuModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-cpu me-2"></i>Add CPU System
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCpuForm">
+                    <div class="mb-3">
+                        <label for="cpu_company" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="cpu_company" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cpu_processor" class="form-label">Processor</label>
+                        <input type="text" class="form-control" id="cpu_processor" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cpu_ram" class="form-label">RAM</label>
+                        <input type="text" class="form-control" id="cpu_ram" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cpu_storage" class="form-label">Storage</label>
+                        <input type="text" class="form-control" id="cpu_storage" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cpu_label" class="form-label">Label No.</label>
+                        <input type="text" class="form-control" id="cpu_label" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cpu_mac" class="form-label">MAC Address</label>
+                        <input type="text" class="form-control" id="cpu_mac" placeholder="00:1B:44:11:3A:B7" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveCpu()">Save CPU</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Screen Modal -->
+<div class="modal fade" id="addScreenModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-display me-2"></i>Add Screen
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addScreenForm">
+                    <div class="mb-3">
+                        <label for="screen_company" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="screen_company" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="screen_size" class="form-label">Size</label>
+                        <input type="text" class="form-control" id="screen_size" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="screen_label" class="form-label">Label No.</label>
+                        <input type="text" class="form-control" id="screen_label" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="screen_allocated" class="form-label">Allocation Status</label>
+                        <select class="form-select" id="screen_allocated">
+                            <option value="false">Free</option>
+                            <option value="true">In Use</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveScreen()">Save Screen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Keyboard Modal -->
+<div class="modal fade" id="addKeyboardModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-keyboard me-2"></i>Add Keyboard
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addKeyboardForm">
+                    <div class="mb-3">
+                        <label for="keyboard_company" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="keyboard_company" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="keyboard_label" class="form-label">Label No.</label>
+                        <input type="text" class="form-control" id="keyboard_label" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="keyboard_allocated" class="form-label">Allocation Status</label>
+                        <select class="form-select" id="keyboard_allocated">
+                            <option value="false">Free</option>
+                            <option value="true">In Use</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveKeyboard()">Save Keyboard</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Mouse Modal -->
+<div class="modal fade" id="addMouseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-mouse me-2"></i>Add Mouse
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addMouseForm">
+                    <div class="mb-3">
+                        <label for="mouse_company" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="mouse_company" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mouse_label" class="form-label">Label No.</label>
+                        <input type="text" class="form-control" id="mouse_label" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mouse_allocated" class="form-label">Allocation Status</label>
+                        <select class="form-select" id="mouse_allocated">
+                            <option value="false">Free</option>
+                            <option value="true">In Use</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveMouse()">Save Mouse</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Headphone Modal -->
+<div class="modal fade" id="addHeadphoneModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-headphones me-2"></i>Add Headphone
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addHeadphoneForm">
+                    <div class="mb-3">
+                        <label for="headphone_company" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="headphone_company" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="headphone_label" class="form-label">Label No.</label>
+                        <input type="text" class="form-control" id="headphone_label" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="headphone_allocated" class="form-label">Allocation Status</label>
+                        <select class="form-select" id="headphone_allocated">
+                            <option value="false">Free</option>
+                            <option value="true">In Use</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveHeadphone()">Save Headphone</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Extender Modal -->
+<div class="modal fade" id="addExtenderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-router me-2"></i>Add Extender
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addExtenderForm">
+                    <div class="mb-3">
+                        <label for="extender_name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="extender_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="extender_label" class="form-label">Label</label>
+                        <input type="text" class="form-control" id="extender_label" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="extender_allocated" class="form-label">Allocation Status</label>
+                        <select class="form-select" id="extender_allocated">
+                            <option value="false">Free</option>
+                            <option value="true">In Use</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveExtender()">Save Extender</button>
             </div>
         </div>
     </div>
@@ -366,8 +787,8 @@ function loadMacSystemsData() {
                     let viewButton = '<span class="text-muted">-</span>';
                     
                     if (assignment.employee_id && assignment.employee_id > 0) {
-                        const employeeDetailUrl = "{% url 'employees:employee_detail' 0 %}".replace('/0/', `/${assignment.employee_id}/`);
-                        viewButton = `<a href="${employeeDetailUrl}" class="btn btn-sm btn-primary">
+                        const systemDetailUrl = "{% url 'employees:system_detail_view' 0 %}".replace('0', assignment.id);
+                        viewButton = `<a href="${systemDetailUrl}" class="btn btn-sm btn-primary">
                             <i class="bi bi-eye"></i> View
                            </a>`;
                     }
@@ -379,6 +800,12 @@ function loadMacSystemsData() {
                         <td>${assignment.employee_name || 'Unassigned'}</td>
                         <td>${assignment.employee_code || '-'}</td>
                         <td>${assignment.department || '-'}</td>
+                        <td>
+                            ${assignment.is_active ? 
+                                '<span class="badge bg-success text-white">Allocated</span>' : 
+                                '<span class="badge bg-warning text-dark">Not Allocated</span>'
+                            }
+                        </td>
                         <td>${viewButton}</td>
                     `;
                     tbody.appendChild(row);
@@ -425,8 +852,8 @@ function loadWindowsSystemsData() {
                     let viewButton = '<span class="text-muted">-</span>';
                     
                     if (assignment.employee_id && assignment.employee_id > 0) {
-                        const employeeDetailUrl = "{% url 'employees:employee_detail' 0 %}".replace('/0/', `/${assignment.employee_id}/`);
-                        viewButton = `<a href="${employeeDetailUrl}" class="btn btn-sm btn-primary">
+                        const systemDetailUrl = "{% url 'employees:system_detail_view' 0 %}".replace('0', assignment.id);
+                        viewButton = `<a href="${systemDetailUrl}" class="btn btn-sm btn-primary">
                             <i class="bi bi-eye"></i> View
                            </a>`;
                     }
@@ -438,6 +865,12 @@ function loadWindowsSystemsData() {
                         <td>${assignment.employee_code || '-'}</td>
                         <td>${assignment.department || '-'}</td>
                         <td>${assignment.cpu_company_name || '-'}</td>
+                        <td>
+                            ${assignment.is_active ? 
+                                '<span class="badge bg-success text-white">Allocated</span>' : 
+                                '<span class="badge bg-warning text-dark">Not Allocated</span>'
+                            }
+                        </td>
                         <td>${viewButton}</td>
                     `;
                     tbody.appendChild(row);
@@ -473,6 +906,489 @@ function exportMacSystemsCSV() {
 
 function exportWindowsSystemsCSV() {
     window.location.href = '{% url "employees:export_windows_systems_csv" %}';
+}
+
+function showMacPeripheralModal() {
+    const modal = new bootstrap.Modal(document.getElementById('macPeripheralModal'));
+    modal.show();
+    loadMacPeripheralData();
+}
+
+function showWindowsPeripheralModal() {
+    const modal = new bootstrap.Modal(document.getElementById('windowsPeripheralModal'));
+    modal.show();
+    loadWindowsPeripheralData();
+}
+
+function loadMacPeripheralData() {
+    console.log('Loading MAC peripheral devices data...');
+    fetch('{% url "employees:api_mac_peripheral_devices" %}')
+        .then(response => {
+            console.log('MAC Peripheral API response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('MAC Peripheral API response data:', data);
+            
+            if (data.success && data.mac_peripherals && data.mac_peripherals.length > 0) {
+                // Initialize counters
+                let keyboardStats = { total: 0, allocated: 0, available: 0 };
+                let mouseStats = { total: 0, allocated: 0, available: 0 };
+                let headphoneStats = { total: 0, allocated: 0, available: 0 };
+                let extenderStats = { total: 0, allocated: 0, available: 0 };
+                
+                data.mac_peripherals.forEach(peripheral => {
+                    // Count keyboards
+                    if (peripheral.keyboard && peripheral.keyboard !== 'N/A') {
+                        keyboardStats.total++;
+                        if (peripheral.is_active) {
+                            keyboardStats.allocated++;
+                        } else {
+                            keyboardStats.available++;
+                        }
+                    }
+                    
+                    // Count mice
+                    if (peripheral.mouse && peripheral.mouse !== 'N/A') {
+                        mouseStats.total++;
+                        if (peripheral.is_active) {
+                            mouseStats.allocated++;
+                        } else {
+                            mouseStats.available++;
+                        }
+                    }
+                    
+                    // Count headphones
+                    if (peripheral.headphone && peripheral.headphone !== 'N/A') {
+                        headphoneStats.total++;
+                        if (peripheral.is_active) {
+                            headphoneStats.allocated++;
+                        } else {
+                            headphoneStats.available++;
+                        }
+                    }
+                    
+                    // Count extenders
+                    if (peripheral.extender && peripheral.extender !== 'N/A') {
+                        extenderStats.total++;
+                        if (peripheral.is_active) {
+                            extenderStats.allocated++;
+                        } else {
+                            extenderStats.available++;
+                        }
+                    }
+                });
+                
+                // Update MAC card counts
+                document.getElementById('macTotalKeyboards').textContent = keyboardStats.total;
+                document.getElementById('macAllocatedKeyboards').textContent = keyboardStats.allocated;
+                document.getElementById('macAvailableKeyboards').textContent = keyboardStats.available;
+                
+                document.getElementById('macTotalMice').textContent = mouseStats.total;
+                document.getElementById('macAllocatedMice').textContent = mouseStats.allocated;
+                document.getElementById('macAvailableMice').textContent = mouseStats.available;
+                
+                document.getElementById('macTotalHeadphones').textContent = headphoneStats.total;
+                document.getElementById('macAllocatedHeadphones').textContent = headphoneStats.allocated;
+                document.getElementById('macAvailableHeadphones').textContent = headphoneStats.available;
+                
+                document.getElementById('macTotalExtenders').textContent = extenderStats.total;
+                document.getElementById('macAllocatedExtenders').textContent = extenderStats.allocated;
+                document.getElementById('macAvailableExtenders').textContent = extenderStats.available;
+                
+            } else {
+                console.log('No MAC peripheral devices found or empty data');
+                // Set all counts to 0
+                ['Keyboards', 'Mice', 'Headphones', 'Extenders'].forEach(device => {
+                    const prefix = device.toLowerCase();
+                    document.getElementById(`macTotal${device}`).textContent = '0';
+                    document.getElementById(`macAllocated${device}`).textContent = '0';
+                    document.getElementById(`macAvailable${device}`).textContent = '0';
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading MAC peripheral devices data:', error);
+            // Set all counts to error state
+            ['Keyboards', 'Mice', 'Headphones', 'Extenders'].forEach(device => {
+                document.getElementById(`macTotal${device}`).textContent = 'Error';
+                document.getElementById(`macAllocated${device}`).textContent = 'Error';
+                document.getElementById(`macAvailable${device}`).textContent = 'Error';
+            });
+        });
+}
+
+function loadWindowsPeripheralData() {
+    console.log('Loading Windows peripheral devices data...');
+    fetch('{% url "employees:api_windows_peripheral_devices" %}')
+        .then(response => {
+            console.log('Windows Peripheral API response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Windows Peripheral API response data:', data);
+            
+            if (data.success && data.windows_peripherals && data.windows_peripherals.length > 0) {
+                // Initialize counters
+                let keyboardStats = { total: 0, allocated: 0, available: 0 };
+                let mouseStats = { total: 0, allocated: 0, available: 0 };
+                let headphoneStats = { total: 0, allocated: 0, available: 0 };
+                let extenderStats = { total: 0, allocated: 0, available: 0 };
+                
+                data.windows_peripherals.forEach(peripheral => {
+                    // Count keyboards
+                    if (peripheral.keyboard && peripheral.keyboard !== 'N/A') {
+                        keyboardStats.total++;
+                        if (peripheral.is_active) {
+                            keyboardStats.allocated++;
+                        } else {
+                            keyboardStats.available++;
+                        }
+                    }
+                    
+                    // Count mice
+                    if (peripheral.mouse && peripheral.mouse !== 'N/A') {
+                        mouseStats.total++;
+                        if (peripheral.is_active) {
+                            mouseStats.allocated++;
+                        } else {
+                            mouseStats.available++;
+                        }
+                    }
+                    
+                    // Count headphones
+                    if (peripheral.headphone && peripheral.headphone !== 'N/A') {
+                        headphoneStats.total++;
+                        if (peripheral.is_active) {
+                            headphoneStats.allocated++;
+                        } else {
+                            headphoneStats.available++;
+                        }
+                    }
+                    
+                    // Count extenders
+                    if (peripheral.extender && peripheral.extender !== 'N/A') {
+                        extenderStats.total++;
+                        if (peripheral.is_active) {
+                            extenderStats.allocated++;
+                        } else {
+                            extenderStats.available++;
+                        }
+                    }
+                });
+                
+                // Update Windows card counts
+                document.getElementById('winTotalKeyboards').textContent = keyboardStats.total;
+                document.getElementById('winAllocatedKeyboards').textContent = keyboardStats.allocated;
+                document.getElementById('winAvailableKeyboards').textContent = keyboardStats.available;
+                
+                document.getElementById('winTotalMice').textContent = mouseStats.total;
+                document.getElementById('winAllocatedMice').textContent = mouseStats.allocated;
+                document.getElementById('winAvailableMice').textContent = mouseStats.available;
+                
+                document.getElementById('winTotalHeadphones').textContent = headphoneStats.total;
+                document.getElementById('winAllocatedHeadphones').textContent = headphoneStats.allocated;
+                document.getElementById('winAvailableHeadphones').textContent = headphoneStats.available;
+                
+                document.getElementById('winTotalExtenders').textContent = extenderStats.total;
+                document.getElementById('winAllocatedExtenders').textContent = extenderStats.allocated;
+                document.getElementById('winAvailableExtenders').textContent = extenderStats.available;
+                
+            } else {
+                console.log('No Windows peripheral devices found or empty data');
+                // Set all counts to 0
+                ['Keyboards', 'Mice', 'Headphones', 'Extenders'].forEach(device => {
+                    document.getElementById(`winTotal${device}`).textContent = '0';
+                    document.getElementById(`winAllocated${device}`).textContent = '0';
+                    document.getElementById(`winAvailable${device}`).textContent = '0';
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading Windows peripheral devices data:', error);
+            // Set all counts to error state
+            ['Keyboards', 'Mice', 'Headphones', 'Extenders'].forEach(device => {
+                document.getElementById(`winTotal${device}`).textContent = 'Error';
+                document.getElementById(`winAllocated${device}`).textContent = 'Error';
+                document.getElementById(`winAvailable${device}`).textContent = 'Error';
+            });
+        });
+}
+
+// Device Modal Functions
+function showAddCpuModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addCpuModal'));
+    modal.show();
+}
+
+function showAddScreenModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addScreenModal'));
+    modal.show();
+}
+
+function showAddKeyboardModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addKeyboardModal'));
+    modal.show();
+}
+
+function showAddMouseModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addMouseModal'));
+    modal.show();
+}
+
+function showAddHeadphoneModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addHeadphoneModal'));
+    modal.show();
+}
+
+function showAddExtenderModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addExtenderModal'));
+    modal.show();
+}
+
+// Save Functions
+function saveCpu() {
+    const form = document.getElementById('addCpuForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const data = {
+        cpu_company_name: document.getElementById('cpu_company').value,
+        cpu_processor: document.getElementById('cpu_processor').value,
+        cpu_ram: document.getElementById('cpu_ram').value,
+        cpu_storage: document.getElementById('cpu_storage').value,
+        cpu_label_no: document.getElementById('cpu_label').value,
+        macaddress: document.getElementById('cpu_mac').value,
+        system_type: 'windows',
+        is_active: false
+    };
+    
+    fetch('{% url "employees:add_device_cpu" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addCpuModal')).hide();
+            form.reset();
+            location.reload();
+        } else {
+            alert('Error saving CPU: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving CPU');
+    });
+}
+
+function saveScreen() {
+    const form = document.getElementById('addScreenForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const data = {
+        screen_company_name: document.getElementById('screen_company').value,
+        screen_size: document.getElementById('screen_size').value,
+        screen_label_no: document.getElementById('screen_label').value,
+        screen_allocated: document.getElementById('screen_allocated').value === 'true'
+    };
+    
+    fetch('{% url "employees:add_device_screen" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addScreenModal')).hide();
+            form.reset();
+            location.reload();
+        } else {
+            alert('Error saving Screen: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving Screen');
+    });
+}
+
+function saveKeyboard() {
+    const form = document.getElementById('addKeyboardForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const data = {
+        keyboard_company_name: document.getElementById('keyboard_company').value,
+        keyboard_label_no: document.getElementById('keyboard_label').value,
+        keyboard_allocated: document.getElementById('keyboard_allocated').value === 'true'
+    };
+    
+    fetch('{% url "employees:add_device_keyboard" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addKeyboardModal')).hide();
+            form.reset();
+            location.reload();
+        } else {
+            alert('Error saving Keyboard: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving Keyboard');
+    });
+}
+
+function saveMouse() {
+    const form = document.getElementById('addMouseForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const data = {
+        mouse_company_name: document.getElementById('mouse_company').value,
+        mouse_label_no: document.getElementById('mouse_label').value,
+        mouse_allocated: document.getElementById('mouse_allocated').value === 'true'
+    };
+    
+    fetch('{% url "employees:add_device_mouse" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addMouseModal')).hide();
+            form.reset();
+            location.reload();
+        } else {
+            alert('Error saving Mouse: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving Mouse');
+    });
+}
+
+function saveHeadphone() {
+    const form = document.getElementById('addHeadphoneForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const data = {
+        headphone_company_name: document.getElementById('headphone_company').value,
+        headphone_label_no: document.getElementById('headphone_label').value,
+        headphone_allocated: document.getElementById('headphone_allocated').value === 'true'
+    };
+    
+    fetch('{% url "employees:add_device_headphone" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addHeadphoneModal')).hide();
+            form.reset();
+            location.reload();
+        } else {
+            alert('Error saving Headphone: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving Headphone');
+    });
+}
+
+function saveExtender() {
+    const form = document.getElementById('addExtenderForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const data = {
+        extender_name: document.getElementById('extender_name').value,
+        extender_label: document.getElementById('extender_label').value,
+        extender_allocated: document.getElementById('extender_allocated').value === 'true'
+    };
+    
+    fetch('{% url "employees:add_device_extender" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addExtenderModal')).hide();
+            form.reset();
+            location.reload();
+        } else {
+            alert('Error saving Extender: ' + result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving Extender');
+    });
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 </script>
 {% endblock %}

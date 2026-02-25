@@ -870,59 +870,31 @@ class EmployeeUpdateView(LoginRequiredMixin, UpdateView):
 
 
 
-
-
     def get_context_data(self, **kwargs):
-
-
-
         context = super().get_context_data(**kwargs)
-
-
-
         context['page_title'] = 'Edit Employee'
-
-
-
         context['emergency_contact_form'] = EmergencyContactForm()
-
-
-
+        
         # Serialize designations to JSON for JavaScript use
-
-
-
-        # Serialize designations to JSON for JavaScript use
-
-
-
         all_designations = list(Designation.objects.values('id', 'name', 'department_id'))
-
-
-
         context['all_designations'] = json.dumps(all_designations)
-
-
-
-
-
-
-
+        
         # Serialize departments to JSON for JavaScript use (Department Head feature)
-
-
-
         all_departments = list(Department.objects.values('id', 'name', 'head__full_name'))
-
-
-
         context['all_departments'] = json.dumps(all_departments)
-
-
-
+        
         return context
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Disable employee_code field for existing employees
+        if self.object and self.object.pk:
+            form.fields['employee_code'].widget.attrs['disabled'] = 'disabled'
+        return form
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        return kwargs
 
 
 

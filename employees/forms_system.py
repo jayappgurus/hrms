@@ -45,6 +45,36 @@ class SystemDetailForm(forms.ModelForm):
         false_label='No'
     )
     
+    keyboard_allocated = BooleanSelectField(
+        required=True,
+        true_label='Allocated',
+        false_label='Non-allocated'
+    )
+    
+    mouse_allocated = BooleanSelectField(
+        required=True,
+        true_label='Allocated',
+        false_label='Non-allocated'
+    )
+    
+    screen_allocated = BooleanSelectField(
+        required=True,
+        true_label='Allocated',
+        false_label='Non-allocated'
+    )
+    
+    headphone_allocated = BooleanSelectField(
+        required=True,
+        true_label='Allocated',
+        false_label='Non-allocated'
+    )
+    
+    extender_allocated = BooleanSelectField(
+        required=True,
+        true_label='Allocated',
+        false_label='Non-allocated'
+    )
+    
     is_active = BooleanSelectField(
         required=True,
         true_label='Allocated',
@@ -55,11 +85,11 @@ class SystemDetailForm(forms.ModelForm):
         model = SystemDetail
         fields = [
             'system_type', 'employee', 'department', 'macaddress', 'cpu_ram', 'cpu_storage', 'cpu_company_name', 'cpu_processor', 'cpu_label_no',
-            'screen_company_name', 'screen_label_no', 'screen_size',
-            'keyboard_company_name', 'keyboard_label_no',
-            'mouse_company_name', 'mouse_label_no',
-            'has_headphone', 'headphone_company_name', 'headphone_label_no',
-            'has_extender', 'extender_label', 'extender_name',
+            'screen_company_name', 'screen_label_no', 'screen_size', 'screen_allocated',
+            'keyboard_company_name', 'keyboard_label_no', 'keyboard_allocated',
+            'mouse_company_name', 'mouse_label_no', 'mouse_allocated',
+            'has_headphone', 'headphone_company_name', 'headphone_label_no', 'headphone_allocated',
+            'has_extender', 'extender_label', 'extender_name', 'extender_allocated',
             'is_active'
         ]
         widgets = {

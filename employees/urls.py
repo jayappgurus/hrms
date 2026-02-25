@@ -191,8 +191,18 @@ urlpatterns = [
     path('show-mac-address/', views_system_management.show_mac_address, name='show_mac_address'),
     path('api/update-system-status/', views_system_management.update_system_status, name='update_system_status'),
     path('api/windows-systems-assignments/', views_system_management.get_windows_systems_assignments, name='api_windows_systems_assignments'),
+    path('api/mac-peripheral-devices/', views_system_management.get_mac_peripheral_devices, name='api_mac_peripheral_devices'),
+    path('api/windows-peripheral-devices/', views_system_management.get_windows_peripheral_devices, name='api_windows_peripheral_devices'),
     path('export/mac-systems-csv/', views_system_management.export_mac_systems_csv, name='export_mac_systems_csv'),
     path('export/windows-systems-csv/', views_system_management.export_windows_systems_csv, name='export_windows_systems_csv'),
+
+    # Device Management APIs
+    path('api/add-device-cpu/', views_system_management.add_device_cpu, name='add_device_cpu'),
+    path('api/add-device-screen/', views_system_management.add_device_screen, name='add_device_screen'),
+    path('api/add-device-keyboard/', views_system_management.add_device_keyboard, name='add_device_keyboard'),
+    path('api/add-device-mouse/', views_system_management.add_device_mouse, name='add_device_mouse'),
+    path('api/add-device-headphone/', views_system_management.add_device_headphone, name='add_device_headphone'),
+    path('api/add-device-extender/', views_system_management.add_device_extender, name='add_device_extender'),
 
     # Form Validation Endpoints
     path('validate/employee/', views_validation.validate_employee_form, name='validate_employee'),
