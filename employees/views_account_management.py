@@ -171,7 +171,9 @@ def account_import_csv(request):
                     system_password = column[6].strip()
                     github = column[7].strip() if column[7].strip() else ''
                     github_password = column[8].strip() if column[8].strip() else ''
-                    notes = column[9].strip() if len(column) > 9 and column[9].strip() else ''
+                    apple_store_id = column[9].strip() if column[9].strip() else ''
+                    apple_password = column[10].strip() if column[10].strip() else ''
+                    notes = column[11].strip() if len(column) > 11 and column[11].strip() else ''
                     
                     # Check for duplicates if requested
                     if skip_duplicates:
@@ -190,7 +192,8 @@ def account_import_csv(request):
                         system_password=system_password,
                         github=github,
                         github_password=github_password,
-                        notes=notes,
+                        apple_store_id=apple_store_id,
+                        apple_password=apple_password,
                         is_active=True
                     )
                     imported_count += 1
@@ -219,7 +222,7 @@ def account_export_csv(request):
     writer.writerow([
         'Name', 'Email', 'Email Password', 'Teams', 'Teams Password', 
         'Basecamp Password', 'System Password', 'GitHub', 'GitHub Password', 
-        'Notes', 'Is Active', 'Created At'
+        'Apple Store ID', 'Apple Password', 'Is Active', 'Created At'
     ])
     
     accounts = AccountManagement.objects.all().order_by('name')
@@ -234,7 +237,8 @@ def account_export_csv(request):
             account.system_password,
             account.github,
             account.github_password,
-            account.notes,
+            account.apple_store_id,
+            account.apple_password,
             account.is_active,
             account.created_at.strftime('%Y-%m-%d %H:%M:%S')
         ])
@@ -257,17 +261,17 @@ def account_sample_csv(request):
     writer = csv.writer(response)
     writer.writerow([
         'Name', 'Email', 'Email Password', 'Teams', 'Teams Password', 
-        'Basecamp Password', 'System Password', 'GitHub', 'GitHub Password', 'Notes'
+        'Basecamp Password', 'System Password', 'GitHub', 'GitHub Password', 'Apple Store ID', 'Apple Password'
     ])
     
     # Add sample data
     writer.writerow([
         'John Doe', 'john.doe@example.com', 'email_password123', 'john_teams', 'teams123',
-        'basecamp123', 'system123', 'johndoe', 'github123', 'Sample account for John Doe'
+        'basecamp123', 'system123', 'johndoe', 'github123', 'Sample Apple Store ID for John Doe', 'Sample Apple Password for John Doe'
     ])
     writer.writerow([
         'Jane Smith', 'jane.smith@example.com', 'email_password456', 'jane_teams', 'teams456',
-        'basecamp456', 'system456', 'janesmith', 'github456', 'Sample account for Jane Smith'
+        'basecamp456', 'system456', 'janesmith', 'github456', 'Sample Apple Store ID for Jane Smith', 'Sample Apple Password for Jane Smith'
     ])
     
     return response
@@ -332,7 +336,7 @@ def account_bulk_export(request):
             writer.writerow([
                 'Name', 'Email', 'Email Password', 'Teams', 'Teams Password', 
                 'Basecamp Password', 'System Password', 'GitHub', 'GitHub Password', 
-                'Notes', 'Is Active', 'Created At'
+                'Apple Store ID', 'Apple Password', 'Is Active', 'Created At'
             ])
             
             for account in accounts:
@@ -346,7 +350,8 @@ def account_bulk_export(request):
                     account.system_password,
                     account.github,
                     account.github_password,
-                    account.notes,
+                    account.apple_store_id,
+                    account.apple_password,
                     account.is_active,
                     account.created_at.strftime('%Y-%m-%d %H:%M:%S')
                 ])

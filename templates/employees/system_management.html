@@ -5,6 +5,7 @@
 {% block page_title %}System Management{% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="container-fluid">
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -61,8 +62,14 @@
                             <h3 class="fw-bold mb-1 text-white">Mac Devices</h3>
                             <p class="mb-0 opacity-75">Apple ecosystem</p>
                         </div>
-                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
-                            <i class="bi bi-apple fs-4"></i>
+
+                        <div class="apple-icon-container">
+                            <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center apple-icon" style="width:52px;height:52px;">
+                                <i class="bi bi-apple fs-4"></i>
+                            </div>
+                            <button type="button" class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center border-0 hover-btn" onclick="showMacSystemsModal()" style="width:52px;height:52px;">
+                                <i class="bi bi-eye fs-4"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row text-center">
@@ -85,11 +92,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-3 text-center">
-                        <button type="button" class="btn btn-light btn-sm rounded-pill me-2" onclick="showMacSystemsModal()">
-                            <i class="bi bi-eye me-1"></i>View Systems
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -103,8 +105,13 @@
                             <h3 class="fw-bold mb-1 text-white">Windows Devices</h3>
                             <p class="mb-0 opacity-75">Microsoft systems</p>
                         </div>
-                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
-                            <i class="bi bi-windows fs-4"></i>
+                        <div class="apple-icon-container">
+                            <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center apple-icon" style="width:52px;height:52px;">
+                                <i class="bi bi-windows fs-4"></i>
+                            </div>
+                            <button type="button" class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center border-0 hover-btn" onclick="showWindowsSystemsModal()" style="width:52px;height:52px;">
+                                <i class="bi bi-eye fs-4"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row text-center">
@@ -127,11 +134,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-3 text-center">
-                        <button type="button" class="btn btn-light btn-sm rounded-pill me-2" onclick="showWindowsSystemsModal()">
-                            <i class="bi bi-eye me-1"></i>View Systems
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -147,29 +149,34 @@
                 <div class="card-body p-4 text-white">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <h3 class="fw-bold mb-1 text-white">CPU Systems</h3>
-                            <p class="mb-0 opacity-75">Processing units</p>
+                            <h3 class="fw-bold mb-1 text-white">CPUs</h3>
+                            <p class="mb-0 opacity-75">Computer systems</p>
                         </div>
-                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
-                            <i class="bi bi-cpu fs-4"></i>
+                         <div class="apple-icon-container">
+                            <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                                <i class="bi bi-cpu fs-4"></i>
+                            </div>
+                            <button type="button" class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center border-0 hover-btn" onclick="showCpuSystemsModal()" style="width:52px;height:52px;">
+                                <i class="bi bi-eye fs-4"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row text-center">
                         <div class="col-4">
                             <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
-                                <h4 class="fw-bold mb-0 text-white">{{ total_systems }}</h4>
+                                <h4 class="fw-bold mb-0 text-white">{{ total_cpus }}</h4>
                                 <small class="opacity-75">Total</small>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
-                                <h4 class="fw-bold mb-0 text-white">{{ allocated_systems }}</h4>
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_cpus }}</h4>
                                 <small class="opacity-75">In Use</small>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
-                                <h4 class="fw-bold mb-0 text-white">{{ inactive_systems }}</h4>
+                                <h4 class="fw-bold mb-0 text-white">{{ available_cpus }}</h4>
                                 <small class="opacity-75">Free</small>
                             </div>
                         </div>
@@ -192,26 +199,31 @@
                             <h3 class="fw-bold mb-1 text-white">Screens</h3>
                             <p class="mb-0 opacity-75">Display devices</p>
                         </div>
-                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
-                            <i class="bi bi-display fs-4"></i>
+                        <div class="apple-icon-container">
+                            <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                                <i class="bi bi-display fs-4"></i>
+                            </div>
+                            <button type="button" class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center border-0 hover-btn" onclick="showScreenSystemsModal()" style="width:52px;height:52px;">
+                                <i class="bi bi-eye fs-4"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row text-center">
                         <div class="col-4">
                             <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
-                                <h4 class="fw-bold mb-0 text-white">{{ total_systems }}</h4>
+                                <h4 class="fw-bold mb-0 text-white">{{ total_screens }}</h4>
                                 <small class="opacity-75">Total</small>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
-                                <h4 class="fw-bold mb-0 text-white">{{ allocated_systems }}</h4>
+                                <h4 class="fw-bold mb-0 text-white">{{ allocated_screens }}</h4>
                                 <small class="opacity-75">In Use</small>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="bg-white bg-opacity-10 rounded-lg p-2 rounded">
-                                <h4 class="fw-bold mb-0 text-white">{{ inactive_systems }}</h4>
+                                <h4 class="fw-bold mb-0 text-white">{{ available_screens }}</h4>
                                 <small class="opacity-75">Free</small>
                             </div>
                         </div>
@@ -234,8 +246,13 @@
                             <h3 class="fw-bold mb-1 text-white">Keyboards</h3>
                             <p class="mb-0 opacity-75">Input devices</p>
                         </div>
-                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
-                            <i class="bi bi-keyboard fs-4"></i>
+                        <div class="apple-icon-container">
+                            <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                                <i class="bi bi-keyboard fs-4"></i>
+                            </div>
+                            <button type="button" class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center border-0 hover-btn" onclick="showKeyboardSystemsModal()" style="width:52px;height:52px;">
+                                <i class="bi bi-eye fs-4"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row text-center">
@@ -273,11 +290,16 @@
                 <div class="card-body p-4 text-white">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <h3 class="fw-bold mb-1 text-white">Mice</h3>
+                            <h3 class="fw-bold mb-1 text-white">Mouse</h3>
                             <p class="mb-0 opacity-75">Pointing devices</p>
                         </div>
-                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
-                            <i class="bi bi-mouse fs-4"></i>
+                        <div class="apple-icon-container">
+                            <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                                <i class="bi bi-mouse fs-4"></i>
+                            </div>
+                            <button type="button" class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center border-0 hover-btn" onclick="showMouseSystemsModal()" style="width:52px;height:52px;">
+                                <i class="bi bi-eye fs-4"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row text-center">
@@ -321,8 +343,13 @@
                             <h3 class="fw-bold mb-1 text-white">Headphones</h3>
                             <p class="mb-0 opacity-75">Audio devices</p>
                         </div>
-                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
-                            <i class="bi bi-headphones fs-4"></i>
+                        <div class="apple-icon-container">
+                            <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                                <i class="bi bi-headphones fs-4"></i>
+                            </div>
+                            <button type="button" class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center border-0 hover-btn" onclick="showHeadphoneSystemsModal()" style="width:52px;height:52px;">
+                                <i class="bi bi-eye fs-4"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row text-center">
@@ -363,8 +390,13 @@
                             <h3 class="fw-bold mb-1 text-white">Extenders</h3>
                             <p class="mb-0 opacity-75">Network devices</p>
                         </div>
-                        <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
-                            <i class="bi bi-router fs-4"></i>
+                        <div class="apple-icon-container">
+                            <div class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:52px;height:52px;">
+                                <i class="bi bi-router fs-4"></i>
+                            </div>
+                            <button type="button" class="bg-white text-black bg-opacity-20 rounded-circle p-1 d-flex align-items-center justify-content-center border-0 hover-btn" onclick="showExtenderSystemsModal()" style="width:52px;height:52px;">
+                                <i class="bi bi-eye fs-4"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="row text-center">
@@ -438,7 +470,6 @@
                 <button type="button" class="btn btn-success" onclick="exportMacSystemsCSV()">
                     <i class="bi bi-download me-2"></i>Export CSV
                 </button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -485,7 +516,6 @@
                 <button type="button" class="btn btn-success" onclick="exportWindowsSystemsCSV()">
                     <i class="bi bi-download me-2"></i>Export CSV
                 </button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -561,13 +591,6 @@
                         <label for="screen_label" class="form-label">Label No.</label>
                         <input type="text" class="form-control" id="screen_label" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="screen_allocated" class="form-label">Allocation Status</label>
-                        <select class="form-select" id="screen_allocated">
-                            <option value="false">Free</option>
-                            <option value="true">In Use</option>
-                        </select>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -597,13 +620,6 @@
                     <div class="mb-3">
                         <label for="keyboard_label" class="form-label">Label No.</label>
                         <input type="text" class="form-control" id="keyboard_label" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="keyboard_allocated" class="form-label">Allocation Status</label>
-                        <select class="form-select" id="keyboard_allocated">
-                            <option value="false">Free</option>
-                            <option value="true">In Use</option>
-                        </select>
                     </div>
                 </form>
             </div>
@@ -635,13 +651,6 @@
                         <label for="mouse_label" class="form-label">Label No.</label>
                         <input type="text" class="form-control" id="mouse_label" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="mouse_allocated" class="form-label">Allocation Status</label>
-                        <select class="form-select" id="mouse_allocated">
-                            <option value="false">Free</option>
-                            <option value="true">In Use</option>
-                        </select>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -672,13 +681,6 @@
                         <label for="headphone_label" class="form-label">Label No.</label>
                         <input type="text" class="form-control" id="headphone_label" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="headphone_allocated" class="form-label">Allocation Status</label>
-                        <select class="form-select" id="headphone_allocated">
-                            <option value="false">Free</option>
-                            <option value="true">In Use</option>
-                        </select>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -702,19 +704,16 @@
             <div class="modal-body">
                 <form id="addExtenderForm">
                     <div class="mb-3">
-                        <label for="extender_name" class="form-label">Name</label>
+                        <label for="extender_name" class="form-label">Company Name</label>
                         <input type="text" class="form-control" id="extender_name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="extender_label" class="form-label">Label</label>
+                        <label for="extender_label" class="form-label">Label No.</label>
                         <input type="text" class="form-control" id="extender_label" required>
                     </div>
                     <div class="mb-3">
-                        <label for="extender_allocated" class="form-label">Allocation Status</label>
-                        <select class="form-select" id="extender_allocated">
-                            <option value="false">Free</option>
-                            <option value="true">In Use</option>
-                        </select>
+                        <label for="extender_model" class="form-label">Model</label>
+                        <input type="text" class="form-control" id="extender_model" placeholder="e.g., TL-WA850RE, EX6200">
                     </div>
                 </form>
             </div>
@@ -754,9 +753,57 @@
 .modal-lg {
     max-width: 800px;
 }
+
+/* Apple Icon Hover Effect */
+.apple-icon-container {
+    position: relative;
+}
+
+.apple-icon-container .hover-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotateX(90deg);
+    opacity: 0;
+    transition: all 0.4s ease;
+    transform-origin: center;
+    pointer-events: none;
+}
+
+.apple-icon-container:hover .hover-btn {
+    transform: translate(-50%, -50%) rotateX(0deg);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.apple-icon-container:hover .apple-icon {
+    transform: rotateX(90deg);
+    opacity: 0;
+}
+
+.apple-icon {
+    transition: all 0.4s ease;
+    transform-origin: center;
+}
 </style>
 
 <script>
+// Helper function to get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 function showMacSystemsModal() {
     const modal = new bootstrap.Modal(document.getElementById('macSystemsModal'));
     modal.show();
@@ -788,8 +835,8 @@ function loadMacSystemsData() {
                     
                     if (assignment.employee_id && assignment.employee_id > 0) {
                         const systemDetailUrl = "{% url 'employees:system_detail_view' 0 %}".replace('0', assignment.id);
-                        viewButton = `<a href="${systemDetailUrl}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-eye"></i> View
+                        viewButton = `<a href="${systemDetailUrl}" class="btn btn-outline-primary p-2">
+                            <i class="bi bi-eye"></i>
                            </a>`;
                     }
                     
@@ -853,8 +900,8 @@ function loadWindowsSystemsData() {
                     
                     if (assignment.employee_id && assignment.employee_id > 0) {
                         const systemDetailUrl = "{% url 'employees:system_detail_view' 0 %}".replace('0', assignment.id);
-                        viewButton = `<a href="${systemDetailUrl}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-eye"></i> View
+                        viewButton = `<a href="${systemDetailUrl}" class="btn btn-outline-primary p-2">
+                            <i class="bi bi-eye"></i>
                            </a>`;
                     }
                     
@@ -1149,246 +1196,1019 @@ function showAddExtenderModal() {
 // Save Functions
 function saveCpu() {
     const form = document.getElementById('addCpuForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    
+    // Manual validation
+    const cpu_company = document.getElementById('cpu_company').value.trim();
+    const cpu_processor = document.getElementById('cpu_processor').value.trim();
+    const cpu_ram = document.getElementById('cpu_ram').value.trim();
+    const cpu_storage = document.getElementById('cpu_storage').value.trim();
+    const cpu_label = document.getElementById('cpu_label').value.trim();
+    const cpu_mac = document.getElementById('cpu_mac').value.trim();
+    
+    if (!cpu_company || !cpu_processor || !cpu_ram || !cpu_storage || !cpu_label) {
+        alert('Please fill in all required fields');
         return;
     }
     
     const data = {
-        cpu_company_name: document.getElementById('cpu_company').value,
-        cpu_processor: document.getElementById('cpu_processor').value,
-        cpu_ram: document.getElementById('cpu_ram').value,
-        cpu_storage: document.getElementById('cpu_storage').value,
-        cpu_label_no: document.getElementById('cpu_label').value,
-        macaddress: document.getElementById('cpu_mac').value,
-        system_type: 'windows',
-        is_active: false
+        cpu_company_name: cpu_company,
+        cpu_processor: cpu_processor,
+        cpu_ram: cpu_ram,
+        cpu_storage: cpu_storage,
+        cpu_label_no: cpu_label,
+        macaddress: cpu_mac,
+        notes: ''
     };
     
-    fetch('{% url "employees:add_device_cpu" %}', {
+    console.log('Sending data:', data);
+    
+    // Get CSRF token from cookie
+    const csrfToken = getCookie('csrftoken');
+    
+    console.log('CSRF Token:', csrfToken);
+    
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    fetch('/api/add-device-cpu/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        return response.json().then(data => ({
+            status: response.status,
+            ok: response.ok,
+            data: data
+        }));
+    })
     .then(result => {
-        if (result.success) {
-            bootstrap.Modal.getInstance(document.getElementById('addCpuModal')).hide();
+        console.log('Full result:', result);
+        console.log('Response data:', result.data);
+        if (result.ok && result.data.success) {
+            alert('CPU added successfully!');
             form.reset();
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addCpuModal'));
+            if (modal) modal.hide();
+            // Refresh page to show updated statistics
             location.reload();
         } else {
-            alert('Error saving CPU: ' + result.message);
+            alert('Error: ' + (result.data.error || 'Unknown error occurred'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving CPU');
+        alert('Error adding CPU: ' + error.message);
     });
 }
 
 function saveScreen() {
     const form = document.getElementById('addScreenForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    
+    // Manual validation
+    const screen_company = document.getElementById('screen_company').value.trim();
+    const screen_size = document.getElementById('screen_size').value.trim();
+    const screen_label = document.getElementById('screen_label').value.trim();
+    
+    if (!screen_company || !screen_size || !screen_label) {
+        alert('Please fill in all required fields');
         return;
     }
     
     const data = {
-        screen_company_name: document.getElementById('screen_company').value,
-        screen_size: document.getElementById('screen_size').value,
-        screen_label_no: document.getElementById('screen_label').value,
-        screen_allocated: document.getElementById('screen_allocated').value === 'true'
+        screen_company_name: screen_company,
+        screen_size: screen_size,
+        screen_label_no: screen_label,
+        notes: ''
     };
     
-    fetch('{% url "employees:add_device_screen" %}', {
+    // Get CSRF token
+    const csrfToken = getCookie('csrftoken');
+    
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    fetch('/api/add-device-screen/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json().then(data => ({
+            status: response.status,
+            ok: response.ok,
+            data: data
+        }));
+    })
     .then(result => {
-        if (result.success) {
-            bootstrap.Modal.getInstance(document.getElementById('addScreenModal')).hide();
+        console.log('Response data:', result.data);
+        if (result.ok && result.data.success) {
+            alert('Screen added successfully!');
             form.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addScreenModal'));
+            if (modal) modal.hide();
             location.reload();
         } else {
-            alert('Error saving Screen: ' + result.message);
+            alert('Error: ' + (result.data.error || 'Unknown error occurred'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving Screen');
+        alert('Error saving Screen: ' + error.message);
     });
 }
 
 function saveKeyboard() {
     const form = document.getElementById('addKeyboardForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    
+    // Manual validation
+    const keyboard_company = document.getElementById('keyboard_company').value.trim();
+    const keyboard_label = document.getElementById('keyboard_label').value.trim();
+    
+    if (!keyboard_company || !keyboard_label) {
+        alert('Please fill in all required fields');
         return;
     }
     
     const data = {
-        keyboard_company_name: document.getElementById('keyboard_company').value,
-        keyboard_label_no: document.getElementById('keyboard_label').value,
-        keyboard_allocated: document.getElementById('keyboard_allocated').value === 'true'
+        keyboard_company_name: keyboard_company,
+        keyboard_label_no: keyboard_label,
+        notes: ''
     };
     
-    fetch('{% url "employees:add_device_keyboard" %}', {
+    // Get CSRF token
+    const csrfToken = getCookie('csrftoken');
+    
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    fetch('/api/add-device-keyboard/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json().then(data => ({
+            status: response.status,
+            ok: response.ok,
+            data: data
+        }));
+    })
     .then(result => {
-        if (result.success) {
-            bootstrap.Modal.getInstance(document.getElementById('addKeyboardModal')).hide();
+        console.log('Response data:', result.data);
+        if (result.ok && result.data.success) {
+            alert('Keyboard added successfully!');
             form.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addKeyboardModal'));
+            if (modal) modal.hide();
             location.reload();
         } else {
-            alert('Error saving Keyboard: ' + result.message);
+            alert('Error: ' + (result.data.error || 'Unknown error occurred'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving Keyboard');
+        alert('Error saving Keyboard: ' + error.message);
     });
 }
 
 function saveMouse() {
     const form = document.getElementById('addMouseForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    
+    // Manual validation
+    const mouse_company = document.getElementById('mouse_company').value.trim();
+    const mouse_label = document.getElementById('mouse_label').value.trim();
+    
+    if (!mouse_company || !mouse_label) {
+        alert('Please fill in all required fields');
         return;
     }
     
     const data = {
-        mouse_company_name: document.getElementById('mouse_company').value,
-        mouse_label_no: document.getElementById('mouse_label').value,
-        mouse_allocated: document.getElementById('mouse_allocated').value === 'true'
+        mouse_company_name: mouse_company,
+        mouse_label_no: mouse_label,
+        notes: ''
     };
     
-    fetch('{% url "employees:add_device_mouse" %}', {
+    // Get CSRF token
+    const csrfToken = getCookie('csrftoken');
+    
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    fetch('/api/add-device-mouse/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json().then(data => ({
+            status: response.status,
+            ok: response.ok,
+            data: data
+        }));
+    })
     .then(result => {
-        if (result.success) {
-            bootstrap.Modal.getInstance(document.getElementById('addMouseModal')).hide();
+        console.log('Response data:', result.data);
+        if (result.ok && result.data.success) {
+            alert('Mouse added successfully!');
             form.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addMouseModal'));
+            if (modal) modal.hide();
             location.reload();
         } else {
-            alert('Error saving Mouse: ' + result.message);
+            alert('Error: ' + (result.data.error || 'Unknown error occurred'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving Mouse');
+        alert('Error saving Mouse: ' + error.message);
     });
 }
 
 function saveHeadphone() {
     const form = document.getElementById('addHeadphoneForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    
+    // Manual validation
+    const headphone_company = document.getElementById('headphone_company').value.trim();
+    const headphone_label = document.getElementById('headphone_label').value.trim();
+    
+    if (!headphone_company || !headphone_label) {
+        alert('Please fill in all required fields');
         return;
     }
     
     const data = {
-        headphone_company_name: document.getElementById('headphone_company').value,
-        headphone_label_no: document.getElementById('headphone_label').value,
-        headphone_allocated: document.getElementById('headphone_allocated').value === 'true'
+        headphone_company_name: headphone_company,
+        headphone_label_no: headphone_label,
+        notes: ''
     };
     
-    fetch('{% url "employees:add_device_headphone" %}', {
+    // Get CSRF token
+    const csrfToken = getCookie('csrftoken');
+    
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    fetch('/api/add-device-headphone/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json().then(data => ({
+            status: response.status,
+            ok: response.ok,
+            data: data
+        }));
+    })
     .then(result => {
-        if (result.success) {
-            bootstrap.Modal.getInstance(document.getElementById('addHeadphoneModal')).hide();
+        console.log('Response data:', result.data);
+        if (result.ok && result.data.success) {
+            alert('Headphone added successfully!');
             form.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addHeadphoneModal'));
+            if (modal) modal.hide();
             location.reload();
         } else {
-            alert('Error saving Headphone: ' + result.message);
+            alert('Error: ' + (result.data.error || 'Unknown error occurred'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving Headphone');
+        alert('Error saving Headphone: ' + error.message);
     });
 }
 
 function saveExtender() {
     const form = document.getElementById('addExtenderForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    
+    // Manual validation
+    const extender_name = document.getElementById('extender_name').value.trim();
+    const extender_label = document.getElementById('extender_label').value.trim();
+    const extender_model = document.getElementById('extender_model').value.trim();
+    
+    if (!extender_name || !extender_label) {
+        alert('Please fill in all required fields');
         return;
     }
     
     const data = {
-        extender_name: document.getElementById('extender_name').value,
-        extender_label: document.getElementById('extender_label').value,
-        extender_allocated: document.getElementById('extender_allocated').value === 'true'
+        extender_name: extender_name,
+        extender_label: extender_label,
+        extender_model: extender_model,
+        notes: ''
     };
     
-    fetch('{% url "employees:add_device_extender" %}', {
+    // Get CSRF token
+    const csrfToken = getCookie('csrftoken');
+    
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    fetch('/api/add-device-extender/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': csrfToken
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json().then(data => ({
+            status: response.status,
+            ok: response.ok,
+            data: data
+        }));
+    })
     .then(result => {
-        if (result.success) {
-            bootstrap.Modal.getInstance(document.getElementById('addExtenderModal')).hide();
+        console.log('Response data:', result.data);
+        if (result.ok && result.data.success) {
+            alert('Extender added successfully!');
             form.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addExtenderModal'));
+            if (modal) modal.hide();
             location.reload();
         } else {
-            alert('Error saving Extender: ' + result.message);
+            alert('Error: ' + (result.data.error || 'Unknown error occurred'));
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error saving Extender');
+        alert('Error saving Extender: ' + error.message);
     });
 }
 
-// Helper function to get CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+// Load employees for dropdown
+function loadEmployees(selectElementId) {
+    fetch('/api/get-employees-list/')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById(selectElementId);
+            if (data.success && data.employees) {
+                data.employees.forEach(emp => {
+                    const option = document.createElement('option');
+                    option.value = emp.id;
+                    option.textContent = `${emp.full_name} (${emp.employee_code})`;
+                    select.appendChild(option);
+                });
             }
-        }
-    }
-    return cookieValue;
+        })
+        .catch(error => {
+            console.error('Error loading employees:', error);
+        });
 }
+
+// CPU Edit/Delete Functions
+function editCpu(id) {
+    fetch(`/api/get-cpu-device/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('edit_cpu_id').value = data.device.id;
+                document.getElementById('edit_cpu_company').value = data.device.company_name;
+                document.getElementById('edit_cpu_processor').value = data.device.processor;
+                document.getElementById('edit_cpu_ram').value = data.device.ram;
+                document.getElementById('edit_cpu_storage').value = data.device.storage;
+                document.getElementById('edit_cpu_label').value = data.device.label_no;
+                document.getElementById('edit_cpu_mac').value = data.device.mac_address || '';
+                
+                // Load employees and set selected
+                loadEmployees('edit_cpu_employee');
+                if (data.device.assigned_employee_id) {
+                    setTimeout(() => {
+                        document.getElementById('edit_cpu_employee').value = data.device.assigned_employee_id;
+                    }, 500);
+                }
+                
+                const modal = new bootstrap.Modal(document.getElementById('editCpuModal'));
+                modal.show();
+            } else {
+                alert('Error loading CPU data: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading CPU data');
+        });
+}
+
+function updateCpu() {
+    const id = document.getElementById('edit_cpu_id').value;
+    const data = {
+        cpu_company_name: document.getElementById('edit_cpu_company').value.trim(),
+        cpu_processor: document.getElementById('edit_cpu_processor').value.trim(),
+        cpu_ram: document.getElementById('edit_cpu_ram').value.trim(),
+        cpu_storage: document.getElementById('edit_cpu_storage').value.trim(),
+        cpu_label_no: document.getElementById('edit_cpu_label').value.trim(),
+        macaddress: document.getElementById('edit_cpu_mac').value.trim(),
+        employee_id: document.getElementById('edit_cpu_employee').value || null
+    };
+    
+    const csrfToken = getCookie('csrftoken');
+    
+    fetch(`/api/update-device-cpu/${id}/`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json().then(data => ({
+        status: response.status,
+        ok: response.ok,
+        data: data
+    })))
+    .then(result => {
+        if (result.ok && result.data.success) {
+            alert('CPU updated successfully!');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editCpuModal'));
+            if (modal) modal.hide();
+            loadCpuSystems();
+        } else {
+            alert('Error: ' + (result.data.error || 'Unknown error occurred'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating CPU: ' + error.message);
+    });
+}
+
+function deleteCpu(id, labelNo) {
+    if (!confirm(`Are you sure you want to delete CPU "${labelNo}"?`)) {
+        return;
+    }
+    
+    const csrfToken = getCookie('csrftoken');
+    
+    fetch(`/api/delete-device-cpu/${id}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json().then(data => ({
+        status: response.status,
+        ok: response.ok,
+        data: data
+    })))
+    .then(result => {
+        if (result.ok && result.data.success) {
+            alert('CPU deleted successfully!');
+            loadCpuSystems();
+        } else {
+            alert('Error: ' + (result.data.error || 'Unknown error occurred'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting CPU: ' + error.message);
+    });
+}
+
+// Device List Modal Functions
+function showCpuSystemsModal() {
+    loadCpuSystems();
+    const modal = new bootstrap.Modal(document.getElementById('cpuSystemsModal'));
+    modal.show();
+}
+
+function showScreenSystemsModal() {
+    loadScreenSystems();
+    const modal = new bootstrap.Modal(document.getElementById('screenSystemsModal'));
+    modal.show();
+}
+
+function showKeyboardSystemsModal() {
+    loadKeyboardSystems();
+    const modal = new bootstrap.Modal(document.getElementById('keyboardSystemsModal'));
+    modal.show();
+}
+
+function showMouseSystemsModal() {
+    loadMouseSystems();
+    const modal = new bootstrap.Modal(document.getElementById('mouseSystemsModal'));
+    modal.show();
+}
+
+function showHeadphoneSystemsModal() {
+    loadHeadphoneSystems();
+    const modal = new bootstrap.Modal(document.getElementById('headphoneSystemsModal'));
+    modal.show();
+}
+
+function showExtenderSystemsModal() {
+    loadExtenderSystems();
+    const modal = new bootstrap.Modal(document.getElementById('extenderSystemsModal'));
+    modal.show();
+}
+
+// Load device data functions
+function loadCpuSystems() {
+    fetch('/api/get-cpu-systems/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('cpuSystemsList');
+            tbody.innerHTML = '';
+            
+            if (data.success && data.systems.length > 0) {
+                data.systems.forEach(cpu => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${cpu.company_name}</td>
+                        <td>${cpu.processor}</td>
+                        <td>${cpu.ram}</td>
+                        <td>${cpu.storage}</td>
+                        <td>${cpu.label_no}</td>
+                        <td>${cpu.mac_address || 'N/A'}</td>
+                        <td>${cpu.assigned_to || '<span class="text-muted">Unassigned</span>'}</td>
+                        <td><span class="badge bg-${cpu.status === 'available' ? 'success' : 'warning'}">${cpu.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1 p-2" onclick="editCpu(${cpu.id})" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger p-2" onclick="deleteCpu(${cpu.id}, '${cpu.label_no}')" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center">No CPU systems found</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading CPU systems:', error);
+            document.getElementById('cpuSystemsList').innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error loading data</td></tr>';
+        });
+}
+
+function loadScreenSystems() {
+    fetch('/api/get-screen-systems/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('screenSystemsList');
+            tbody.innerHTML = '';
+            
+            if (data.success && data.systems.length > 0) {
+                data.systems.forEach(screen => {
+                    const row = '<tr>' +
+                        '<td>' + screen.company_name + '</td>' +
+                        '<td>' + screen.size + '</td>' +
+                        '<td>' + screen.label_no + '</td>' +
+                        '<td><span class="badge bg-' + (screen.status === 'available' ? 'success' : 'warning') + '">' + screen.status + '</span></td>' +
+                        '</tr>';
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">No Screen systems found</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading Screen systems:', error);
+            document.getElementById('screenSystemsList').innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading data</td></tr>';
+        });
+}
+
+function loadKeyboardSystems() {
+    fetch('/api/get-keyboard-systems/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('keyboardSystemsList');
+            tbody.innerHTML = '';
+            
+            if (data.success && data.systems.length > 0) {
+                data.systems.forEach(keyboard => {
+                    const row = '<tr>' +
+                        '<td>' + keyboard.company_name + '</td>' +
+                        '<td>' + keyboard.label_no + '</td>' +
+                        '<td><span class="badge bg-' + (keyboard.status === 'available' ? 'success' : 'warning') + '">' + keyboard.status + '</span></td>' +
+                        '</tr>';
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center">No Keyboard systems found</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading Keyboard systems:', error);
+            document.getElementById('keyboardSystemsList').innerHTML = '<tr><td colspan="3" class="text-center text-danger">Error loading data</td></tr>';
+        });
+}
+
+function loadMouseSystems() {
+    fetch('/api/get-mouse-systems/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('mouseSystemsList');
+            tbody.innerHTML = '';
+            
+            if (data.success && data.systems.length > 0) {
+                data.systems.forEach(mouse => {
+                    const row = '<tr>' +
+                        '<td>' + mouse.company_name + '</td>' +
+                        '<td>' + mouse.label_no + '</td>' +
+                        '<td><span class="badge bg-' + (mouse.status === 'available' ? 'success' : 'warning') + '">' + mouse.status + '</span></td>' +
+                        '</tr>';
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center">No Mouse systems found</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading Mouse systems:', error);
+            document.getElementById('mouseSystemsList').innerHTML = '<tr><td colspan="3" class="text-center text-danger">Error loading data</td></tr>';
+        });
+}
+
+function loadHeadphoneSystems() {
+    fetch('/api/get-headphone-systems/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('headphoneSystemsList');
+            tbody.innerHTML = '';
+            
+            if (data.success && data.systems.length > 0) {
+                data.systems.forEach(headphone => {
+                    const row = '<tr>' +
+                        '<td>' + headphone.company_name + '</td>' +
+                        '<td>' + headphone.label_no + '</td>' +
+                        '<td><span class="badge bg-' + (headphone.status === 'available' ? 'success' : 'warning') + '">' + headphone.status + '</span></td>' +
+                        '</tr>';
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center">No Headphone systems found</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading Headphone systems:', error);
+            document.getElementById('headphoneSystemsList').innerHTML = '<tr><td colspan="3" class="text-center text-danger">Error loading data</td></tr>';
+        });
+}
+
+function loadExtenderSystems() {
+    fetch('/api/get-extender-systems/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById('extenderSystemsList');
+            tbody.innerHTML = '';
+            
+            if (data.success && data.systems.length > 0) {
+                data.systems.forEach(extender => {
+                    const row = '<tr>' +
+                        '<td>' + extender.company_name + '</td>' +
+                        '<td>' + (extender.model || 'N/A') + '</td>' +
+                        '<td>' + extender.label_no + '</td>' +
+                        '<td><span class="badge bg-' + (extender.status === 'available' ? 'success' : 'warning') + '">' + extender.status + '</span></td>' +
+                        '</tr>';
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">No Extender systems found</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading Extender systems:', error);
+            document.getElementById('extenderSystemsList').innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error loading data</td></tr>';
+        });
+}
+</script>
+
+<!-- CPU Systems Modal -->
+<div class="modal fade" id="cpuSystemsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-cpu me-2"></i>CPU Systems
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Processor</th>
+                                <th>RAM</th>
+                                <th>Storage</th>
+                                <th>Label No.</th>
+                                <th>MAC Address</th>
+                                <th>Assigned To</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cpuSystemsList">
+                            <tr>
+                                <td colspan="9" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit CPU Modal -->
+<div class="modal fade" id="editCpuModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-cpu me-2"></i>Edit CPU System
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCpuForm">
+                    <input type="hidden" id="edit_cpu_id">
+                    <div class="mb-3">
+                        <label for="edit_cpu_company" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="edit_cpu_company" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_cpu_processor" class="form-label">Processor</label>
+                        <input type="text" class="form-control" id="edit_cpu_processor" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_cpu_ram" class="form-label">RAM</label>
+                        <input type="text" class="form-control" id="edit_cpu_ram" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_cpu_storage" class="form-label">Storage</label>
+                        <input type="text" class="form-control" id="edit_cpu_storage" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_cpu_label" class="form-label">Label No.</label>
+                        <input type="text" class="form-control" id="edit_cpu_label" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_cpu_mac" class="form-label">MAC Address</label>
+                        <input type="text" class="form-control" id="edit_cpu_mac" placeholder="00:1B:44:11:3A:B7">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_cpu_employee" class="form-label">Assign to Employee</label>
+                        <select class="form-select" id="edit_cpu_employee">
+                            <option value="">-- Unassigned --</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateCpu()">Update CPU</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Screen Systems Modal -->
+<div class="modal fade" id="screenSystemsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-display me-2"></i>Screen Systems
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Size</th>
+                                <th>Label No.</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="screenSystemsList">
+                            <tr>
+                                <td colspan="4" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Keyboard Systems Modal -->
+<div class="modal fade" id="keyboardSystemsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-keyboard me-2"></i>Keyboard Systems
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Label No.</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keyboardSystemsList">
+                            <tr>
+                                <td colspan="3" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mouse Systems Modal -->
+<div class="modal fade" id="mouseSystemsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-mouse me-2"></i>Mouse Systems
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Label No.</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mouseSystemsList">
+                            <tr>
+                                <td colspan="3" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Headphone Systems Modal -->
+<div class="modal fade" id="headphoneSystemsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-headphones me-2"></i>Headphone Systems
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Label No.</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="headphoneSystemsList">
+                            <tr>
+                                <td colspan="3" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Extender Systems Modal -->
+<div class="modal fade" id="extenderSystemsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-router me-2"></i>Extender Systems
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Model</th>
+                                <th>Label No.</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="extenderSystemsList">
+                            <tr>
+                                <td colspan="4" class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
 </script>
 {% endblock %}

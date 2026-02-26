@@ -226,17 +226,6 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="{{ form.keyboard_allocated.id_for_label }}" class="form-label">Allocation Status <span class="text-danger">*</span></label>
-                                        <div class="{% if form.keyboard_allocated.errors %}is-invalid{% endif %}">
-                                            {{ form.keyboard_allocated }}
-                                        </div>
-                                        {% if form.keyboard_allocated.errors %}
-                                        <div class="text-danger small mt-1">{{ form.keyboard_allocated.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -268,16 +257,6 @@
                                         </div>
                                         {% if form.mouse_label_no.errors %}
                                         <div class="text-danger small mt-1">{{ form.mouse_label_no.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                <div class="col-md-4">
-                                    <div class="mb-3">
-                                        <label for="{{ form.mouse_allocated.id_for_label }}" class="form-label">Allocation Status <span class="text-danger">*</span></label>
-                                        <div class="{% if form.mouse_allocated.errors %}is-invalid{% endif %}">
-                                            {{ form.mouse_allocated }}
-                                        </div>
-                                        {% if form.mouse_allocated.errors %}
-                                        <div class="text-danger small mt-1">{{ form.mouse_allocated.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>

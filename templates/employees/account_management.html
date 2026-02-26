@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Account Management - HRMS Portal{% endblock %}
 
@@ -7,42 +8,28 @@
 {% block content %}
 <div class="container-fluid">
     <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+    <div class="row mb-4">
+        <div class="col-md-6">
             <h4 class="fw-bold mb-1">Account Credentials Management</h4>
             <p class="text-muted mb-0">Manage and store various account credentials and access information</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'employees:account_create' %}" class="btn btn-primary shadow-sm">
-                <i class="bi bi-plus-circle me-2"></i>Add New Account
-            </a>
-            <div class="dropdown">
-                <button type="button" class="btn btn-outline-secondary shadow-sm p-2" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-success shadow-sm p-2 d-flex justify-content-center align-items-center" data-bs-toggle="modal" data-bs-target="#importModal">
+                    <i class="bi bi-download"></i>
                 </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <button type="button" class="btn btn-outline-success shadow-sm w-100" data-bs-toggle="modal" data-bs-target="#importModal">
-                            <i class="bi bi-upload me-2"></i>Import CSV
-                        </button>
-                    </li>
-                    <li class="mt-2">
-                        <a href="{% url 'employees:account_export_csv' %}" class="btn btn-outline-info shadow-sm w-100">
-                            <i class="bi bi-download me-2"></i>Export CSV
-                        </a>
-                    </li>
-                    <li class="mt-2">
-                        <a href="{% url 'employees:account_sample_csv' %}" class="btn btn-outline-warning shadow-sm w-100">
-                            <i class="bi bi-file-earmark-text me-2"></i>Sample CSV
-                        </a>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li class="mt-2">
-                        <button type="button" class="btn btn-outline-success shadow-sm w-100" onclick="deleteSelected()">
-                            <i class="bi bi-trash me-2"></i>Delete Selected
-                        </button>
-                    </li>
-                </ul>
+                <a href="{% url 'employees:account_export_csv' %}" class="btn btn-outline-info shadow-sm p-2 d-flex justify-content-center align-items-center">
+                    <i class="bi bi-upload"></i>
+                </a>
+                <a href="{% url 'employees:account_sample_csv' %}" class="btn btn-outline-warning shadow-sm p-2 d-flex justify-content-center align-items-center">
+                    <i class="bi bi-file-earmark-text"></i>
+                </a>
+                <button type="button" class="btn btn-outline-success shadow-sm p-2 d-flex justify-content-center align-items-center" onclick="deleteSelected()">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <a href="{% url 'employees:account_create' %}" class="btn btn-primary shadow-sm">
+                    <i class="bi bi-plus-circle me-2"></i>Add New Account
+                </a>
             </div>
         </div>
     </div>
@@ -60,6 +47,10 @@
                         <input type="text" name="search" class="form-control border-start-0" 
                                placeholder="Search by name, email, teams, or github..." 
                                value="{{ search_query }}">
+                        <button type="button" class="position-absolute top-50 end-0 border-0 bg-transparent p-2 h-100 translate-middle-y pe-3" 
+                                onclick="clearSearchField('search')" title="Clear search">
+                            <i class="bi bi-x"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
@@ -78,53 +69,31 @@
                 <thead class="bg-light">
                     <tr>
                         <th class="ps-4">
-                            <div class="form-check">
+                            <div class="form-check p-0">
                                 <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                                 <label class="form-check-label" for="selectAll"></label>
                             </div>
                         </th>
                         <th class="ps-4">Name</th>
-                        <th>Teams</th>
-                        <th>GitHub</th>
                         <th>Status</th>
                         <th>Created</th>
                         <th class="text-end pe-4">Actions</th>
+                        <th class="d-none">Additional Info</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for account in accounts %}
                     <tr>
                         <td class="ps-4">
-                            <div class="form-check">
+                            <div class="form-check p-0">
                                 <input class="form-check-input account-checkbox" type="checkbox" name="selected_accounts" value="{{ account.pk }}" onchange="updateBulkActions()">
                                 <label class="form-check-label" for="account_{{ account.pk }}"></label>
                             </div>
                         </td>
                         <td class="ps-4">
                             <div class="fw-bold">{{ account.name }}</div>
-                            {% if account.notes %}
-                            <small class="text-muted">{{ account.notes|truncatechars:50 }}</small>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if account.teams %}
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-microsoft-teams text-muted me-2"></i>
-                                <span>{{ account.teams }}</span>
-                            </div>
-                            {% else %}
-                            <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if account.github %}
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-github text-muted me-2"></i>
-                                <span>{{ account.github }}</span>
-                            </div>
-                            {% else %}
-                            <span class="text-muted">-</span>
-                            {% endif %}
+                            <div class="text-muted">{{ account.email }}</div>
+                            <div class="d-none password">{{ account.email_password }}</div>
                         </td>
                         <td>
                             {% if account.is_active %}
@@ -142,16 +111,29 @@
                         </td>
                         <td class="text-end pe-4">
                             <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-info border shadow-sm px-3" onclick="viewAccount({{ account.pk }})" data-bs-toggle="modal" data-bs-target="#viewAccountModal">
+                                    <i class="bi bi-eye text-info me-1"></i>
+                                </button>
                                 <a href="{% url 'employees:account_edit' account.pk %}" 
                                    class="btn btn-sm btn-outline-primary border shadow-sm px-3">
-                                    <i class="bi bi-pencil text-primary me-1"></i> Edit
+                                    <i class="bi bi-pencil text-primary me-1"></i>
                                 </a>
                                 <a href="{% url 'employees:account_delete' account.pk %}" 
                                    class="btn btn-sm btn-outline-danger border shadow-sm px-3"
                                    onclick="return confirmDelete('{{ account.name }}')">
-                                    <i class="bi bi-trash text-danger me-1"></i> Delete
+                                    <i class="bi bi-trash text-danger me-1"></i>
                                 </a>
                             </div>
+                        </td>
+                        <td class="d-none">
+                            <div class="teams_id">{{ account.teams }}</div>
+                            <div class="teams-password">{{ account.teams_password }}</div>
+                            <div class="github">{{ account.github }}</div>
+                            <div class="github-password">{{ account.github_password }}</div>
+                            <div class="apple_id">{{ account.apple_store_id }}</div>
+                            <div class="apple-password">{{ account.apple_password }}</div>
+                            <div class="basecamp-password">{{ account.basecamp_password }}</div>
+                            <div class="system-password">{{ account.system_password }}</div>
                         </td>
                     </tr>
                     {% empty %}
@@ -281,6 +263,9 @@
 .help-text {
     font-size: 0.875rem;
     color: #6c757d;
+}
+.btn-outline-info:hover .text-info,.btn-outline-danger:hover .text-danger{
+    color: #fff !important;
 }
 </style>
 
@@ -436,9 +421,107 @@ function exportSelected() {
     form.submit();
 }
 
+// View Account Details
+function viewAccount(accountId) {
+    // Find the account data from the table
+    const rows = document.querySelectorAll('tbody tr');
+    let accountData = null;
+    
+    rows.forEach(row => {
+        const viewBtn = row.querySelector(`button[onclick*="${accountId}"]`);
+        if (viewBtn) {
+            const cells = row.querySelectorAll('td');
+            accountData = {
+                name: cells[1].querySelector('.fw-bold').textContent.trim(),
+                email: cells[1].querySelector('.text-muted').textContent.trim(),
+                password: cells[1].querySelector('.d-none.password').textContent.trim(),
+                status: cells[2].textContent.trim(),
+                created: cells[3].textContent.trim(),
+                teams: cells[5].querySelector('.teams_id').textContent.trim(),
+                teams_password: cells[5].querySelector('.teams-password').textContent.trim(),
+                github: cells[5].querySelector('.github').textContent.trim(),
+                github_password: cells[5].querySelector('.github-password').textContent.trim(),
+                apple_store_id: cells[5].querySelector('.apple_id').textContent.trim(),
+                apple_password: cells[5].querySelector('.apple-password').textContent.trim(),
+                basecamp_password: cells[5].querySelector('.basecamp-password').textContent.trim(),
+                system_password: cells[5].querySelector('.system-password').textContent.trim()
+            };
+            console.log("Basecamp :", accountData.basecamp_password);
+        }
+    });
+    
+    if (accountData) {
+        // Populate modal with account data
+        document.getElementById('viewAccountName').textContent = accountData.name;
+        document.getElementById('viewAccountEmail').textContent = accountData.email;
+        document.getElementById('viewAccountPassword').textContent = accountData.password;
+        document.getElementById('viewAccountTeams').textContent = accountData.teams;
+        document.getElementById('viewAccountTeamsPassword').textContent = accountData.teams_password;
+        document.getElementById('viewAccountGithub').textContent = accountData.github;
+        document.getElementById('viewAccountGithubPassword').textContent = accountData.github_password;
+        document.getElementById('viewAccountAppleStoreId').textContent = accountData.apple_store_id;
+        document.getElementById('viewAccountApplePassword').textContent = accountData.apple_password;
+        document.getElementById('viewAccountBasecampPassword').textContent = accountData.basecamp_password;
+        document.getElementById('viewAccountSystemPassword').textContent = accountData.system_password;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize bulk actions state
     updateBulkActions();
 });
 </script>
+
+<!-- View Account Modal -->
+<div class="modal fade" id="viewAccountModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-eye me-2"></i>Account Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <h3><strong id="viewAccountName">-</strong></h3>
+                </div>
+                <table class="table table-bordered">
+                    <tr>
+                        <td>Email</td>
+                        <td><strong id="viewAccountEmail">-</strong></td>
+                        <td><strong id="viewAccountPassword">-</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Microsoft Teams</td>
+                        <td><strong id="viewAccountTeams">-</strong></td>
+                        <td><strong id="viewAccountTeamsPassword">-</strong></td>
+                    </tr>
+                    <tr>
+                        <td>GitHub</td>
+                        <td><strong id="viewAccountGithub">-</strong></td>
+                        <td><strong id="viewAccountGithubPassword">-</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Apple Store ID</td>
+                        <td><strong id="viewAccountAppleStoreId">-</strong></td>
+                        <td><strong id="viewAccountApplePassword">-</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Additional Info</td>
+                        <td><strong id="viewAccountBasecampPassword">-</strong></td>
+                        <td><strong id="viewAccountSystemPassword">-</strong></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/ajax-clear-search.js' %}"></script>
 {% endblock %}

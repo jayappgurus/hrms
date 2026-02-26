@@ -12,7 +12,7 @@ from django.http import JsonResponse, HttpResponse
 
 from django.utils import timezone
 
-from .models import SystemDetail, Employee
+from .models import SystemDetail, Employee, CPUDevice, ScreenDevice, KeyboardDevice, MouseDevice, HeadphoneDevice, ExtenderDevice
 
 import csv
 import json
@@ -22,127 +22,116 @@ import json
 
 
 @login_required
-
 def system_management(request):
-
     if not request.user.is_staff and not request.user.is_superuser:
-
         messages.error(request, 'You do not have permission to access system management.')
-
         return redirect('employees:dashboard')
-
     
-
-    # Get system statistics
-
+    # Get system statistics from SystemDetail
     total_systems = SystemDetail.objects.count()
-
     available_systems = SystemDetail.objects.filter(employee__isnull=True).count()
-
     allocated_systems = SystemDetail.objects.filter(employee__isnull=False, is_active=True).count()
-
     inactive_systems = SystemDetail.objects.filter(is_active=False).count()
-
     
-
     # System type statistics
-
     windows_systems = SystemDetail.objects.filter(system_type='windows').count()
-
     mac_systems = SystemDetail.objects.filter(system_type='mac').count()
-
     
-
     # MAC Address statistics (only for MAC systems)
-
     total_mac_addresses = SystemDetail.objects.filter(
-
         system_type='mac',
-
         macaddress__isnull=False
-
     ).exclude(macaddress='').count()
-
     
-
     allocated_mac_addresses = SystemDetail.objects.filter(
-
         system_type='mac',
-
         macaddress__isnull=False, 
-
         employee__isnull=False,
-
         is_active=True
-
     ).exclude(macaddress='').count()
-
     
-
     available_mac_addresses = SystemDetail.objects.filter(
-
         system_type='mac',
-
         employee__isnull=False,
-
         is_active=False
-
     ).count()
-
     
-
     # Windows systems allocation statistics
-
     allocated_windows_systems = SystemDetail.objects.filter(
-
         system_type='windows',
-
         employee__isnull=False,
-
         is_active=True
-
     ).count()
-
     available_windows_systems = SystemDetail.objects.filter(
-
         system_type='windows',
-
         employee__isnull=False,
-
         is_active=False
-
     ).count()
-
     
-
+    # Device inventory statistics
+    total_cpus = CPUDevice.objects.count()
+    allocated_cpus = CPUDevice.objects.filter(status='allocated').count()
+    available_cpus = CPUDevice.objects.filter(status='available').count()
+    
+    total_screens = ScreenDevice.objects.count()
+    allocated_screens = ScreenDevice.objects.filter(status='allocated').count()
+    available_screens = ScreenDevice.objects.filter(status='available').count()
+    
+    total_keyboards = KeyboardDevice.objects.count()
+    allocated_keyboards = KeyboardDevice.objects.filter(status='allocated').count()
+    available_keyboards = KeyboardDevice.objects.filter(status='available').count()
+    
+    total_mice = MouseDevice.objects.count()
+    allocated_mice = MouseDevice.objects.filter(status='allocated').count()
+    available_mice = MouseDevice.objects.filter(status='available').count()
+    
+    total_headphones = HeadphoneDevice.objects.count()
+    allocated_headphones = HeadphoneDevice.objects.filter(status='allocated').count()
+    available_headphones = HeadphoneDevice.objects.filter(status='available').count()
+    
+    total_extenders = ExtenderDevice.objects.count()
+    allocated_extenders = ExtenderDevice.objects.filter(status='allocated').count()
+    available_extenders = ExtenderDevice.objects.filter(status='available').count()
+    
     context = {
-
         'total_systems': total_systems,
-
         'available_systems': available_systems,
-
         'allocated_systems': allocated_systems,
-
         'inactive_systems': inactive_systems,
-
         'windows_systems': windows_systems,
-
         'mac_systems': mac_systems,
-
         'total_mac_addresses': total_mac_addresses,
-
         'allocated_mac_addresses': allocated_mac_addresses,
-
         'available_mac_addresses': available_mac_addresses,
-
         'allocated_windows_systems': allocated_windows_systems,
-
         'available_windows_systems': available_windows_systems,
-
+        
+        # Device inventory statistics
+        'total_cpus': total_cpus,
+        'allocated_cpus': allocated_cpus,
+        'available_cpus': available_cpus,
+        
+        'total_screens': total_screens,
+        'allocated_screens': allocated_screens,
+        'available_screens': available_screens,
+        
+        'total_keyboards': total_keyboards,
+        'allocated_keyboards': allocated_keyboards,
+        'available_keyboards': available_keyboards,
+        
+        'total_mice': total_mice,
+        'allocated_mice': allocated_mice,
+        'available_mice': available_mice,
+        
+        'total_headphones': total_headphones,
+        'allocated_headphones': allocated_headphones,
+        'available_headphones': available_headphones,
+        
+        'total_extenders': total_extenders,
+        'allocated_extenders': allocated_extenders,
+        'available_extenders': available_extenders,
     }
-
     
-
     return render(request, 'employees/system_management.html', context)
 
 
@@ -808,7 +797,7 @@ def get_windows_peripheral_devices(request):
 
 @login_required
 def add_device_cpu(request):
-    """API to add CPU system"""
+    """API to add CPU device to inventory"""
     if not request.user.is_staff and not request.user.is_superuser:
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
@@ -816,39 +805,51 @@ def add_device_cpu(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     
     try:
-        data = json.loads(request.body)
+        # Parse JSON data
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError as e:
+            return JsonResponse({'error': f'Invalid JSON: {str(e)}'}, status=400)
         
-        # Use existing employee for inventory devices
-        inventory_employee = Employee.objects.first()
-        if not inventory_employee:
-            return JsonResponse({'error': 'No employees found in the system. Please add an employee first.'}, status=400)
+        # Validate required fields
+        required_fields = ['cpu_company_name', 'cpu_processor', 'cpu_ram', 'cpu_storage', 'cpu_label_no']
+        for field in required_fields:
+            if not data.get(field):
+                return JsonResponse({'error': f'{field} is required', 'success': False}, status=400)
         
-        # Create minimal SystemDetail for CPU
-        system = SystemDetail.objects.create(
-            employee=inventory_employee,
-            cpu_company_name=data.get('cpu_company_name', ''),
-            cpu_processor=data.get('cpu_processor', ''),
-            cpu_ram=data.get('cpu_ram', ''),
-            cpu_storage=data.get('cpu_storage', ''),
-            cpu_label_no=data.get('cpu_label_no', ''),
-            macaddress=data.get('macaddress', ''),
-            system_type=data.get('system_type', 'windows'),
-            is_active=data.get('is_active', False),
-            allocated_by=request.user
+        # Check if label number already exists
+        if CPUDevice.objects.filter(label_no=data['cpu_label_no']).exists():
+            return JsonResponse({'error': 'CPU with this label number already exists', 'success': False}, status=400)
+        
+        # Create CPU device in inventory
+        cpu_device = CPUDevice.objects.create(
+            company_name=data['cpu_company_name'],
+            processor=data['cpu_processor'],
+            ram=data['cpu_ram'],
+            storage=data['cpu_storage'],
+            label_no=data['cpu_label_no'],
+            mac_address=data.get('macaddress', ''),
+            status='available',
+            notes=data.get('notes', '')
         )
         
         return JsonResponse({
             'success': True,
-            'message': 'CPU added successfully',
-            'id': system.id
+            'message': 'CPU added successfully to inventory',
+            'id': cpu_device.id,
+            'company_name': cpu_device.company_name,
+            'label_no': cpu_device.label_no
         })
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error in add_device_cpu: {error_details}")  # Log to console
+        return JsonResponse({'error': str(e), 'success': False}, status=400)
 
 
 @login_required
 def add_device_screen(request):
-    """API to add screen device"""
+    """API to add screen device to inventory"""
     if not request.user.is_staff and not request.user.is_superuser:
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
@@ -858,27 +859,31 @@ def add_device_screen(request):
     try:
         data = json.loads(request.body)
         
-        # Use existing employee for inventory devices
-        inventory_employee = Employee.objects.first()
-        if not inventory_employee:
-            return JsonResponse({'error': 'No employees found in the system. Please add an employee first.'}, status=400)
+        # Validate required fields
+        required_fields = ['screen_company_name', 'screen_size', 'screen_label_no']
+        for field in required_fields:
+            if not data.get(field):
+                return JsonResponse({'error': f'{field} is required'}, status=400)
         
-        # Create minimal SystemDetail for screen
-        system = SystemDetail.objects.create(
-            employee=inventory_employee,
-            screen_company_name=data.get('screen_company_name', ''),
-            screen_size=data.get('screen_size', ''),
-            screen_label_no=data.get('screen_label_no', ''),
-            screen_allocated=data.get('screen_allocated', False),
-            system_type='windows',
-            is_active=False,
-            allocated_by=request.user
+        # Check if label number already exists
+        if ScreenDevice.objects.filter(label_no=data['screen_label_no']).exists():
+            return JsonResponse({'error': 'Screen with this label number already exists'}, status=400)
+        
+        # Create screen device in inventory
+        screen_device = ScreenDevice.objects.create(
+            company_name=data['screen_company_name'],
+            size=data['screen_size'],
+            label_no=data['screen_label_no'],
+            status='available',
+            notes=data.get('notes', '')
         )
         
         return JsonResponse({
             'success': True,
-            'message': 'Screen added successfully',
-            'id': system.id
+            'message': 'Screen added successfully to inventory',
+            'id': screen_device.id,
+            'company_name': screen_device.company_name,
+            'label_no': screen_device.label_no
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -886,7 +891,7 @@ def add_device_screen(request):
 
 @login_required
 def add_device_keyboard(request):
-    """API to add keyboard device"""
+    """API to add keyboard device to inventory"""
     if not request.user.is_staff and not request.user.is_superuser:
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
@@ -896,26 +901,30 @@ def add_device_keyboard(request):
     try:
         data = json.loads(request.body)
         
-        # Use existing employee for inventory devices
-        inventory_employee = Employee.objects.first()
-        if not inventory_employee:
-            return JsonResponse({'error': 'No employees found in the system. Please add an employee first.'}, status=400)
+        # Validate required fields
+        required_fields = ['keyboard_company_name', 'keyboard_label_no']
+        for field in required_fields:
+            if not data.get(field):
+                return JsonResponse({'error': f'{field} is required'}, status=400)
         
-        # Create minimal SystemDetail for keyboard
-        system = SystemDetail.objects.create(
-            employee=inventory_employee,
-            keyboard_company_name=data.get('keyboard_company_name', ''),
-            keyboard_label_no=data.get('keyboard_label_no', ''),
-            keyboard_allocated=data.get('keyboard_allocated', False),
-            system_type='windows',
-            is_active=False,
-            allocated_by=request.user
+        # Check if label number already exists
+        if KeyboardDevice.objects.filter(label_no=data['keyboard_label_no']).exists():
+            return JsonResponse({'error': 'Keyboard with this label number already exists'}, status=400)
+        
+        # Create keyboard device in inventory
+        keyboard_device = KeyboardDevice.objects.create(
+            company_name=data['keyboard_company_name'],
+            label_no=data['keyboard_label_no'],
+            status='available',
+            notes=data.get('notes', '')
         )
         
         return JsonResponse({
             'success': True,
-            'message': 'Keyboard added successfully',
-            'id': system.id
+            'message': 'Keyboard added successfully to inventory',
+            'id': keyboard_device.id,
+            'company_name': keyboard_device.company_name,
+            'label_no': keyboard_device.label_no
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -923,7 +932,7 @@ def add_device_keyboard(request):
 
 @login_required
 def add_device_mouse(request):
-    """API to add mouse device"""
+    """API to add mouse device to inventory"""
     if not request.user.is_staff and not request.user.is_superuser:
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
@@ -933,26 +942,30 @@ def add_device_mouse(request):
     try:
         data = json.loads(request.body)
         
-        # Use existing employee for inventory devices
-        inventory_employee = Employee.objects.first()
-        if not inventory_employee:
-            return JsonResponse({'error': 'No employees found in the system. Please add an employee first.'}, status=400)
+        # Validate required fields
+        required_fields = ['mouse_company_name', 'mouse_label_no']
+        for field in required_fields:
+            if not data.get(field):
+                return JsonResponse({'error': f'{field} is required'}, status=400)
         
-        # Create minimal SystemDetail for mouse
-        system = SystemDetail.objects.create(
-            employee=inventory_employee,
-            mouse_company_name=data.get('mouse_company_name', ''),
-            mouse_label_no=data.get('mouse_label_no', ''),
-            mouse_allocated=data.get('mouse_allocated', False),
-            system_type='windows',
-            is_active=False,
-            allocated_by=request.user
+        # Check if label number already exists
+        if MouseDevice.objects.filter(label_no=data['mouse_label_no']).exists():
+            return JsonResponse({'error': 'Mouse with this label number already exists'}, status=400)
+        
+        # Create mouse device in inventory
+        mouse_device = MouseDevice.objects.create(
+            company_name=data['mouse_company_name'],
+            label_no=data['mouse_label_no'],
+            status='available',
+            notes=data.get('notes', '')
         )
         
         return JsonResponse({
             'success': True,
-            'message': 'Mouse added successfully',
-            'id': system.id
+            'message': 'Mouse added successfully to inventory',
+            'id': mouse_device.id,
+            'company_name': mouse_device.company_name,
+            'label_no': mouse_device.label_no
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -960,7 +973,7 @@ def add_device_mouse(request):
 
 @login_required
 def add_device_headphone(request):
-    """API to add headphone device"""
+    """API to add headphone device to inventory"""
     if not request.user.is_staff and not request.user.is_superuser:
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
@@ -970,27 +983,30 @@ def add_device_headphone(request):
     try:
         data = json.loads(request.body)
         
-        # Use existing employee for inventory devices
-        inventory_employee = Employee.objects.first()
-        if not inventory_employee:
-            return JsonResponse({'error': 'No employees found in the system. Please add an employee first.'}, status=400)
+        # Validate required fields
+        required_fields = ['headphone_company_name', 'headphone_label_no']
+        for field in required_fields:
+            if not data.get(field):
+                return JsonResponse({'error': f'{field} is required'}, status=400)
         
-        # Create minimal SystemDetail for headphone
-        system = SystemDetail.objects.create(
-            employee=inventory_employee,
-            has_headphone=True,
-            headphone_company_name=data.get('headphone_company_name', ''),
-            headphone_label_no=data.get('headphone_label_no', ''),
-            headphone_allocated=data.get('headphone_allocated', False),
-            system_type='windows',
-            is_active=False,
-            allocated_by=request.user
+        # Check if label number already exists
+        if HeadphoneDevice.objects.filter(label_no=data['headphone_label_no']).exists():
+            return JsonResponse({'error': 'Headphone with this label number already exists'}, status=400)
+        
+        # Create headphone device in inventory
+        headphone_device = HeadphoneDevice.objects.create(
+            company_name=data['headphone_company_name'],
+            label_no=data['headphone_label_no'],
+            status='available',
+            notes=data.get('notes', '')
         )
         
         return JsonResponse({
             'success': True,
-            'message': 'Headphone added successfully',
-            'id': system.id
+            'message': 'Headphone added successfully to inventory',
+            'id': headphone_device.id,
+            'company_name': headphone_device.company_name,
+            'label_no': headphone_device.label_no
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -998,7 +1014,7 @@ def add_device_headphone(request):
 
 @login_required
 def add_device_extender(request):
-    """API to add extender device"""
+    """API to add Extender device to inventory"""
     if not request.user.is_staff and not request.user.is_superuser:
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
@@ -1008,27 +1024,139 @@ def add_device_extender(request):
     try:
         data = json.loads(request.body)
         
-        # Use existing employee for inventory devices
-        inventory_employee = Employee.objects.first()
-        if not inventory_employee:
-            return JsonResponse({'error': 'No employees found in the system. Please add an employee first.'}, status=400)
+        # Validate required fields
+        required_fields = ['extender_name', 'extender_label']
+        for field in required_fields:
+            if not data.get(field):
+                return JsonResponse({'error': f'{field} is required'}, status=400)
         
-        # Create minimal SystemDetail for extender
-        system = SystemDetail.objects.create(
-            employee=inventory_employee,
-            has_extender=True,
-            extender_name=data.get('extender_name', ''),
-            extender_label=data.get('extender_label', ''),
-            extender_allocated=data.get('extender_allocated', False),
-            system_type='windows',
-            is_active=False,
-            allocated_by=request.user
+        # Check if label number already exists
+        if ExtenderDevice.objects.filter(label_no=data['extender_label']).exists():
+            return JsonResponse({'error': 'Extender with this label number already exists'}, status=400)
+        
+        # Create extender device in inventory
+        extender_device = ExtenderDevice.objects.create(
+            company_name=data['extender_name'],
+            label_no=data['extender_label'],
+            model=data.get('extender_model', ''),
+            status='available',
+            notes=data.get('notes', '')
         )
         
         return JsonResponse({
             'success': True,
-            'message': 'Extender added successfully',
-            'id': system.id
+            'message': 'Extender added successfully to inventory',
+            'id': extender_device.id,
+            'company_name': extender_device.company_name,
+            'label_no': extender_device.label_no
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def get_cpu_systems(request):
+    """API to get all CPU systems"""
+    if not request.user.is_staff and not request.user.is_superuser:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    try:
+        cpus = CPUDevice.objects.all().values('company_name', 'processor', 'ram', 'storage', 'label_no', 'mac_address', 'status')
+        cpu_list = list(cpus)
+        
+        return JsonResponse({
+            'success': True,
+            'systems': cpu_list
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def get_screen_systems(request):
+    """API to get all Screen systems"""
+    if not request.user.is_staff and not request.user.is_superuser:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    try:
+        screens = ScreenDevice.objects.all().values('company_name', 'size', 'label_no', 'status')
+        screen_list = list(screens)
+        
+        return JsonResponse({
+            'success': True,
+            'systems': screen_list
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def get_keyboard_systems(request):
+    """API to get all Keyboard systems"""
+    if not request.user.is_staff and not request.user.is_superuser:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    try:
+        keyboards = KeyboardDevice.objects.all().values('company_name', 'label_no', 'status')
+        keyboard_list = list(keyboards)
+        
+        return JsonResponse({
+            'success': True,
+            'systems': keyboard_list
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def get_mouse_systems(request):
+    """API to get all Mouse systems"""
+    if not request.user.is_staff and not request.user.is_superuser:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    try:
+        mice = MouseDevice.objects.all().values('company_name', 'label_no', 'status')
+        mouse_list = list(mice)
+        
+        return JsonResponse({
+            'success': True,
+            'systems': mouse_list
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def get_headphone_systems(request):
+    """API to get all Headphone systems"""
+    if not request.user.is_staff and not request.user.is_superuser:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    try:
+        headphones = HeadphoneDevice.objects.all().values('company_name', 'label_no', 'status')
+        headphone_list = list(headphones)
+        
+        return JsonResponse({
+            'success': True,
+            'systems': headphone_list
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def get_extender_systems(request):
+    """API to get all Extender systems"""
+    if not request.user.is_staff and not request.user.is_superuser:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    try:
+        extenders = ExtenderDevice.objects.all().values('company_name', 'model', 'label_no', 'status')
+        extender_list = list(extenders)
+        
+        return JsonResponse({
+            'success': True,
+            'systems': extender_list
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)

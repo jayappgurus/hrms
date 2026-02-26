@@ -2,7 +2,7 @@ from django import forms
 from datetime import date
 from django.core.validators import RegexValidator, EmailValidator
 from django.contrib.auth.models import User
-from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday, DeviceRequest, AccountManagement, Device
+from .models import Employee, Department, Designation, EmergencyContact, EmployeeDocument, LeaveType, LeaveApplication, PublicHoliday, DeviceRequest, AccountManagement, Device, CPUDevice, ScreenDevice, KeyboardDevice, MouseDevice, HeadphoneDevice
 
 class EmergencyContactForm(forms.ModelForm):
     class Meta:
@@ -714,7 +714,7 @@ class AccountManagementForm(forms.ModelForm):
         fields = [
             'name', 'email', 'email_password', 'teams', 'teams_password',
             'basecamp_password', 'system_password', 'github', 'github_password',
-            'notes', 'is_active'
+            'apple_store_id', 'apple_password', 'is_active'
         ]
         widgets = {
             'name': forms.TextInput(attrs={
@@ -753,10 +753,13 @@ class AccountManagementForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Enter GitHub password'
             }),
-            'notes': forms.Textarea(attrs={
+            'apple_store_id': forms.TextInput(attrs={
                 'class': 'form-control',
-                'rows': 3,
-                'placeholder': 'Enter any additional notes'
+                'placeholder': 'Enter Apple Store ID or email'
+            }),
+            'apple_password': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter Apple Store password'
             }),
             'is_active': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
@@ -775,5 +778,85 @@ class AccountManagementForm(forms.ModelForm):
         self.fields['system_password'].help_text = "System/login password"
         self.fields['github'].help_text = "GitHub username"
         self.fields['github_password'].help_text = "GitHub password"
-        self.fields['notes'].help_text = "Additional notes or comments"
+        self.fields['apple_store_id'].help_text = "Apple Store ID or email"
+        self.fields['apple_password'].help_text = "Apple Store password"
         self.fields['is_active'].help_text = "Whether this account is currently active"
+        
+        # For editing, show existing password values
+        if self.instance and self.instance.pk:
+            password_fields = ['email_password', 'teams_password', 'basecamp_password', 'system_password', 'github_password', 'apple_password']
+            for field_name in password_fields:
+                field_value = getattr(self.instance, field_name, '')
+                if field_value:
+                    self.fields[field_name].widget.attrs['value'] = field_value
+
+
+# Device Inventory Forms
+class CPUDeviceForm(forms.ModelForm):
+    """Form for CPU Device management"""
+    class Meta:
+        model = CPUDevice
+        fields = ['company_name', 'processor', 'ram', 'storage', 'label_no', 'mac_address', 'status', 'notes']
+        widgets = {
+            'company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Dell, HP, Lenovo'}),
+            'processor': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Intel i7, AMD Ryzen 5'}),
+            'ram': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 16GB DDR4'}),
+            'storage': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 512GB SSD'}),
+            'label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique label/asset number'}),
+            'mac_address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '00:1B:44:11:3A:B7'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional notes...'}),
+        }
+
+
+class ScreenDeviceForm(forms.ModelForm):
+    """Form for Screen Device management"""
+    class Meta:
+        model = ScreenDevice
+        fields = ['company_name', 'size', 'label_no', 'status', 'notes']
+        widgets = {
+            'company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Dell, LG, Samsung'}),
+            'size': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 24 inch, 27 inch'}),
+            'label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique label/asset number'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional notes...'}),
+        }
+
+
+class KeyboardDeviceForm(forms.ModelForm):
+    """Form for Keyboard Device management"""
+    class Meta:
+        model = KeyboardDevice
+        fields = ['company_name', 'label_no', 'status', 'notes']
+        widgets = {
+            'company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Logitech, Dell'}),
+            'label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique label/asset number'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional notes...'}),
+        }
+
+
+class MouseDeviceForm(forms.ModelForm):
+    """Form for Mouse Device management"""
+    class Meta:
+        model = MouseDevice
+        fields = ['company_name', 'label_no', 'status', 'notes']
+        widgets = {
+            'company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Logitech, Dell'}),
+            'label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique label/asset number'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional notes...'}),
+        }
+
+
+class HeadphoneDeviceForm(forms.ModelForm):
+    """Form for Headphone Device management"""
+    class Meta:
+        model = HeadphoneDevice
+        fields = ['company_name', 'label_no', 'status', 'notes']
+        widgets = {
+            'company_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Sony, Bose, JBL'}),
+            'label_no': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique label/asset number'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional notes...'}),
+        }

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views_job
 from . import views_user_management
 from . import views_department
@@ -16,7 +16,6 @@ from . import views_system_management
 from . import views_validation
 app_name = 'employees'
 urlpatterns = [
-     
     # Performance Evaluation
     path('performance/evaluations/', views_performance.EvaluationDashboardView.as_view(), name='evaluation_dashboard'),
     path('performance/trainee-intern-evaluations/', views_performance.TraineeInternEvaluationDashboardView.as_view(), name='trainee_intern_evaluation_dashboard'),
@@ -203,6 +202,14 @@ urlpatterns = [
     path('api/add-device-mouse/', views_system_management.add_device_mouse, name='add_device_mouse'),
     path('api/add-device-headphone/', views_system_management.add_device_headphone, name='add_device_headphone'),
     path('api/add-device-extender/', views_system_management.add_device_extender, name='add_device_extender'),
+    
+    # Device List APIs
+    path('api/get-cpu-systems/', views_system_management.get_cpu_systems, name='get_cpu_systems'),
+    path('api/get-screen-systems/', views_system_management.get_screen_systems, name='get_screen_systems'),
+    path('api/get-keyboard-systems/', views_system_management.get_keyboard_systems, name='get_keyboard_systems'),
+    path('api/get-mouse-systems/', views_system_management.get_mouse_systems, name='get_mouse_systems'),
+    path('api/get-headphone-systems/', views_system_management.get_headphone_systems, name='get_headphone_systems'),
+    path('api/get-extender-systems/', views_system_management.get_extender_systems, name='get_extender_systems'),
 
     # Form Validation Endpoints
     path('validate/employee/', views_validation.validate_employee_form, name='validate_employee'),
@@ -212,13 +219,12 @@ urlpatterns = [
     path('validate/leave-type/', views_validation.validate_leave_type_form, name='validate_leave_type'),
     path('validate/device-request/', views_validation.validate_device_request_form, name='validate_device_request'),
     path('validate/account-management/', views_validation.validate_account_management_form, name='validate_account_management'),
-    path('validate/job-description/', views_validation.validate_job_description_form, name='validate_job_description'),
-    path('validate/job-application/', views_validation.validate_job_application_form, name='validate_job_application'),
-    path('validate/interview-schedule/', views_validation.validate_interview_schedule_form, name='validate_interview_schedule'),
-    path('validate/system-detail/', views_validation.validate_system_detail_form, name='validate_system_detail'),
-    path('validate/system-requirement/', views_validation.validate_system_requirement_form, name='validate_system_requirement'),
-    path('validate/user-create/', views_validation.validate_user_create_form, name='validate_user_create'),
-    path('validate/user-profile/', views_validation.validate_user_profile_form, name='validate_user_profile'),
 
+path('validate/job-description/', views_validation.validate_job_description_form, name='validate_job_description'),
+path('validate/job-application/', views_validation.validate_job_application_form, name='validate_job_application'),
+path('validate/interview-schedule/', views_validation.validate_interview_schedule_form, name='validate_interview_schedule'),
+path('validate/system-detail/', views_validation.validate_system_detail_form, name='validate_system_detail'),
+path('validate/system-requirement/', views_validation.validate_system_requirement_form, name='validate_system_requirement'),
+path('validate/user-create/', views_validation.validate_user_create_form, name='validate_user_create'),
+path('validate/user-profile/', views_validation.validate_user_profile_form, name='validate_user_profile'),
 ]
-

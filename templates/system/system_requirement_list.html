@@ -164,7 +164,13 @@
         <form method="get" class="row g-3 align-items-end">
             <div class="col-md-4">
                 <label class="form-label small text-muted">Search</label>
-                <input type="text" name="search" class="form-control" placeholder="Employee or description..." value="{{ search }}">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Employee or description..." value="{{ search }}">
+                    <button type="button" class="position-absolute top-50 end-0 border-0 bg-transparent p-2 h-100 translate-middle-y pe-3" 
+                            onclick="clearSearchField('search')" title="Clear search">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
             </div>
             <div class="col-md-3">
                 <label class="form-label small text-muted">Status</label>
@@ -334,3 +340,5 @@
     </div>
 </div>
 {% endblock %}
+
+<script src="{% static 'js/ajax-clear-search.js' %}"></script>

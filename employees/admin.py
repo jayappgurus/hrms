@@ -5,7 +5,8 @@ from django.utils.html import format_html
 from .models import (
     Department, Designation, EmergencyContact, Employee, EmployeeDocument, 
     UserProfile, PublicHoliday,
-    SystemDetail, SystemRequirement
+    SystemDetail, SystemRequirement,
+    CPUDevice, ScreenDevice, KeyboardDevice, MouseDevice, HeadphoneDevice, ExtenderDevice
 )
 from .decorators import role_required
 

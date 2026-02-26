@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Create Account - HRMS Portal{% endblock %}
+{% block title %}{% if account %}Edit Account - {{ account.name }}{% else %}Create Account - HRMS Portal{% endif %}{% endblock %}
 
-{% block page_title %}Create Account{% endblock %}
+{% block page_title %}{% if account %}Edit Account{% else %}Create Account{% endif %}{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -11,12 +11,12 @@
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="card border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
-                <div class="card-header bg-gradient p-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px 16px 0 0;">
+                <div class="card-header bg-gradient p-4">
                     <div class="mb-0 fw-bold d-flex gap-3">
                         <div><i class="bi bi-person-plus fs-2"></i></div>
                         <div>
-                            <h4 class="mb-0 fw-bold">Create New Account</h4>
-                            <p class="text-muted mb-0">Add a new system account credential to your team</p>
+                            <h4 class="mb-0 fw-bold">{% if account %}Edit Account{% else %}Create New Account{% endif %}</h4>
+                            <p class="text-muted mb-0">{% if account %}Update account credentials for {{ account.name }}{% else %}Add a new system account credential to your team{% endif %}</p>
                         </div>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                                 <h6 class="form-section-title">Account Information</h6>
                             </div>
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="input-form-group mb-3">
                                         <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">Account Name</label>
                                         {{ form.name }}
@@ -42,12 +42,26 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="input-form-group mb-3">
                                         <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">Email Address</label>
                                         {{ form.email }}
                                         {% if form.email.errors %}
                                         <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.email_password.id_for_label }}" class="form-label fw-semibold">Email Password</label>
+                                        <div class="input-group">
+                                            {{ form.email_password }}
+                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('email_password')">
+                                                <i class="bi bi-eye" id="email_password_toggle"></i>
+                                            </button>
+                                        </div>
+                                        {% if form.email_password.errors %}
+                                        <div class="text-danger small mt-1">{{ form.email_password.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -63,20 +77,6 @@
                                 <h6 class="form-section-title">Security Credentials</h6>
                             </div>
                             <div class="row g-3">
-                                <div class="col-md-4">
-                                    <div class="input-form-group mb-3">
-                                        <label for="{{ form.email_password.id_for_label }}" class="form-label fw-semibold">Email Password</label>
-                                        <div class="input-group">
-                                            {{ form.email_password }}
-                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('email_password')">
-                                                <i class="bi bi-eye" id="email_password_toggle"></i>
-                                            </button>
-                                        </div>
-                                        {% if form.email_password.errors %}
-                                        <div class="text-danger small mt-1">{{ form.email_password.errors.0 }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
                                 <div class="col-md-4">
                                     <div class="input-form-group mb-3">
                                         <label for="{{ form.teams.id_for_label }}" class="form-label fw-semibold">Microsoft Teams</label>
@@ -152,26 +152,49 @@
                                 <h6 class="form-section-title">Development Tools</h6>
                             </div>
                             <div class="row g-3">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div class="input-form-group mb-3">
                                         <label for="{{ form.github.id_for_label }}" class="form-label fw-semibold">GitHub</label>
-                                        <div class="input-group">
-                                            {{ form.github }}
-                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('github_password')">
-                                                <i class="bi bi-eye" id="github_password_toggle"></i>
-                                            </button>
-                                        </div>
+                                        {{ form.github }}
                                         {% if form.github.errors %}
                                         <div class="text-danger small mt-1">{{ form.github.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-6">
                                     <div class="input-form-group mb-3">
-                                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold">Notes</label>
-                                        {{ form.notes }}
-                                        {% if form.notes.errors %}
-                                        <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+                                        <label for="{{ form.github_password.id_for_label }}" class="form-label fw-semibold">GitHub Password</label>
+                                        <div class="input-group">
+                                            {{ form.github_password }}
+                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('github_password')">
+                                                <i class="bi bi-eye" id="github_password_toggle"></i>
+                                            </button>
+                                        </div>
+                                        {% if form.github_password.errors %}
+                                        <div class="text-danger small mt-1">{{ form.github_password.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.apple_store_id.id_for_label }}" class="form-label fw-semibold">Apple Store ID</label>
+                                        {{ form.apple_store_id }}
+                                        {% if form.apple_store_id.errors %}
+                                        <div class="text-danger small mt-1">{{ form.apple_store_id.errors.0 }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-form-group mb-3">
+                                        <label for="{{ form.apple_password.id_for_label }}" class="form-label fw-semibold">Apple Password</label>
+                                        <div class="input-group">
+                                            {{ form.apple_password }}
+                                            <button type="button" class="btn btn-outline-primary position-absolute border-0" style="right: 0px; top: 50%; transform: translateY(-50%); z-index: 10;" onclick="togglePassword('apple_password')">
+                                                <i class="bi bi-eye" id="apple_password_toggle"></i>
+                                            </button>
+                                        </div>
+                                        {% if form.apple_password.errors %}
+                                        <div class="text-danger small mt-1">{{ form.apple_password.errors.0 }}</div>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -188,10 +211,9 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input" id="{{ form.is_active.id_for_label }}" name="{{ form.is_active.name }}">
+                                    <div class="form-check form-switch justify-content-start">
+                                        <input type="checkbox" class="form-check-input" id="{{ form.is_active.id_for_label }}" name="{{ form.is_active.name }}" {% if account and account.is_active %}checked{% endif %}>
                                         <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                            <span class="form-check-text">Active Account</span>
                                             <span class="form-check-description">Enable this account for system access</span>
                                         </label>
                                     </div>
@@ -207,7 +229,7 @@
                             </a>
                             <button type="submit" class="btn btn-primary px-4">
                                 <i class="bi bi-check-circle me-2"></i>
-                                Create Account
+                                {% if account %}Update Account{% else %}Create Account{% endif %}
                             </button>
                         </div>
                     </form>
@@ -280,11 +302,6 @@ document.addEventListener('DOMContentLoaded', function() {
     transition: all 0.3s ease;
 }
 
-.card-header.bg-gradient {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px 16px 0 0;
-}
-
 .form-section {
     background: #f8f9fa;
     padding: 20px;
@@ -302,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .form-section-icon {
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #332666;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -311,30 +328,123 @@ document.addEventListener('DOMContentLoaded', function() {
     color: white;
     font-size: 20px;
 }
+
+/* Password toggle button styling */
+.input-group {
+    position: relative;
+}
+
+.input-group .btn[position-absolute] {
+    background: none !important;
+    border: none !important;
+    color: #6c757d !important;
+    padding: 0.375rem 0.75rem;
+    transition: color 0.15s ease-in-out;
+}
+
+.input-group .btn[position-absolute]:hover {
+    color: #007bff !important;
+    background: none !important;
+}
+
+.input-group .btn[position-absolute]:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.input-group input {
+    padding-right: 2.5rem !important;
+}
 </style>
 
 <script>
 function togglePassword(fieldId) {
-    const field = document.getElementById(fieldId);
-    const toggle = document.getElementById(fieldId + '_toggle');
+    console.log('Toggling password for field:', fieldId);
     
-    if (field.type === 'password') {
-        field.type = 'text';
-        toggle.classList.remove('bi-eye');
-        toggle.classList.add('bi-eye-slash');
+    // Try different possible ID formats
+    const possibleIds = [
+        fieldId,
+        'id_' + fieldId,
+        fieldId.replace('_', '-')
+    ];
+    
+    let field = null;
+    let toggle = null;
+    
+    // Find the field and toggle
+    for (const id of possibleIds) {
+        field = document.getElementById(id);
+        toggle = document.getElementById(id + '_toggle');
+        if (field && toggle) {
+            console.log('Found field with ID:', id);
+            break;
+        }
+    }
+    
+    // If still not found, try to find by name attribute
+    if (!field) {
+        field = document.querySelector(`input[name="${fieldId}"]`);
+        if (field) {
+            // Find the toggle button in the same input-group
+            toggle = field.closest('.input-group')?.querySelector('[id$="_toggle"]');
+        }
+    }
+    
+    console.log('Field found:', !!field);
+    console.log('Toggle found:', !!toggle);
+    console.log('Current field type:', field ? field.type : 'field not found');
+    
+    if (field && toggle) {
+        if (field.type === 'password') {
+            field.type = 'text';
+            toggle.classList.remove('bi-eye');
+            toggle.classList.add('bi-eye-slash');
+            console.log('Changed to text');
+        } else {
+            field.type = 'password';
+            toggle.classList.remove('bi-eye-slash');
+            toggle.classList.add('bi-eye');
+            console.log('Changed to password');
+        }
     } else {
-        field.type = 'password';
-        toggle.classList.remove('bi-eye-slash');
-        toggle.classList.add('bi-eye');
+        console.error('Field or toggle not found for:', fieldId);
+        console.log('Available input fields:', Array.from(document.querySelectorAll('input')).map(el => el.id || el.name));
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize password visibility toggles
-    const passwordFields = ['email_password', 'teams_password', 'basecamp_password', 'system_password', 'github_password'];
+    const passwordFields = ['email_password', 'teams_password', 'basecamp_password', 'system_password', 'github_password', 'apple_password'];
+    
     passwordFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        const toggle = document.getElementById(fieldId + '_toggle');
+        const possibleIds = [
+            fieldId,
+            'id_' + fieldId,
+            fieldId.replace('_', '-')
+        ];
+        
+        let field = null;
+        let toggle = null;
+        
+        for (const id of possibleIds) {
+            field = document.getElementById(id);
+            toggle = document.getElementById(id + '_toggle');
+            if (field && toggle) {
+                console.log('Initializing field with ID:', id);
+                break;
+            }
+        }
+        
+        // If still not found, try to find by name attribute
+        if (!field) {
+            field = document.querySelector(`input[name="${fieldId}"]`);
+            if (field) {
+                toggle = field.closest('.input-group')?.querySelector('[id$="_toggle"]');
+            }
+        }
+        
+        console.log('Initializing field:', fieldId, 'Field found:', !!field, 'Toggle found:', !!toggle);
+        
         if (field && toggle) {
             field.type = 'password';
             toggle.classList.remove('bi-eye-slash');

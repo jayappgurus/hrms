@@ -193,6 +193,9 @@
                                 <input type="text" name="search" class="search-bar-input"
                                     placeholder="Search openings by title, department, or skills..."
                                     value="{{ search_form.search.value|default:'' }}">
+                                <button type="button" class="search-clear-btn" onclick="clearSearchField('search')" title="Clear search">
+                                    <i class="bi bi-x"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -447,4 +450,35 @@
             });
         }
     </script>
+
+    <script src="{% static 'js/ajax-clear-search.js' %}"></script>
+
+    <style>
+    .search-clear-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+    }
+
+    .search-clear-btn:hover {
+        background-color: #f8f9fa;
+        color: #495057;
+    }
+
+    .search-bar-wrapper {
+        position: relative;
+    }
+    </style>
     {% endblock %}

@@ -248,20 +248,3 @@ fieldset.collapse h2 {
         font-size: 0.9rem;
     }
 }
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    #nav-sidebar {
-        background: #2d3748;
-        border-right: 1px solid #4a5568;
-    }
-    
-    .dashboard .module {
-        background: #2d3748;
-        color: #e2e8f0;
-    }
-    
-    .form-row label {
-        color: #e2e8f0;
-    }
-}

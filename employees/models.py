@@ -1074,51 +1074,28 @@ class SystemDetail(models.Model):
     )
 
     # CPU Details
-
-    cpu_ram = models.CharField(max_length=50, help_text="e.g., 16GB DDR4")
-
-    cpu_storage = models.CharField(max_length=50, help_text="e.g., 512GB SSD")
-
-    cpu_company_name = models.CharField(max_length=100, help_text="e.g., Dell, HP, Lenovo")
-
-    cpu_processor = models.CharField(max_length=100, help_text="e.g., Intel i7, AMD Ryzen 5")
-
-    cpu_label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
-
+    cpu_ram = models.CharField(max_length=50, blank=True, null=True, help_text="e.g., 16GB DDR4")
+    cpu_storage = models.CharField(max_length=50, blank=True, null=True, help_text="e.g., 512GB SSD")
+    cpu_company_name = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Dell, HP, Lenovo")
+    cpu_processor = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Intel i7, AMD Ryzen 5")
+    cpu_label_no = models.CharField(max_length=100, blank=True, null=True, unique=True, help_text="Unique label/asset number")
     
-
     # Screen Details
-
-    screen_company_name = models.CharField(max_length=100, help_text="e.g., Dell, LG, Samsung")
-
-    screen_label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
-
-    screen_size = models.CharField(max_length=20, help_text="e.g., 24 inch, 27 inch")
-
+    screen_company_name = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Dell, LG, Samsung")
+    screen_label_no = models.CharField(max_length=100, blank=True, null=True, unique=True, help_text="Unique label/asset number")
+    screen_size = models.CharField(max_length=20, blank=True, null=True, help_text="e.g., 24 inch, 27 inch")
     
-
     # Keyboard Details
-
-    keyboard_company_name = models.CharField(max_length=100, help_text="e.g., Logitech, Dell")
-
-    keyboard_label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
-
+    keyboard_company_name = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Logitech, Dell")
+    keyboard_label_no = models.CharField(max_length=100, blank=True, null=True, unique=True, help_text="Unique label/asset number")
     
-
     # Mouse Details
-
-    mouse_company_name = models.CharField(max_length=100, help_text="e.g., Logitech, Dell")
-
-    mouse_label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
-
+    mouse_company_name = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Logitech, Dell")
+    mouse_label_no = models.CharField(max_length=100, blank=True, null=True, unique=True, help_text="Unique label/asset number")
     
-
     # Headphone Details (Optional)
-
     has_headphone = models.BooleanField(default=False, help_text="Does employee have headphone?")
-
     headphone_company_name = models.CharField(max_length=100, blank=True, null=True)
-
     headphone_label_no = models.CharField(max_length=100, blank=True, null=True, unique=True)
 
     
@@ -1483,7 +1460,8 @@ class AccountManagement(models.Model):
     system_password = models.CharField(max_length=255, help_text="System/login password")
     github = models.CharField(max_length=255, blank=True, help_text="GitHub username")
     github_password = models.CharField(max_length=255, blank=True, help_text="GitHub password")
-    notes = models.TextField(blank=True, help_text="Additional notes or comments")
+    apple_store_id = models.CharField(max_length=255, blank=True, help_text="Apple Store ID or email")
+    apple_password = models.CharField(max_length=255, blank=True, help_text="Apple Store password")
     is_active = models.BooleanField(default=True, help_text="Whether this account is currently active")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -1495,3 +1473,174 @@ class AccountManagement(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.email}"
+
+
+# Device Inventory Models
+class CPUDevice(models.Model):
+    """Model for CPU/Computer inventory"""
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('allocated', 'Allocated'),
+        ('maintenance', 'Under Maintenance'),
+        ('retired', 'Retired'),
+    ]
+    
+    company_name = models.CharField(max_length=100, help_text="e.g., Dell, HP, Lenovo")
+    processor = models.CharField(max_length=100, help_text="e.g., Intel i7, AMD Ryzen 5")
+    ram = models.CharField(max_length=50, help_text="e.g., 16GB DDR4")
+    storage = models.CharField(max_length=50, help_text="e.g., 512GB SSD")
+    label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    mac_address = models.CharField(max_length=17, unique=True, help_text="MAC Address (e.g., 00:1B:44:11:3A:B7)")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    allocated_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='allocated_cpus')
+    allocated_date = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "CPU Device"
+        verbose_name_plural = "CPU Devices"
+        ordering = ['label_no']
+    
+    def __str__(self):
+        return f"{self.company_name} CPU - {self.label_no}"
+
+
+class ScreenDevice(models.Model):
+    """Model for Screen/Monitor inventory"""
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('allocated', 'Allocated'),
+        ('maintenance', 'Under Maintenance'),
+        ('retired', 'Retired'),
+    ]
+    
+    company_name = models.CharField(max_length=100, help_text="e.g., Dell, LG, Samsung")
+    size = models.CharField(max_length=20, help_text="e.g., 24 inch, 27 inch")
+    label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    allocated_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='allocated_screens')
+    allocated_date = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Screen Device"
+        verbose_name_plural = "Screen Devices"
+        ordering = ['label_no']
+    
+    def __str__(self):
+        return f"{self.company_name} Screen - {self.label_no}"
+
+
+class KeyboardDevice(models.Model):
+    """Model for Keyboard inventory"""
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('allocated', 'Allocated'),
+        ('maintenance', 'Under Maintenance'),
+        ('retired', 'Retired'),
+    ]
+    
+    company_name = models.CharField(max_length=100, help_text="e.g., Logitech, Dell")
+    label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    allocated_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='allocated_keyboards')
+    allocated_date = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Keyboard Device"
+        verbose_name_plural = "Keyboard Devices"
+        ordering = ['label_no']
+    
+    def __str__(self):
+        return f"{self.company_name} Keyboard - {self.label_no}"
+
+
+class MouseDevice(models.Model):
+    """Model for Mouse inventory"""
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('allocated', 'Allocated'),
+        ('maintenance', 'Under Maintenance'),
+        ('retired', 'Retired'),
+    ]
+    
+    company_name = models.CharField(max_length=100, help_text="e.g., Logitech, Dell")
+    label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    allocated_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='allocated_mice')
+    allocated_date = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Mouse Device"
+        verbose_name_plural = "Mouse Devices"
+        ordering = ['label_no']
+    
+    def __str__(self):
+        return f"{self.company_name} Mouse - {self.label_no}"
+
+
+class HeadphoneDevice(models.Model):
+    """Model for Headphone inventory"""
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('allocated', 'Allocated'),
+        ('maintenance', 'Under Maintenance'),
+        ('retired', 'Retired'),
+    ]
+    
+    company_name = models.CharField(max_length=100, help_text="e.g., Sony, Bose, JBL")
+    label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    allocated_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='allocated_headphones')
+    allocated_date = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Headphone Device"
+        verbose_name_plural = "Headphone Devices"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.company_name} Headphone - {self.label_no}"
+
+
+class ExtenderDevice(models.Model):
+    """Model for Network Extender inventory"""
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('allocated', 'Allocated'),
+        ('maintenance', 'Under Maintenance'),
+        ('retired', 'Retired'),
+    ]
+    
+    company_name = models.CharField(max_length=100, help_text="e.g., TP-Link, Netgear, D-Link")
+    label_no = models.CharField(max_length=100, unique=True, help_text="Unique label/asset number")
+    model = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., TL-WA850RE, EX6200")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    allocated_to = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True, related_name='extender_allocations')
+    allocated_date = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Extender Device"
+        verbose_name_plural = "Extender Devices"
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.company_name} Extender - {self.label_no}"
